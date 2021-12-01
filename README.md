@@ -115,7 +115,7 @@ curl --user "download:xfcAusGvj11o1v_dVAgy" -o "geth-pocr" "https://gitlab.com/a
 ``` 
 
 
-## Building geth for linux from a mac os using Docker
+## Building geth for linux from a mac os using Docker - ATTENTION only use to run in DOCKER
 
 This is for testing (the intention is to integrate this in a CI/CD)
 
@@ -143,5 +143,7 @@ Last command will output:
     PoCR Prototype=true
 ```
 
-## Building by CI/CD
+## Building by CI/CD using a non alpine docker image
 See project CI at https://gitlab.com/saturnproject/pocr/go-ethereum
+
+Note compiling in an alpine image works but create a binary that links to a library not present in ubuntu (the target) so we need to use a golang image that is the default `golang:1.17`
