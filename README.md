@@ -109,6 +109,12 @@ sudo apt-get install ethereum
 geth version # to test install is ok
 ```
 
+- download the `geth` customized version with PoCR consensus
+```sh
+curl --user "download:xfcAusGvj11o1v_dVAgy" -o "geth-pocr" "https://gitlab.com/api/v4/projects/31761764/packages/generic/geth/latest/geth"
+``` 
+
+
 ## Building geth for linux from a mac os using Docker
 
 This is for testing (the intention is to integrate this in a CI/CD)
@@ -136,3 +142,6 @@ Last command will output:
     GOROOT=go
     PoCR Prototype=true
 ```
+
+## Building by CI/CD
+See project CI at https://gitlab.com/saturnproject/pocr/go-ethereum
