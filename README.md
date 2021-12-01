@@ -108,3 +108,31 @@ sudo apt-get update
 sudo apt-get install ethereum
 geth version # to test install is ok
 ```
+
+## Building geth for linux from a mac os using Docker
+
+This is for testing (the intention is to integrate this in a CI/CD)
+
+```sh
+# from the dev folder of go-ethereum
+docker run --rm -it --entrypoint /bin/sh -v `pwd`:/go-ethereum golang:1.17-alpine 
+apk add --no-cache gcc musl-dev linux-headers git
+cd /go-ethereum/
+go run build/ci.go install ./cmd/geth # runs the compilation
+
+# test 
+./build/bin/geth version
+```
+Last command will output:
+```
+    Geth
+    Version: 1.10.14-unstable
+    Git Commit: c10a0a62c3537fbcf899358e3c3d6be9507fa18c
+    Git Commit Date: 20211126
+    Architecture: amd64
+    Go Version: go1.17.3
+    Operating System: linux
+    GOPATH=/go
+    GOROOT=go
+    PoCR Prototype=true
+```
