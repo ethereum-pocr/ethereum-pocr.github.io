@@ -72,3 +72,31 @@ Then follow instructions
 
 }
    ```
+   - Create the `/etc/nginx/snippets/geth-locations.conf` file as follow
+   ```
+  location ^~ /ws {
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-NginX-Proxy true;
+      proxy_pass   http://127.0.0.1:8546/;
+  }
+
+  location ^~ /rpc {
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-NginX-Proxy true;
+      proxy_pass    http://127.0.0.1:8545/;
+  }
+
+   ```
+Save and test the configuration with `nginx -t` or `nginx -T` to also display the conf.    
+If ok, restart nginx: `nginx -s reload` 
+
