@@ -43,7 +43,7 @@ Then follow instructions
 
 - configure nginx reverse proxy rules to reach the json rpc interface of geth
    - edit `/etc/nginx/site-enabled/default` to add in the https section the inclusion of the geth locations
-   ```
+```
     server {
 
         # SSL configuration
@@ -71,9 +71,9 @@ Then follow instructions
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 
 }
-   ```
+```
    - Create the `/etc/nginx/snippets/geth-locations.conf` file as follow
-   ```
+```
   location ^~ /ws {
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
@@ -96,7 +96,7 @@ Then follow instructions
       proxy_pass    http://127.0.0.1:8545/;
   }
 
-   ```
+```
 Save and test the configuration with `nginx -t` or `nginx -T` to also display the conf.    
 If ok, restart nginx: `nginx -s reload` 
 
