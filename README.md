@@ -100,3 +100,11 @@ Then follow instructions
 Save and test the configuration with `nginx -t` or `nginx -T` to also display the conf.    
 If ok, restart nginx: `nginx -s reload` 
 
+- Install geth and tools from the standard repo (we will install our customized version after)
+```sh
+sudo apt-get install software-properties-common
+sudo add-apt-repository -y ppa:ethereum/ethereum
+sudo apt-get update
+sudo apt-get install ethereum
+geth version # to test install is ok
+```
