@@ -6,7 +6,7 @@ Prototyping the network of nodes and the Proof of Carbon Reduction consensus
 
 * https://saturn-pocr-1.uksouth.cloudapp.azure.com
 
-## Initial VM setup in cloud
+## Initialize VM in cloud
 Assumption of a IaaS approach to be as independant as possible from the cloud providers specificities
 
 - Span a ubuntu Vm in your cloud provider (here we are using a 1CPU 1Go Mem)
@@ -114,36 +114,18 @@ geth version # to test install is ok
 curl --user "download:xfcAusGvj11o1v_dVAgy" -o "geth-pocr" "https://gitlab.com/api/v4/projects/31761764/packages/generic/geth/latest/geth"
 ``` 
 
+## Notes on the genesis file
 
-## Building geth for linux from a mac os using Docker - ATTENTION only use to run in DOCKER
+* local chain ID for dev: 1804
+* testnet chain ID: 1974
+* production chain ID : 2606
 
-This is for testing (the intention is to integrate this in a CI/CD)
+Block period set to 4 seconds for the moment
 
-```sh
-# from the dev folder of go-ethereum
-docker run --rm -it --entrypoint /bin/sh -v `pwd`:/go-ethereum golang:1.17-alpine 
-apk add --no-cache gcc musl-dev linux-headers git
-cd /go-ethereum/
-go run build/ci.go install ./cmd/geth # runs the compilation
+Initial sealer who can invite the others (in the extraData): `0x6e45c195e12d7fe5e02059f15d59c2c976a9b730` with the wallet file present in the `keystore` folder and an empty password
 
-# test 
-./build/bin/geth version
-```
-Last command will output:
-```
-    Geth
-    Version: 1.10.14-unstable
-    Git Commit: c10a0a62c3537fbcf899358e3c3d6be9507fa18c
-    Git Commit Date: 20211126
-    Architecture: amd64
-    Go Version: go1.17.3
-    Operating System: linux
-    GOPATH=/go
-    GOROOT=go
-    PoCR Prototype=true
-```
+Initial crypto generated to start the process: 1CTC provided to a single account `0xcda0bd40e7325f519f31bb3f31f68bc7d4c78903` with the wallet file present in the `keystore` folder and the password being `pocr`
 
-## Building by CI/CD using a non alpine docker image
-See project CI at https://gitlab.com/saturnproject/pocr/go-ethereum
+## Run a new node
 
-Note compiling in an alpine image works but create a binary that links to a library not present in ubuntu (the target) so we need to use a golang image that is the default `golang:1.17`
+If it is the first node, 
