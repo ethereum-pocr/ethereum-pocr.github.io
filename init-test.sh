@@ -1,5 +1,5 @@
 DATADIR=/node/data
-GENESIS=/node/genesis/saturn-test.json
+GENESIS=/node/genesis/saturn-testnet.json
 
 rm -Rf $DATADIR
 
