@@ -114,6 +114,12 @@ geth version # to test install is ok
 curl --user "download:xfcAusGvj11o1v_dVAgy" -o "geth-pocr" "https://gitlab.com/api/v4/projects/31761764/packages/generic/geth/latest/geth"
 ``` 
 
+- make it executable and place it in a bin folder
+```sh
+chmod +x ./geth-pocr
+sudo mv ./geth-pocr /usr/local/bin
+```
+
 ## Notes on the genesis file
 
 * local chain ID for dev: 1804
@@ -127,5 +133,22 @@ Initial sealer who can invite the others (in the extraData): `0x6e45c195e12d7fe5
 Initial crypto generated to start the process: 1CTC provided to a single account `0xcda0bd40e7325f519f31bb3f31f68bc7d4c78903` with the wallet file present in the `keystore` folder and the password being `pocr`
 
 ## Run a new node
+Connect as `geth` user
+Clone this repo in your node to get the necessary files
+```sh
+cd /node
+git clone https://gitlab.com/saturnproject/prototype/pocr-network.git
+copy -R pocr-network/genesis .
+copy -R pocr-network/keystore .
+```
 
-If it is the first node, 
+**If it is the first node**:
+
+run the genesis init
+```sh
+./pocr-network/init-test.sh
+```
+Launch the node for the initial sealer
+```sh
+./pocr-network/start-first-node.sh
+```
