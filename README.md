@@ -42,7 +42,7 @@ sudo certbot --nginx
 Then follow instructions
 
 - configure nginx reverse proxy rules to reach the json rpc interface of geth
-   - edit `/etc/nginx/site-enabled/default` to add in the https section the inclusion of the geth locations
+   - edit `/etc/nginx/sites-enabled/default` to add in the https section the inclusion of the geth locations
 ```
     server {
 
@@ -138,8 +138,8 @@ Clone this repo in your node to get the necessary files
 ```sh
 cd /node
 git clone https://gitlab.com/saturnproject/prototype/pocr-network.git
-copy -R pocr-network/genesis .
-copy -R pocr-network/keystore .
+cp -R pocr-network/genesis .
+
 ```
 
 **If it is the first node**:
@@ -150,5 +150,29 @@ run the genesis init
 ```
 Launch the node for the initial sealer
 ```sh
+cp -R pocr-network/keystore .
 ./pocr-network/start-first-node.sh
 ```
+Create the `enode://` url of this new node to be used as a bootnode by the others
+```sh
+# as root on the VM
+cd /var/www/html
+/node/pocs-network/enode.sh > enode
+```
+Then from outside the vm you could curl the enode `curl https://host.name.com/enode`
+
+**For subsequent nodes**:
+
+run the genesis init
+```sh
+./pocr-network/init-test.sh
+```
+
+generate a new account
+```sh
+geth account new --keystore keystore
+# then set a password twice
+# then set the password in a file to keep it (not for production!)
+echo "your password" > keystore/password.txt 
+```
+
