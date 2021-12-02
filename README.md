@@ -5,6 +5,22 @@ Prototyping the network of nodes and the Proof of Carbon Reduction consensus
 ## Nodes
 
 * https://saturn-pocr-1.uksouth.cloudapp.azure.com
+* https://saturn-pocr-2.swedencentral.cloudapp.azure.com
+* https://saturn-pocr-3.francecentral.cloudapp.azure.com
+
+## Explorer
+Before being able to use a better explorer let's start with the available online explorer
+* https://expedition.dev/?rpcUrl=https://saturn-pocr-3.francecentral.cloudapp.azure.com/rpc
+The `rpcUrl` param can be set to any node
+
+Other options would be
+- alethio/ethereum-lite-explorer
+```sh
+docker run --rm -p 8080:80 -e APP_NODE_URL=https://saturn-pocr-2.swedencentral.cloudapp.azure.com/rpc alethio/ethereum-lite-explorer
+```
+
+- https://docs.blockscout.com/
+Will need to be deployed...
 
 ## Initialize VM in cloud
 Assumption of a IaaS approach to be as independant as possible from the cloud providers specificities
@@ -189,3 +205,7 @@ They should connect to their node console directly on the node in ipc as follow.
 geth attach --exec 'clique.propose("0x77fbd81ab0eed10e714b17581663d05c3db1b786", true)' /node/data/geth.ipc
 ```
 
+If you don't need the node to mine, but just sync, 
+- do not create the account
+- do not request the other node to accept your node
+- remove the `--mine` from the shell start file 
