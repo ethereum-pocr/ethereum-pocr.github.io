@@ -176,3 +176,16 @@ geth account new --keystore keystore
 echo "your password" > keystore/password.txt 
 ```
 
+Run the node
+```sh
+./pocr-network/start-other-node.sh
+```
+The node should start synchronizing
+
+Declare your node to the network: request N/2+1 nodes to execute from their node a console command:    
+They should connect to their node console directly on the node in ipc as follow.
+```sh
+# replace the address by your new account address
+geth attach --exec 'clique.propose("0x77fbd81ab0eed10e714b17581663d05c3db1b786", true)' /node/data/geth.ipc
+```
+
