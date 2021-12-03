@@ -12,6 +12,8 @@ Prototyping the network of nodes and the Proof of Carbon Reduction consensus
 Before being able to use a better explorer let's start with the available online explorer
 * https://expedition.dev/?rpcUrl=https://saturn-pocr-3.francecentral.cloudapp.azure.com/rpc
 The `rpcUrl` param can be set to any node
+* http://pocr-testnet-9e4666.westeurope.cloudapp.azure.com/network
+A azure auto deployed version of the [Epirus proposal](https://github.com/web3labs/epirus-free). Has some flaws
 
 Other options would be
 - alethio/ethereum-lite-explorer
@@ -21,6 +23,8 @@ docker run --rm -p 8080:80 -e APP_NODE_URL=https://saturn-pocr-2.swedencentral.c
 
 - https://docs.blockscout.com/
 Will need to be deployed...
+
+None of these are ideal, in particular in the context of the Proof of Carbon Reduction. The block miner/sealer is often not correctly represented because in Clique the miner field is used for managing the new nodes votes. The actual miner/sealer is actually hidden in its signature that is the last 65bits of the extraData field. Also, We will need to monitor and visualize the node earning and that is very specific to the PoCR consensus.
 
 ## Initialize VM in cloud
 Assumption of a IaaS approach to be as independant as possible from the cloud providers specificities
