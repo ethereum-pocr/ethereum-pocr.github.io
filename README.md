@@ -4,9 +4,9 @@ Prototyping the network of nodes and the Proof of Carbon Reduction consensus
 
 ## Nodes
 
-* https://saturn-pocr-1.uksouth.cloudapp.azure.com
-* https://saturn-pocr-2.swedencentral.cloudapp.azure.com
-* https://saturn-pocr-3.francecentral.cloudapp.azure.com
+* https://saturn-pocr-1.uksouth.cloudapp.azure.com (sealer :`0x6e45c195e12d7fe5e02059f15d59c2c976a9b730`)
+* https://saturn-pocr-2.swedencentral.cloudapp.azure.com (sealer :`0x77fbd81ab0eed10e714b17581663d05c3db1b786`)
+* https://saturn-pocr-3.francecentral.cloudapp.azure.com (sealer :`0x256c87a76bae45ed389001dd40030c5c054ca1c0`)
 
 ## Explorer
 Before being able to use a better explorer let's start with the available online explorer
