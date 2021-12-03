@@ -10,9 +10,9 @@ Prototyping the network of nodes and the Proof of Carbon Reduction consensus
 
 ## Explorer
 Before being able to use a better explorer let's start with the available online explorer
-* https://expedition.dev/?rpcUrl=https://saturn-pocr-3.francecentral.cloudapp.azure.com/rpc
+* https://expedition.dev/?rpcUrl=https://saturn-pocr-3.francecentral.cloudapp.azure.com/rpc    
 The `rpcUrl` param can be set to any node
-* http://pocr-testnet-9e4666.westeurope.cloudapp.azure.com/network
+* http://pocr-testnet-9e4666.westeurope.cloudapp.azure.com/network   
 A azure auto deployed version of the [Epirus proposal](https://github.com/web3labs/epirus-free). Has some flaws
 
 Other options would be
