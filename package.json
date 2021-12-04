@@ -1,5 +1,5 @@
 {
-  "name": "smartcontracts",
+  "name": "sc-carbon-footprint",
   "version": "1.0.0",
   "description": "",
   "types": "contracts/index.d.ts",
@@ -31,7 +31,7 @@
     "@saturn-chain/smart-contract": "^1.0.4"
   },
   "mocha": {
-    "specs": [
+    "spec": [
       "**/*.spec.ts"
     ],
     "require": [
