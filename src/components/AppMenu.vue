@@ -1,11 +1,13 @@
 <template>
   <v-navigation-drawer v-model="drawer" app>
       <v-sheet color="grey lighten-4" class="pa-4">
-        <v-avatar class="mb-4" color="grey darken-1" size="64">
+        <!-- <v-avatar class="mb-4" color="grey darken-1" size="64">
           <v-icon dark>
             mdi-account-circle
           </v-icon>
-        </v-avatar>
+        </v-avatar> -->
+        <img :src="icon" alt="" srcset="">
+        <span class="text-h4"> PoCR</span>
 
         <div>{{$store.getters.userIdentity.name}}</div>
         <div>{{$store.getters.userIdentity.email}}</div>
@@ -37,11 +39,16 @@ export default {
     drawer: null,
     links: [
       ["mdi-view-dashboard-outline", "Dashboard", "dashboard"],
-      ["mdi-wallet", "Wallets", "wallets"],
-      ["mdi-wallet-plus-outline", "New wallet", "new-wallet"],
-      ["mdi-bank", "Invoices", "invoices"],
+      // ["mdi-wallet", "Wallets", "wallets"],
+      // ["mdi-wallet-plus-outline", "New wallet", "new-wallet"],
+      // ["mdi-bank", "Invoices", "invoices"],
     ],
   }),
+  computed: {
+    icon() {
+      return window.location.pathname+'/greenchain.png';
+    }
+  },
   methods: {
     ...mapActions(["goToPage"]),
     onChangeEvt(ev) {

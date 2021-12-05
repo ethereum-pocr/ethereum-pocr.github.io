@@ -1,5 +1,5 @@
 {
-  "name": "front",
+  "name": "pocr-monitoring",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,17 +11,21 @@
   "dependencies": {
     "@mdi/font": "5.9.55",
     "@mdi/js": "^6.1.95",
-    "@saturn-chain/dlt-tx-data-functions": "file:../../packages/packages/dlt-tx-data-functions",
-    "@saturn-chain/smart-contract": "file:../../packages/packages/smart-contract",
-    "@saturn-chain/wallet-custody-rest-api": "file:../../../WalletStation/code/src/port/rest/custody",
-    "@saturn-chain/web3-custody-functions": "file:../../packages/packages/web3-custody-functions",
+    "@saturn-chain/dlt-tx-data-functions": "^1.0.7",
+    "@saturn-chain/smart-contract": "^1.0.10",
+    "@saturn-chain/wallet-custody-rest-api": "^1.0.3",
+    "@saturn-chain/web3-custody-functions": "^0.0.6",
+    "@saturn-chain/web3-functions": "^1.0.8",
     "bigint-polyfill": "^0.1.0",
     "bignumber.js": "^9.0.1",
     "core-js": "^3.6.5",
+    "pocr-utils": "file:../pocr-utils",
     "roboto-fontface": "*",
+    "sc-carbon-footprint": "file:../sc-carbon-footprint",
     "vue": "^2.6.11",
     "vuetify": "^2.4.0",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "web3": "^1.6.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -46,8 +50,7 @@
       "parser": "babel-eslint"
     },
     "rules": {},
-    "ignorePatterns": [
-    ]
+    "ignorePatterns": []
   },
   "browserslist": [
     "> 1%",
