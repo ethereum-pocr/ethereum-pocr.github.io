@@ -21,6 +21,6 @@ EXT_API='eth,net,web3'
 INT_API=$EXT_API,admin,personal,txpool,clique
 
 
-nohup $GETH --datadir $DATADIR --keystore $KEYSTORE --syncmode 'full' --port 30303 --http --http.addr '0.0.0.0' --http.corsdomain "*" --http.port 8545  --http.vhosts=* --http.api $EXT_API --ws --ws.port 8546 --networkid $NET_ID --miner.gasprice '1000000000' --bootnodes $BOOTNODES  --allow-insecure-unlock --password $KEYSTORE/password.txt --unlock $COINBASE --mine 2>&1 >> /node/geth.log &
+nohup $GETH --datadir $DATADIR --keystore $KEYSTORE --syncmode 'full' --port 30303 --http --http.addr '0.0.0.0' --http.corsdomain "*" --http.port 8545  --http.vhosts=* --http.api $EXT_API --ws --ws.port 8546 --ws.origins=* --networkid $NET_ID --miner.gasprice '1000000000' --bootnodes $BOOTNODES  --allow-insecure-unlock --password $KEYSTORE/password.txt --unlock $COINBASE --mine 2>&1 >> /node/geth.log &
 
 
