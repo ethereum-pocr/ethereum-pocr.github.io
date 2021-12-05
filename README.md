@@ -8,6 +8,12 @@ Prototyping the network of nodes and the Proof of Carbon Reduction consensus
 * https://saturn-pocr-2.swedencentral.cloudapp.azure.com (sealer :`0x77fbd81ab0eed10e714b17581663d05c3db1b786`)
 * https://saturn-pocr-3.francecentral.cloudapp.azure.com (sealer :`0x256c87a76bae45ed389001dd40030c5c054ca1c0`)
 
+## Monitoring tool
+
+* https://saturn-dev.azureedge.net/pocr    
+You can also target a specific node by adding `?url=wss://server/ws` on the url. For instance: (an this is the default)
+* https://saturn-dev.azureedge.net/pocr?url=wss://saturn-pocr-3.francecentral.cloudapp.azure.com/ws
+
 ## Explorer
 Before being able to use a better explorer let's start with the available online explorer
 * https://expedition.dev/?rpcUrl=https://saturn-pocr-3.francecentral.cloudapp.azure.com/rpc    
