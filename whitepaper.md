@@ -17,11 +17,13 @@ The financial sector requirement for known sealers/miners
 
 ## 5. Calculating the reward of a node and the incentive scheme
 
-## 6. Implementing the consensus
+## 6. Monetary policy of the CTC crypto currency
+
+## 7. Implementing the consensus
 
 Starting with the go version (why?)
 
-## 7. Attack vectors and remediations
+## 8. Attack vectors and remediations
 
 
-## 8. Opening to the community
+## 9. Opening to the community
