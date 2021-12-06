@@ -22,7 +22,7 @@ Cannot yet be automated and embeded in a consensus, hence required external part
 
 The financial sector requirement for known sealers/miners
 
-## 5. Calculating the reward of a node and the incentive scheme
+## 5. Calculating the reward of a node and the incentive scheme (Tokenomics)
 
 ## 6. Monetary policy of the CTC crypto currency
 
