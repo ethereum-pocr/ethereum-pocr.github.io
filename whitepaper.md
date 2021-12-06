@@ -1,6 +1,11 @@
 # Proof of Carbon Reduction Whitepaper
 
-Introduction and context of the creation
+2021 has seen an increase of the financial sector adoption of the public blockchains to host financial instruments and to operate their ownership trasnfer against cash instruments (CBDC, Stable coins ...).
+
+Large institutions, public and private, in Europe and Asia mostly, are investing and are pushing their market to invest in the blockchain sector, considering that the blockchain technology can become progressively a substitute infrastructure for the financial market.
+
+Indeed, public blockchains are an IT infrastructure run by parties with motivations independant of the infrastructure usage.   
+This paper is not about discussing the history and background of blockchains, but let's just remind ourself that the main reason why nodes run consistently a consensus is because of their individual interest in earning a crypto currency they can sell to the highest bidder.
 
 ## 1. The problem to solve
 
