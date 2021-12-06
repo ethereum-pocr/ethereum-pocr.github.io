@@ -25,7 +25,9 @@ To obtain this code the working method for the moment is to deploy the smart con
 
 It seems that a compilation with the `--bin-runtime` flag does not produce the desired result and makes the contract fail at runtime
 
-**TODO** : a small js tool that take a normal build of the contract, deploy it in a `ganache-core` EVM and extract the runtime code to display it / save it in a file / inject it in the genesis.json file.
+The test case `extract the runtime code for the genesis block` when run produces the binary of the smart contract. Simply run `npm run test`.    
+After a normal build of the contract, the test deploys it in a `ganache-core` EVM and extract the runtime code to display it.    
+A next step could be to inject it directly in the genesis file, but since it will really not be done a lot of times, not sure it is necessary.
 
 
 ## For external use 
