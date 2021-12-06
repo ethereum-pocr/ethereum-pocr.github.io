@@ -5,7 +5,9 @@
 Large institutions, public and private, in Europe and Asia mostly, are investing and are pushing their market to invest in the blockchain sector, considering that the blockchain technology can become progressively a substitute infrastructure for the financial market.
 
 Indeed, public blockchains are an IT infrastructure run by parties with motivations independant of the infrastructure usage.   
-This paper is not about discussing the history and background of blockchains, but let's just remind ourself that the main reason why nodes run consistently a consensus is because of their individual interest in earning a crypto currency they can sell to the highest bidder.
+This paper is not about discussing the history and background of blockchains, but let's just remind ourself that the main reason why nodes run consistently a consensus based infrastructure is because of their individual interest in earning a crypto currency they can sell to the highest bidder.
+
+In this paper we evaluate a new consensus at the base of a new public blockchain to embed an incentive to improve the ecological impacts of the IT infrastructure.  
 
 ## 1. The problem to solve
 
