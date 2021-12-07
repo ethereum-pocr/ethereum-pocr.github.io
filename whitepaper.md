@@ -31,6 +31,9 @@ In this whitepaper, we propose to develop a new consensus that will incentivize 
 
 ## 2. The mechanic of incentivizing carbon footprint reduction 
 
+Nodes will make efforts in improving the carbon footprint of the IT infrastructure if they are given a financial incentive to do so. The **Proof of Carbon Reduction** consensus therefore aim at aligning the reward on a block to the quality of the footprint of the infrastructure.   
+This implies that the nodes can proove their level of carbon emission of their infrastructure to the rest of the network in a trustable way.  
+
 ## 3. Calculating the carbon footprint of a node
 
 Cannot yet be automated and embeded in a consensus, hence required external parties, taking the form of oracle, to feed the info.
