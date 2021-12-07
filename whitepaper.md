@@ -16,9 +16,12 @@ Human nature is often driven by self interests that sometime coincide with the c
 
 In the sole scope of IT infrastructure, the demand for storage and computational power is increasing and these services requires energy, rare materials and often use hardware insufficiently recycled. If research and development exists in improving the ecological quality of the infrastructures it could be increased.
 
-Blockchain technologies, invented by Satoshi Nakamoto with bitcoin, and improved by Vitalik Butterin with Ethereum, and many others since then, have exploited self interest of individual to create a greater good in the form of a shared IT distributed infrastructure used to securely transfer ownership of value and run computational and storage logic with no central authority. The self interest leveraged by this type technology is the earning of a new form of asset (called crypto currencies) that obtain a monetary value when sold to those who need to use the IT infrastructure it powers.
+Blockchain technologies, concretized by Satoshi Nakamoto with bitcoin, and improved by Vitalik Butterin with Ethereum, and many others since then, have exploited self interest of individual to create a greater good in the form of a shared IT distributed infrastructure used to securely transfer value and run computational and storage logic with no central authority. The self interest leveraged by this type technology is the earning of a new form of asset (called crypto currencies) that obtain a monetary value when sold to those who need to use the IT infrastructure it powers.
 
-This paper will not document, not explain, the fundamentals of a public blockchain and the readers are directed to the 2 most relevant whitepapers for [Bitcoin](https://bitcoin.org/bitcoin.pdf) and [Ethereum](https://ethereum.org/en/whitepaper/)
+This paper will not document, nor explain, the fundamentals of a public blockchain and the readers are directed to the 2 most relevant whitepapers for [Bitcoin](https://bitcoin.org/bitcoin.pdf) and [Ethereum](https://ethereum.org/en/whitepaper/). Plenty of litterature exists on this subject and the reader is expected to understand the principles that construct public blockchains.    
+However we have to make a focus on the consensus algorithm that drives the blockchain infrastructures. These algorithms are constructed as a set of rules that all individual parties (nodes) in the network must be able to follow independently to construct and propose new blocks and to validate new blocks received from other nodes. It is the collective activities of the individual behaviour that form the network and the infrastructure and it generally take the form of a competition. 
+
+The most commonly known consensus is the `Proof of Work` where any node is allowed to propose a new block as long as it is has a coherent structure (linked to the head of the chain, valid transactions ...) and has a valid hash that implies a lots of computation. If very robust, the proof of work consensus has a very negative image due to the very high level of energy consumption that nodes must put to participate into the competition of building blocks [The Energy Consumption of Blockchain Technology: Beyond Myth](https://link.springer.com/article/10.1007/s12599-020-00656-x).
 
 ## 2. The mechanic of incentivizing carbon footprint reduction 
 
@@ -43,3 +46,9 @@ Starting with the go version (why?)
 
 
 ## 9. Opening to the community
+
+## 10. References
+
+* [The Energy Consumption of Blockchain Technology: Beyond Myth](https://link.springer.com/article/10.1007/s12599-020-00656-x)
+* [Energy Footprint of Blockchain Consensus Mechanisms Beyond Proof-of-Work](https://arxiv.org/pdf/2109.03667.pdf)
+* 
