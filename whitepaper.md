@@ -63,7 +63,9 @@ Since nodes themselves, as IT software cannot self assess their setup, since the
 
 These node auditors will be mandated by the node owner to assess their IT infrastructure and must follow the defined methodology and be in a position to demonstrate that the methodology has been followed. Once an assessment is done on a node, they will record in the Blockchain the carbon footprint of the node under their signature. 
 
-Only conformant auditors will be authorized to record the result of an audit in the chain. The community of node owners will have the right to vote in or out an auditor with a majority +1. 
+Only conformant auditors will be authorized to record the result of an audit in the chain. The community of node owners will have the right to vote in or out an auditor with a majority +1. Auditors will be encouraged to review the audits of their peers and expose any wrong doing. One way to ensure auditors honesty would be to have the auditors set crypto currency at stake to be able to record the result of an audit. If an auditor is voted out it will loose it's stake. If the auditor decide to exit the business, it can do so only after a long period since it's last audit. TO BE FURTHER DEVELOPPED. 
+
+Node owners identity will have to be known and be transparent to the community. They cannot be also auditors. 
 
 
 ## 4. Deriving from the proof of authority consensus
