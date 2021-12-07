@@ -49,7 +49,21 @@ Note that we should therefore exclude carbon compensation scheme in the measurem
 
 ## 3. Calculating the carbon footprint of a node
 
-Cannot yet be automated and embeded in a consensus, hence required external parties, taking the form of oracle, to feed the info.
+Let's detail now how the carbon footprint of a node is estimated, recorded, shared and made trustable. 
+
+An IT software cannot (yet) determine by itself the energy, CO2, and other environmental factors that it has an impact on. There the nodes will rely on the expertise of external parties to assess the node infrastructure. 
+
+First, the research suggest that a large part (70%) of the environmental impact of IT infrastructure comes from the construction and shipment of the hardware before it is even first used. Another important part is linked to the management of the end of life of the equipments after it has been put out of use. So it is critical that the node assessment is done on the full lifecycle of the various parts that constitute a node : computer hardware, storage units, network appliances, cooling systems, electricity sources etc.
+
+Then it is important that we can apply consistently the same assessment methodology across all nodes, across multiple data center and geography, and across time. Such a methodology must therefore be designed by experts in this field of research. 
+
+**TO BE COMPLETED AFTER THE PARTNER IS SELECTED WITH THE METHOLOGY**
+
+Since nodes themselves, as IT software cannot self assess their setup, since there are financial implications (the blocks rewards) in making this assessment node owners cannot be trusted to self assess their nodes either. So external trustable parties, with their names at stake, should be entrusted to analyse the nodes setup. As it is important to maintain, as much as possible, a distribution of roles and avoid unique actors, these parties must be multiple and remain independant and in competition. We will refer to these parties as node auditors or node carbon footprint agency with a role similar to the rating agencies we have in the financial sector. 
+
+These node auditors will be mandated by the node owner to assess their IT infrastructure and must follow the defined methodology and be in a position to demonstrate that the methodology has been followed. Once an assessment is done on a node, they will record in the Blockchain the carbon footprint of the node under their signature. 
+
+Only conformant auditors will be authorized to record the result of an audit in the chain. The community of node owners will have the right to vote in or out an auditor with a majority +1. 
 
 
 ## 4. Deriving from the proof of authority consensus
