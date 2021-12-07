@@ -35,10 +35,17 @@ Nodes will make efforts in improving the carbon footprint of their IT infrastruc
 The **Proof of Carbon Reduction** consensus therefore aims at aligning the reward of a block to the quality of the carbon footprint of the infrastructure.   
 This implies that the nodes can proove their level of carbon emission of their infrastructure to the rest of the network in a trustable and public way.   
 
-The consensus will therefore put the nodes in competition for the best barbon footprint since the lower the footprint the higer the reward, and the absence of progress on the carbon footprint could disqualify the node from any reward.   
-The reward will be denominated in the native crypto currency of this new public blockchain and therefore, like any other shared infrastructure, the reward will gain a monetary value. So the earning of a node will be higher if the node can demonstrate to run with a better setup than the average of the nodes.
+The consensus intends to put the nodes in competition for the best carbon footprint since the lower the footprint the higer the reward, and the absence of progress on the carbon footprint could disqualify the node from any reward.   
+The reward will be denominated in the native crypto currency of this new public blockchain and therefore, like any other shared infrastructure, the reward will gain a monetary value by the increased usage on the infrastructure. So the earning of a node will be higher if the node can demonstrate to run with a better setup than the average of the nodes.
 
-We introduce here the notion of the average of the nodes and we believe this is an important factor of long term success. 
+We introduce here the notion of the average footprint of the nodes and we believe this is an important factor of long term success.   
+The competition between the nodes will push the actors to favor better ecological equipments and progressively all nodes will improve the footprint by getting these equipments. This global improvement should not stop the competition but set new challenges. As all the nodes improve, the average improve. The best node yesterday can lag behind the average if it stop improving while other do. 
+Therefore, we can look at the average footprint of the nodes as the level to beat in this competition that never stop. 
+
+Will we reach a zero footprint impact ? If so we would have achieved something good : An IT infrastructure that has no negative impact on the planet !   
+Note that we should therefore exclude carbon compensation scheme in the measurement of the node without preventing actors to compensate if they wish to do so. 
+
+
 
 ## 3. Calculating the carbon footprint of a node
 
