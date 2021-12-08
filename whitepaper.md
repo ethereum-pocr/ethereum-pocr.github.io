@@ -74,7 +74,14 @@ The identity of the node owners are also expected to be public to enable public 
 
 ## 4. Deriving from the proof of authority consensus
 
-The financial sector requirement for known sealers/miners
+This new blockchain wants to offer an alternative to the market by being a public "green blockchain" that has also an important throughput compare to existing public blockchains. The financial sector in particular and many large corporate businesses is looking for such a blockchain since they have taken ESG commitment and they cannot afford to have their name linked to an energy intensive infrastructure.    
+In addition, the regulated markets have difficulties to accept working on public infrastructures where the crypto currency can fuel unknown actors that would potentially be suject to sanctions or linked to illegal activities. Therefore, there is a need for an open public infrastructure, yet cleared from disqualified actors for these sectors of businesses.   
+
+The `proof of authority` consensus is designed to only allow a known set of nodes to create blocks. In particular the [clique](https://eips.ethereum.org/EIPS/eip-225) implementation proposed in EIP 255 of the Ethereum community, defined a replacement for the `oroof of work` consensus that would be a good base to implement the `proof of carbon reduction` consensus.
+
+In the clique consensus, nodes are identified by an ethereum address corresponding to the private key with which they will sign their blocks. Nodes do not receive rewards for creating blocks and they are not put in competition. The list of authorized nodes (addresses) are simply requested to create blocks, in turn, at a regular frequency. They are called sealers in this consensus as they simply apply their signature on a block. The other nodes receiving this newly created block will verify that the block is valid and that the sealer is legit, before adding it into their copy of the chain. If the expected sealer did not send a block in the given timeframe, any block is allowed to take its place, ensuring redundancy in case of a node failure.
+
+At the genesis of the chain, a single sealer is enough. It can allow new sealers in the consensus by voting in its address. Each new sealer needs to be voted in by at least N/2 + 1 existing sealers, N being the total number of authorized sealers. Similarly, a node that is not acting positively in the consensus can be voted out by at least N/2 + 1 nodes to be excluded from the consensus.
 
 ## 5. Calculating the reward of a node and the incentive scheme (Tokenomics)
 
