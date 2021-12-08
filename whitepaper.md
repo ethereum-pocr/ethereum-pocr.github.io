@@ -57,7 +57,7 @@ First, the research suggest that a large part (70%) of the environmental impact 
 
 Then it is important that we can apply consistently the same assessment methodology across all nodes, across multiple data center and geography, and across time. Such a methodology must therefore be designed by experts in this field of research.   
 
-Typically, the footprint of a node will be measured in "greenhouse gas" emissions following the [IPCC 100 years methodology](https://www.ipcc.ch/site/assets/uploads/2018/02/ar4-wg1-chapter2-1.pdf) and be expressed in kg of CO2 eq.
+Typically, the footprint of a node will be measured in "greenhouse gas" emissions following the [IPCC 100 years methodology](https://www.ipcc.ch/site/assets/uploads/2018/02/ar4-wg1-chapter2-1.pdf) and be expressed in kg of CO2 equvalent.
 
 **TO BE COMPLETED AFTER THE PARTNER IS SELECTED WITH THE METHOLOGY**
 
@@ -70,8 +70,7 @@ Only conformant auditors will be authorized to record the result of an audit in 
 
 Node owners identity will have to be known and be transparent to the community. They cannot be also auditors as it would possibly create a conflict of interests.   
 The identity of the node owners should be known because the auditors will need to collect documentation and data and ensure that these are the actual figures of the nodes. 
-
-
+The identity of the node owners are also expected to be public to enable public display of the nodes activities. Finally, as we will see in the next section the identity of the nodes will be important to decide to allow a new member in the groupe of block builders. 
 
 ## 4. Deriving from the proof of authority consensus
 
