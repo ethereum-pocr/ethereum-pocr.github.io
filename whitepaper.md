@@ -83,6 +83,10 @@ In the clique consensus, nodes are identified by an ethereum address correspondi
 
 At the genesis of the chain, a single sealer is enough. It can allow new sealers in the consensus by voting in its address. Each new sealer needs to be voted in by at least N/2 + 1 existing sealers, N being the total number of authorized sealers. Similarly, a node that is not acting positively in the consensus can be voted out by at least N/2 + 1 nodes to be excluded from the consensus.
 
+To ensure that a node cannot seal a long consecutive set of blocks, and control the chain, there is a rule that prevent a sealer to seal another block until at least N/2 blocks. So in a 10 nodes setup, node #1 will at best be able to seal block X then at the earliest block X+10/2 = X+5.
+
+We would copy this behaviour and give an financial reward to the sealers making blocks based on their carbon footprint quality and on the number of nodes involved. The reward should deliver an incentive to improve their individual carbon footprint and at the same time open the consensus to more nodes to avoid a too small group of nodes.
+
 ## 5. Calculating the reward of a node and the incentive scheme (Tokenomics)
 
 ## 6. Monetary policy of the CTC crypto currency
