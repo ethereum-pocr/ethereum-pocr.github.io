@@ -51,11 +51,13 @@ Note that we should therefore exclude carbon compensation scheme in the measurem
 
 Let's detail now how the carbon footprint of a node is estimated, recorded, shared and made trustable. 
 
-An IT software cannot (yet) determine by itself the energy, CO2, and other environmental factors that it has an impact on. There the nodes will rely on the expertise of external parties to assess the node infrastructure. 
+An IT software cannot (yet) determine by itself the energy, CO2, and other environmental factors that it has an impact on. Therefore the nodes will rely on the expertise of external parties to assess the node infrastructure. 
 
-First, the research suggest that a large part (70%) of the environmental impact of IT infrastructure comes from the construction and shipment of the hardware before it is even first used. Another important part is linked to the management of the end of life of the equipments after it has been put out of use. So it is critical that the node assessment is done on the full lifecycle of the various parts that constitute a node : computer hardware, storage units, network appliances, cooling systems, electricity sources etc.
+First, the research suggest that a large part (70%) of the environmental impact of IT infrastructure comes from the construction and shipment of the hardware before it is even first used. Another important part is linked to the management of the end of life of the equipments after it has been put out of use. So it is critical that the node assessment is done on the full lifecycle (construction, shipment, installation, usage, end of life) of the various parts that constitute a node : computer hardware, storage units, network appliances, cooling systems, electricity sources etc.
 
-Then it is important that we can apply consistently the same assessment methodology across all nodes, across multiple data center and geography, and across time. Such a methodology must therefore be designed by experts in this field of research. 
+Then it is important that we can apply consistently the same assessment methodology across all nodes, across multiple data center and geography, and across time. Such a methodology must therefore be designed by experts in this field of research.   
+
+Typically, the footprint of a node will be measured in "greenhouse gas" emissions following the [IPCC 100 years methodology](https://www.ipcc.ch/site/assets/uploads/2018/02/ar4-wg1-chapter2-1.pdf) and be expressed in kg of CO2 eq.
 
 **TO BE COMPLETED AFTER THE PARTNER IS SELECTED WITH THE METHOLOGY**
 
@@ -64,9 +66,10 @@ As it is important to maintain, as much as possible, a distribution of roles and
 
 These node auditors will be mandated by the node owner to assess their IT infrastructure and must follow the defined methodology and be in a position to demonstrate that the methodology has been followed. Once an assessment is done on a node, they will record in the Blockchain the carbon footprint of the node under their signature (i.e. making a blockchain transaction with their individual private keys). 
 
-Only conformant auditors will be authorized to record the result of an audit in the chain. The community of node owners will have the right to vote in or out an auditor with a majority + 1. Auditors will be encouraged to review the audits of their peers and expose any wrong doing. One additional way to ensure auditors honesty would be to have the auditors set crypto currency at stake to be able to record the result of an audit. If an auditor is voted out it will loose it's stake. If the auditor decide to exit the business, it can do so only after a long period since it's last audit. **TO BE FURTHER DEVELOPPED**. 
+Only conformant auditors will be authorized to record the result of an audit in the chain. The community of node owners will have the right to vote in or out an auditor with a majority + 1. Auditors will be encouraged to review the audits of their peers and expose any wrong doing. One additional way to ensure auditors honesty would be to have the auditors set an amount of crypto currency at stake to be allowed to record the result of an audit. If an auditor is voted out it will loose it's stake. If the auditor decide to exit its stake, it can do so only after a given period (to be defined) since it's last audit to give enough time for external actors to eventually expose the auditor. The amount at stake can be defined as a function of the number of audits performed. **TO BE FURTHER DEVELOPPED**. 
 
-Node owners identity will have to be known and be transparent to the community. They cannot be also auditors. 
+Node owners identity will have to be known and be transparent to the community. They cannot be also auditors as it would possibly create a conflict of interests. 
+
 
 
 ## 4. Deriving from the proof of authority consensus
