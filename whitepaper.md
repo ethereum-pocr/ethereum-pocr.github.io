@@ -68,7 +68,8 @@ These node auditors will be mandated by the node owner to assess their IT infras
 
 Only conformant auditors will be authorized to record the result of an audit in the chain. The community of node owners will have the right to vote in or out an auditor with a majority + 1. Auditors will be encouraged to review the audits of their peers and expose any wrong doing. One additional way to ensure auditors honesty would be to have the auditors set an amount of crypto currency at stake to be allowed to record the result of an audit. If an auditor is voted out it will loose it's stake. If the auditor decide to exit its stake, it can do so only after a given period (to be defined) since it's last audit to give enough time for external actors to eventually expose the auditor. The amount at stake can be defined as a function of the number of audits performed. **TO BE FURTHER DEVELOPPED**. 
 
-Node owners identity will have to be known and be transparent to the community. They cannot be also auditors as it would possibly create a conflict of interests. 
+Node owners identity will have to be known and be transparent to the community. They cannot be also auditors as it would possibly create a conflict of interests.   
+The identity of the node owners should be known because the auditors will need to collect documentation and data and ensure that these are the actual figures of the nodes. 
 
 
 
