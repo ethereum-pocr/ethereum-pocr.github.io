@@ -102,20 +102,93 @@ The nodes with a very good carbon footprint should be receiving a larger premium
 
 As we have seen the average footprint of all nodes is a better reference than a static reference as with time all nodes will improve, leaving the static reference behind. So we consider the average `Avg`:
 
-`Avg = 𝛴 F(n) / N ` where `N` is the number of enlisted nodes and `F(n)` the carbon footprint of node `n`.
+`Avg = 𝛴 F(n) / N ` where `N` is the number of enlisted nodes and `F(n)` the carbon footprint of node `n`.    
+To be noted that the value `F(n)` is a positive number (any carbon compensation setup would be ignored and an assessment of carbon footprint that would be negative wouldn't make sense). So `Avg` is a positive number.
 
 Then, we define the no unit `Ratio` to measure a form of distance of the current node footprint to the average:
 
 `Ratio = F(n) / Avg`.
 
-We then we say that a ratio that is 20% of the average will have a maximum reward to prevent a breakthrough to create too much desequilibrium in, the crypto creation. Also, a ratio that is too large (80% more than the average) will not earn any reward. So we can write the carbon reduction factor `CRF(n)` as follow:
+We then we say that a low ratio (below 20% of the average) will have a maximum reward (2 units) to prevent a breakthrough to create too much desequilibrium in, the crypto creation. Also, a ratio that is too large (80% more than the average) will not earn any reward. So we can write the carbon reduction factor `CRF(n)` as follow:
 
-`CRF(n) = Max(1 / (Ratio + 0.2) - 0.5, 0)` where `n` is the current node.    
-`CRF(n) = 0` when `Ratio = 1.8` or 80% more than the average.
+`CRF(n) = Min( Max(1 / (Ratio + 0.2) - 0.5, 0), 2)` where `n` is the current node.    
+`CRF(n) = 0` when `Ratio = 1.8` or 80% more than the average.   
+At the average (`Ratio = 1`) the reward is `1/3rd` of a unit.
 
-<img src="./images/CRF-function.png =100x100" width="200">
+<img src="./images/CRF-function.png" width="400">
 
-## 6. Monetary policy of the CTC crypto currency
+Finally :    
+**`CarbonReduction(n) = CRF(n) * 1 crypto unit`**
+
+### 5.2. The `AcceptNewSealers` reward
+
+Here the logic is to provide the early adopter nodes to get an incentive to accept new nodes n the consensus.    
+With the proof of authority consensus, each allowed nodes are expected to seal a block in a round robin way (each in turn). So, given that the blocks are created every `S` seconds (initially set to 4 seconds) it means that when new nodes are brought into the game, the average reward per unit of time will drop for the existing nodes.   
+
+A node `n` within `N` nodes will in average earn `1/3` every `N` blocks or `1/3N` per block in average.  
+
+When a new node is added into the consensus, the total number of nodes becomes `N+1` and the the node `n` will now earn in average `1/3 * 1/(N+1)` per block. 
+
+Therefore the node loses in average `1/3 * ( 1/N - 1/(N+1) )` per block over `N` block. 
+
+Adding yet another node (total `N+2` nodes), node `n` will now earn `1/3 * 1/(N+2)`, loosing `1/3 * [ 1/N - 1/(N+2) ]` per block. 
+
+The first node will therefore loses this amount for each new node being added, so theoretically in average `1/3 * 𝛴 (1/i - 1/(i+1))` per block which simplifies into `1/3 * (1 - 1/N)`
+
+So when its time for the node to seal a block, it should be granted an additional an amount that will at least compensate for the loss over the upcoming `N` blocks : `N/3 * (1 - 1/N)` or `1/3 * (N-1)`
+
+Finally, and to keep the rule simple enough, the nodes should be awarded an additional amount based on the number of nodes in the consensus that is calculated as:
+
+**`AcceptNewSealers() = (N-1) * 1/3 crypto unit`**
+
+### 5.3. The `GlobalInflationControl`
+
+With the above rules, the crypto currency creation is linear with a static number of nodes `N` as `N/3 crypto unit` per block in average.   
+Increasing the number of nodes will increase proportionnally the monetary creation and this will dillute the value making a inflationary market.
+
+It is therefore necessary at the start of the network to encourage nodes to join the consensus but once the network has reached a large enough number of nodes the crypto creation should progressively reduce.
+
+The logic here is to look at the amount of crypto created as the number of blocks since the start of the chain times the number of nodes (`b * N`).    
+The number of blocks will give a measure of time (with a 4 seconds delay between blocks, it is 8 000 000 blocks per year that are created).    
+The number of nodes gives an idea of the size of the network and its usage.   
+
+So we can propose a scheme when `b * N` reaches a level of a year equivalent with 30 nodes the creation of crypto is halved. When it reaches twice this (either because the nodes increase or time passes) the creation of crypto is halved again.
+
+The calculation will be as follow:
+```js
+L = (b * N) / (8 000 000 * 30) // as integer value
+D = 2^L // The divisor : 2 at the power of L
+GlobalInflationControl = 1/D // 1; 1/2; 1/4; 1/8 ....
+```
+
+Finally:
+
+**`GlobalInflationControl(b) = 1/2^(b*N/240e+6)`**
+
+### 5.4. The `GlobalInflationControl` alternative
+
+Another approach can be to more precisely control the amount of cryptocurrency created.
+Since the actual amount depends of the nodes footprint, the entry of nodes in the consensus, it will be necessary to keep track of the crypto creation.   
+
+Let's assume that there is a record in the blockchain of the total amount created `M` then the inflation can be controlled by a halving scheme based on `M`:
+
+We still consider the year worth of creation (8 millions blocks by a group of 30 nodes) that would generates `30 * 8 000 000 * 1/3 crypto units = 80 000 000 units`
+
+The calculation will be as follow:
+```js
+L = M / (8 000 000 * 30 / 3) // as integer value
+D = 2^L // The divisor : 2 at the power of L
+GlobalInflationControl = 1/D // 1; 1/2; 1/4; 1/8 ....
+```
+
+Finally:
+
+**`GlobalInflationControl(b) = 1/2^(M/80e+6)`**
+
+This approach would be more precise and will give better chances to the network to grow at its own pace that is difficult to estimate upfront. Also, it will give a better clarity to the market of this crypto currency of the actual evolution of the amount of currency.
+
+## 6. Monetary policy of the `GRN` crypto currency
+
 
 ## 7. Implementing the consensus
 
