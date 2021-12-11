@@ -93,7 +93,7 @@ On this last element, controlling the block reward level based on the chain acti
 
 Based on the above discussion, the block `b` reward of a node `n` should be made up of 3 parts to control the 3 incentives: 
 
-`Reward(n, b) = ( CarbonReduction(n) + AcceptNewSealers() ) * GlobalInflationControl(b)`
+**`Reward(n, b) = ( CarbonReduction(n) + AcceptNewSealers() ) * GlobalInflationControl(b)`**
 
 ### 5.1. The `CarbonReduction` reward
 
@@ -160,6 +160,8 @@ L = (b * N) / (8 000 000 * 30) // as integer value
 D = 2^L // The divisor : 2 at the power of L
 GlobalInflationControl = 1/D // 1; 1/2; 1/4; 1/8 ....
 ```
+The chart represents the total amount of crypto created by number of blocks on a static number of nodes.  
+<img src="./images/crypto-total.png" width="500">
 
 Finally:
 
@@ -187,8 +189,22 @@ Finally:
 
 This approach would be more precise and will give better chances to the network to grow at its own pace that is difficult to estimate upfront. Also, it will give a better clarity to the market of this crypto currency of the actual evolution of the amount of currency.
 
-## 6. Monetary policy of the `GRN` crypto currency
+## 6. Monetary policy of the crypto currency
 
+In the proposed model, the quantity of crypto currency issued in the network will reach an asymptotic amount at `16/3 10^7 crypto units`.    
+Unlike the bitcoin network, there will be not hard stop of producing the crypto currency. But from a computer standpoint, as the calculations are done on big numbers (with 18 significant numbers), it will finally round to zero after a long time.
+
+The time it will take to reach a 1/32e increase (3%) is 5 times the times it takes to halve the increase.
+
+With a single node it can be 150 years; with 15 nodes it will be 10 years; etc.
+
+The users of the network infrastructure will spend crypto to submit transactions.    
+The nodes have the possibility to set the minimum gas price `--miner.gasprice` option. By default it is 1 000 000 000 Wei = 1 GWei.    
+The blocks will have an average gas limit at the current default gas limit in geth : 8 000 000 gas.  
+
+So the expected total amount of Gwei that a node can earn from the transactions is 0,08 crypto unit. This is probably too low for the begining of the network as only a few transactions will be sent.
+
+Nodes, to be able to sell enough of their crypto to cover their operational costs, would expect higher gas price. We could expect the initial gas price to be 1 to 10 crypto units. 
 
 ## 7. Implementing the consensus
 
