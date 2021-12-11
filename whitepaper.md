@@ -91,6 +91,30 @@ On this last element, controlling the block reward level based on the chain acti
 
 ## 5. Calculating the reward of a node and the incentive scheme (Tokenomics)
 
+Based on the above discussion, the block `b` reward of a node `n` should be made up of 3 parts to control the 3 incentives: 
+
+`Reward(n, b) = ( CarbonReduction(n) + AcceptNewSealers() ) * GlobalInflationControl(b)`
+
+### 5.1. The `CarbonReduction` reward
+
+The logic is to place a node in a cohort of nodes based on the quality of its carbon footprint (a value expressed in grams of CO2 eq. with no decimals).   
+The nodes with a very good carbon footprint should be receiving a larger premium than one with a good one who in turn receives a better premium than some node with a average or even bad footprint. The intention is not to make this additional footpring linear since in technology, additional important breakthrough are often much more difficult to get than incremental improvement. Therefore a `f(x) = 1/x` curve seams adhequate (the lower the higher, the larger the smaller).
+
+As we have seen the average footprint of all nodes is a better reference than a static reference as with time all nodes will improve, leaving the static reference behind. So we consider the average `Avg`:
+
+`Avg = 𝛴 F(n) / N ` where `N` is the number of enlisted nodes and `F(n)` the carbon footprint of node `n`.
+
+Then, we define the no unit `Ratio` to measure a form of distance of the current node footprint to the average:
+
+`Ratio = F(n) / Avg`.
+
+We then we say that a ratio that is 20% of the average will have a maximum reward to prevent a breakthrough to create too much desequilibrium in, the crypto creation. Also, a ratio that is too large (80% more than the average) will not earn any reward. So we can write the carbon reduction factor `CRF(n)` as follow:
+
+`CRF(n) = Max(1 / (Ratio + 0.2) - 0.5, 0)` where `n` is the current node.    
+`CRF(n) = 0` when `Ratio = 1.8` or 80% more than the average.
+
+![image.png](./images/CRF-function.png)
+
 ## 6. Monetary policy of the CTC crypto currency
 
 ## 7. Implementing the consensus
