@@ -113,7 +113,7 @@ We then we say that a ratio that is 20% of the average will have a maximum rewar
 `CRF(n) = Max(1 / (Ratio + 0.2) - 0.5, 0)` where `n` is the current node.    
 `CRF(n) = 0` when `Ratio = 1.8` or 80% more than the average.
 
-<img src="images/CRF-function.png =100x100" width="200">
+<img src="./images/CRF-function.png =100x100" width="200">
 
 ## 6. Monetary policy of the CTC crypto currency
 
