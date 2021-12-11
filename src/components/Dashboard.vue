@@ -2,11 +2,11 @@
   <v-container>
     <v-layout row wrap>
       <v-row>
-        <v-col cols="3">
-          <v-card elevation="3" height="200" width="200" class="ma-6">
+        <v-col cols="4">
+          <v-card elevation="3" height="200" class="ma-6">
             <v-card-subtitle>Block</v-card-subtitle>
             <v-card-title class="align-center">
-              <span class="text-h2 ma-auto">{{ blockNumber }}</span>
+              <span class="text-h3 ma-auto">{{ blockNumber }}</span>
             </v-card-title>
             <v-card-subtitle>{{averageDelaySec.toFixed(2)}} sec</v-card-subtitle>
           </v-card>
