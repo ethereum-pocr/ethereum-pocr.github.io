@@ -64,7 +64,7 @@ function blockSubscription(reset) {
   }
   return _blockSubscription
 }
-
+/*
 function normalRewardForFootprint(footprint, totalFootprint, nbNodes) {
   if (footprint <= 0) return 0;
   if (nbNodes == 0) return 0;
@@ -75,6 +75,7 @@ function normalRewardForFootprint(footprint, totalFootprint, nbNodes) {
     return 0;
   }
 }
+*/
 
 export async function processBlock(block) {
   // console.log("Receiving block", block.number)
@@ -83,18 +84,20 @@ export async function processBlock(block) {
     if (typeof block.difficulty === "string" && !block.difficulty.startsWith('0x')) block.difficulty = Number.parseInt(block.difficulty);
     data.sealer = poaBlockHashToSealerInfo(block);
     const blockNumber = typeof block.number==="string" ? Number.parseInt(block.number) : block.number;
-    // const balanceB4 = web3.utils.toBN(await web3.eth.getBalance(data.sealer.address, blockNumber-1))
     const balance = web3.utils.toBN(await web3.eth.getBalance(data.sealer.address, blockNumber))
+    const totalCrypto = web3.utils.toBN(await web3.eth.getBalance(carbonFootprint.deployedAt, blockNumber))
+    const totalCryptoB4 = web3.utils.toBN(await web3.eth.getBalance(carbonFootprint.deployedAt, blockNumber-1))
+    const delta = Number.parseFloat(web3.utils.fromWei(totalCrypto.sub(totalCryptoB4)));
     const bal = Number.parseFloat(web3.utils.fromWei(balance, "ether"))
-    // const delta = Number.parseFloat(web3.utils.fromWei(balance.sub(balanceB4)));
     const footprint = await carbonFootprint.footprint(intf.call(), data.sealer.address)
     const totalFootprint = await carbonFootprint.totalFootprint(intf.call())
     const nbNodes = await carbonFootprint.nbNodes(intf.call())
     data.sealer.footprint = Number.parseFloat(footprint);
     data.sealer.balance = bal
     data.totalFootprint = Number.parseInt(totalFootprint)
+    data.totalCrypto = Number.parseFloat(web3.utils.fromWei(totalCrypto, "ether"))
     data.nbNodes = Number.parseInt(nbNodes)
-    data.sealer.lastReward = normalRewardForFootprint(data.sealer.footprint, data.totalFootprint, data.nbNodes);
+    data.sealer.lastReward = delta //normalRewardForFootprint(data.sealer.footprint, data.totalFootprint, data.nbNodes);
     data.receivedAt = Date.now()
   } catch (error) {
     console.warn("Error in preparing block", error)

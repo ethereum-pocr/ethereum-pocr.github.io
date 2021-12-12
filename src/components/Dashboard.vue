@@ -9,6 +9,7 @@
               <span class="text-h3 ma-auto">{{ blockNumber }}</span>
             </v-card-title>
             <v-card-subtitle>{{averageDelaySec.toFixed(2)}} sec</v-card-subtitle>
+            <v-card-subtitle>Total CTC: {{totalCrypto.toFixed(4)}}</v-card-subtitle>
           </v-card>
         </v-col>
         <v-col cols="3">
@@ -109,6 +110,7 @@ export default {
       sealerMap: new Map(),
       blocks: [],
       totalFootprint: 0,
+      totalCrypto: 0,
       nbNodes: 0,
       blockNumber: 0,
       sealersLabels: [],
@@ -159,6 +161,7 @@ export default {
       };
       this.sealerMap.set(sealerInfo.address, sealerInfo);
       this.totalFootprint = data.totalFootprint;
+      this.totalCrypto = data.totalCrypto;
       this.nbNodes = data.nbNodes;
       this.blockNumber = data.block.number;
       this.updateSealersArrays();
