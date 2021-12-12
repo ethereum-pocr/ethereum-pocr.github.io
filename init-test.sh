@@ -3,4 +3,6 @@ GENESIS=/node/genesis/saturn-testnet.json
 
 rm -Rf $DATADIR
 
-geth --datadir $DATADIR init $GENESIS
+GETH=geth-pocr
+
+$GETH --datadir $DATADIR init $GENESIS
