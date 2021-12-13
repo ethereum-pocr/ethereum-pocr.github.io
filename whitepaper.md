@@ -93,7 +93,7 @@ On this last element, controlling the block reward level based on the chain acti
 
 Based on the above discussion, the block `b` reward of a node `n` should be made up of 3 parts to control the 3 incentives: 
 
-**`Reward(n, b) = ( CarbonReduction(n) + AcceptNewSealers() ) * GlobalInflationControl(b)`**
+**`Reward(n, b) = CarbonReduction(n) * AcceptNewSealers() * GlobalInflationControl(b)`**
 
 ### 5.1. The `CarbonReduction` reward
 
@@ -125,7 +125,7 @@ Finally :
 Here the logic is to provide the early adopter nodes to get an incentive to accept new nodes n the consensus.    
 With the proof of authority consensus, each allowed nodes are expected to seal a block in a round robin way (each in turn). So, given that the blocks are created every `S` seconds (initially set to 4 seconds) it means that when new nodes are brought into the game, the average reward per unit of time will drop for the existing nodes.   
 
-A node `n` within `N` nodes will in average earn `1/3` every `N` blocks or `1/3N` per block in average.  
+A node `n` within `N` nodes will in average earn `1/3 crypto unit` every `N` blocks or `1/3N` per block in average.  
 
 When a new node is added into the consensus, the total number of nodes becomes `N+1` and the the node `n` will now earn in average `1/3 * 1/(N+1)` per block. 
 
@@ -137,9 +137,13 @@ The first node will therefore loses this amount for each new node being added, s
 
 So when its time for the node to seal a block, it should be granted an additional an amount that will at least compensate for the loss over the upcoming `N` blocks : `N/3 * (1 - 1/N)` or `1/3 * (N-1)`
 
-Finally, and to keep the rule simple enough, the nodes should be awarded an additional amount based on the number of nodes in the consensus that is calculated as:
+<img src="./images/increase-nb-nodes.png" width="700">
 
-**`AcceptNewSealers() = (N-1) * 1/3 crypto unit`**
+In reality all nodes do not earn `1/3 crypto unit` per mined block but their reward depends on their carbon footprint performance. But as we have seen the reward gets diluted as more nodes comes in. If the node is granted a fixed amount (1/3) per new block then its individual performance will become insignificant compare to the static reward.
+
+Therefore in order for the node to be awarded its performance regardless of the number of nodes, the block reward should be multiplied by the number of nodes until the node can next seal a new block : `N`
+
+**`AcceptNewSealers() = N`**
 
 ### 5.3. The `GlobalInflationControl`
 
