@@ -66,7 +66,7 @@ As it is important to maintain, as much as possible, a distribution of roles and
 
 These node auditors will be mandated by the node owner to assess their IT infrastructure and must follow the defined methodology and be in a position to demonstrate that the methodology has been followed. Once an assessment is done on a node, they will record in the Blockchain the carbon footprint of the node under their signature (i.e. making a blockchain transaction with their individual private keys). 
 
-Only conformant auditors will be authorized to record the result of an audit in the chain. The community of node owners will have the right to vote in or out an auditor with a majority + 1. Auditors will be encouraged to review the audits of their peers and expose any wrong doing. One additional way to ensure auditors honesty would be to have the auditors set an amount of crypto currency at stake to be allowed to record the result of an audit. If an auditor is voted out it will loose it's stake. If the auditor decide to exit its stake, it can do so only after a given period (to be defined) since it's last audit to give enough time for external actors to eventually expose the auditor. The amount at stake can be defined as a function of the number of audits performed. **TO BE FURTHER DEVELOPPED**. 
+Only conformant auditors will be authorized to record the result of an audit in the chain. The community of node owners will have the right to vote in or out an auditor with a majority + 1. Auditors will be encouraged to review the audits of their peers and expose any wrong doing. One additional way to ensure auditors honesty would be to have the auditors set an amount of crypto currency at stake to be allowed to record the result of an audit. If an auditor is voted out it will loose it's stake. If the auditor decide to exit its stake, it can do so only after a given period (to be defined) since it's last audit to give enough time for external actors to eventually expose the auditor. The amount at stake can be defined as a function of the number of audits performed as a form of insurance. **TO BE FURTHER DEVELOPPED**. 
 
 Node owners identity will have to be known and be transparent to the community. They cannot be also auditors as it would possibly create a conflict of interests.   
 The identity of the node owners should be known because the auditors will need to collect documentation and data and ensure that these are the actual figures of the nodes. 
@@ -147,6 +147,30 @@ Therefore in order for the node to be awarded its performance regardless of the 
 
 ### 5.3. The `GlobalInflationControl`
 
+In this approach we use the amount of cryptocurrency created as a measure of the time to wait until the inflation should start to be controlled.
+Since the actual amount depends of the nodes footprint, the entry of nodes in the consensus, it will be necessary to keep track of the crypto creation.   
+
+Let's assume that there is a record in the blockchain of the total amount created `M` then the inflation can be controlled by a halving scheme based on `M`:
+
+With a 4 seconds delay between blocks, it is 8 000 000 blocks per year that are created.      
+We still consider the year worth of creation (8 millions blocks by a group of 30 nodes) that would generates `30 * 8 000 000 * 1/3 crypto units = 80 000 000 units`
+
+The calculation will be as follow:
+```js
+L = M / (8 000 000 * 30 / 3) // as integer value
+D = 2^L // The divisor : 2 at the power of L
+GlobalInflationControl = 1/D // 1; 1/2; 1/4; 1/8 ....
+```
+
+Finally:
+
+**`GlobalInflationControl(b) = 1/2^(M/80e+6)`**
+
+This approach would be more precise and will give better chances to the network to grow at its own pace that is difficult to estimate upfront. Also, it will give a better clarity to the market of this crypto currency of the actual evolution of the amount of currency.
+
+
+### 5.4. The `GlobalInflationControl` alternative
+
 With the above rules, the crypto currency creation is linear with a static number of nodes `N` as `N/3 crypto unit` per block in average.   
 Increasing the number of nodes will increase proportionnally the monetary creation and this will dillute the value making a inflationary market.
 
@@ -171,55 +195,65 @@ Finally:
 
 **`GlobalInflationControl(b) = 1/2^(b*N/240e+6)`**
 
-### 5.4. The `GlobalInflationControl` alternative
-
-Another approach can be to more precisely control the amount of cryptocurrency created.
-Since the actual amount depends of the nodes footprint, the entry of nodes in the consensus, it will be necessary to keep track of the crypto creation.   
-
-Let's assume that there is a record in the blockchain of the total amount created `M` then the inflation can be controlled by a halving scheme based on `M`:
-
-We still consider the year worth of creation (8 millions blocks by a group of 30 nodes) that would generates `30 * 8 000 000 * 1/3 crypto units = 80 000 000 units`
-
-The calculation will be as follow:
-```js
-L = M / (8 000 000 * 30 / 3) // as integer value
-D = 2^L // The divisor : 2 at the power of L
-GlobalInflationControl = 1/D // 1; 1/2; 1/4; 1/8 ....
-```
-
-Finally:
-
-**`GlobalInflationControl(b) = 1/2^(M/80e+6)`**
-
-This approach would be more precise and will give better chances to the network to grow at its own pace that is difficult to estimate upfront. Also, it will give a better clarity to the market of this crypto currency of the actual evolution of the amount of currency.
-
 ## 6. Monetary policy of the crypto currency
 
 In the proposed model, the quantity of crypto currency issued in the network will reach an asymptotic amount at `16/3 10^7 crypto units`.    
-Unlike the bitcoin network, there will be not hard stop of producing the crypto currency. But from a computer standpoint, as the calculations are done on big numbers (with 18 significant numbers), it will finally round to zero after a long time.
+Unlike the bitcoin network, there will be not hard stop of producing the crypto currency. But from a computer standpoint, as the calculations are done on 64 bits integers, the power of 2 are calculated by a left shift of the binary representation of `1` with value `L` above which then will become maximum when `L = 2^64 -1`. 
 
-The time it will take to reach a 1/32e increase (3%) is 5 times the times it takes to halve the increase.
+The time it will take to reach a 1/32e facor reduction (3%) is 5 times the duration needed for the monetary creation to reach the first reduction stage.
 
 With a single node it can be 150 years; with 15 nodes it will be 10 years; etc.
 
 The users of the network infrastructure will spend crypto to submit transactions.    
-The nodes have the possibility to set the minimum gas price `--miner.gasprice` option. By default it is 1 000 000 000 Wei = 1 GWei.    
+The nodes have the possibility to set the minimum gas price (`--miner.gasprice` option in geth). By default it is 1 000 000 000 Wei = 1 GWei.    
 The blocks will have an average gas limit at the current default gas limit in geth : 8 000 000 gas.  
 
 So the expected total amount of Gwei that a node can earn from the transactions is 0,08 crypto unit. This is probably too low for the begining of the network as only a few transactions will be sent.
 
-Nodes, to be able to sell enough of their crypto to cover their operational costs, would expect higher gas price. We could expect the initial gas price to be 1 to 10 crypto units. 
+Nodes, to be able to sell enough of their crypto to cover their operational costs, would expect higher gas price. We could expect the initial gas price to be 1 to 10 crypto units.   
+As activity peaks and crypto producers will have more pressure to reduce the cost of their crypto, the base fee will reduce and less crypto will be needed per transactions.
 
-## 7. Implementing the consensus
+
+## 7. Intialization and governance of the network
+
+The genesis of the project is the constitution of a green blockchain that can serve the purpose of a green bond issuance in a public blockchain by a large European SSA issuer. This issuer has mandated three banks to design the operational and legal framework.
+
+The green blockchain, based on the proof of carbon reduction consensus, as described above, has the potential of being usefull for many other use cases where sustainability is an important requirement. Also, the bond being issued at the genesis of the project will need to live its entire life onchain for 3 to 5 years which leads to the need to have the network last long enough.
+
+In the long run, it is probably not the role of the banks to be running the blockchain infrastructure but more probably to be a user of the shared infrastructure.
+
+Initially setup by the 3 banks and possibly the issuer, the network will have 3 or 4 nodes in the consensus. Being based on a proof of authority scheme, the first node will need to be hard coded in the genesis block then the other invited. The second one by the first one; the third one by the 2 first ones (1/2 + 1); the 4th one by at least 2 (3/2 +1) of the 3 nodes; and so on with a logic of none N+1 being accepted by at least N/2+1 nodes.
+
+Therefore a node willing to enter the consensus will need to make itself known to the community (**how exactly?**) and get approved by at least half of the community.    
+
+A node entering the consensus will also need to be given a carbon footprint by one of the authorized auditors. It can sollicit one or several auditors to get a quotation to get its node assessed and can get this assessment done at any time before or after entering the consensus. But the node will only start earning crypto units after both steps are performed (being enrolled in the consensus and being given a carbon footprint).
+
+Once a node is starting to earn crypto units it will naturally compare itself against the rest of the nodes to see if it can improve its setup and earn more crypto. It will then again sollicit auditors (the same or another one) to have new assessment of its node.
+
+Carbon footprint auditors have therefore a central role in the setup and must be carefully choosen by the community of the nodes. At the initialization, the banks will invite an initial single auditor to bootstrap the process.     
+The auditor will receive free crypto units, created in the genesis block (not more than 1 unit). With this the auditor will enroll itself as the first auditor in the Proof of Carbon Reduction (PoCR) smart contract initializing at the same time the mechanism for enlisting and excluding auditors.    
+
+When an auditor wants to be granted the possibility to perform an audit, it will make himself known to the community (**how exactly?**) requesting to be approved by at least half of the nodes +1. Concretely it means that the auditor will perform a self registration on the PoCR smart contract, giving its address, and wait to receive enough votes (N/2+1) by nodes that have already been audited. Nodes can vote only once with the address of their node but can change their vote at any time. Several auditors can be awaiting authorization at the same period. Once an auditor receives the last vote (last positive vote out of the N/2+1) the auditor submit the request to be added to the authorized list.    
+
+An auditor enlisted can be excluded by the community if at least N/2 + 1 node decide to vote its address off at any point. Only nodes that have been audited and that have a carbon footprint can vote. Nodes can vote only once per auditors but can change their vote at any time. When the auditor has been voted away by at least N/2+1 nodes it is excluded from the authorized list making the capacity to set carbon footprint for nodes impossible.
+
+An auditor can capture the carbon footprint of a node if it has pledged in the PoCR smart contract a minimum amount of crypto unit as a guarantee for the community that any misconduct can be punished. When voted out an auditor cannot take its pledge away. An auditor can take its pledge away if it has not done an audit for more than 30 days (650 000 blocks at 4sec per block).
+
+The community of nodes can decide to use the fund pledged by the excluded auditors as they see fit by voting at N/2+1 like in a multi-sig wallet.
+
+Change in the consensus or the governance model can be agreed by the community by first having the change documented in the form of a momorandum posted in the community tool (**to be defined**) and voted upon (positive or negative) by a majority +1 of voting nodes and a majority + 1 of voting auditors. Both communities (nodes and auditors) should express their approval independantly to prevent changes to penalize one community against the other. Changes will be published as PoCR-IP (PoCR Improvement Proposal) in a form very similar to [Ethereum EIP](https://ethereum.org/en/eips). They will be discussed by the community and put to vote after a minimum of 3 months (1 950 000 blocks of 4 secs) and for a maximum duration for voting of 18 days (400 000 blocks of 4 secs).
+
+
+## 8. Implementing the consensus
 
 Starting with the go version (why?)
 
-## 8. Attack vectors and remediations
+## 9. Attack vectors and remediations
 
 
-## 9. Opening to the community
+## 10. Opening to the community
 
-## 10. References
+## 11. References
 
 * [The Energy Consumption of Blockchain Technology: Beyond Myth](https://link.springer.com/article/10.1007/s12599-020-00656-x)
 * [Energy Footprint of Blockchain Consensus Mechanisms Beyond Proof-of-Work](https://arxiv.org/pdf/2109.03667.pdf)
