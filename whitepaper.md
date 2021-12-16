@@ -248,7 +248,34 @@ Change in the consensus or the governance model can be agreed by the community b
 
 ## 8. Implementing the consensus
 
-Starting with the go version (why?)
+The proposal is to use the existing proof of authority consensus implemented in go-ethereum and defined in EIP 255. The reasons for this choice are severals.
+
+First, the golang implementation represents a large part of the production nodes (84% according to [ethernodes](https://www.ethernodes.org/)) and is known to be stable, close to the operating system (compiled language) and easy to deploy (no library).
+
+Then, the clique consensus is implemented and follows the EIP 255. This corresponds well to the need of the node community that we wish to implement. The clique implementation is relatively simple to derive.
+
+Finally, despite the fact that the clique consensus by default does not reward nodes, the code to set the reward can in a large copy what is done in the ethash consensus.
+
+For the rest, the implementation needs a smart contract, the PoCR smart contract, that should exists in the genesis block at a known address. This smart contract will hold the states for the nodes and their carbon footprint, the auditors authorized addressed, the auditors pledged amount, and the various rules for the governance (votes ...).
+
+For the calculation reward, the PoCR smart contract holds the 3 parameters documented above: `N` the number of nodes, `F(n)` the carbon footprint of node `n` and `M` the total amount of crypto created.    
+The reward calculation needs the `𝛴 F(n)` so to avoid calculating it everytime, it is also easier to store it.   
+The storage of `M` is set as the balance of the smart contract so it can easily be retrieved and set from within the code of the consensus.
+
+At the time of sealing a block or at the time of verifying the block from another node, the engine will call the `Finalize()` or `FinalizeAndAssemble()` of the consensus.    
+These method will call a new method `accumulateRewards()` that will
+- ignore the reward calculation for the genesis block
+- identify the current block sealer address `n`
+- extract from the PoCR smart contract `N`, `F(n)`, `𝛴 F(n)`, `M` 
+- if `N` is zero, no reward is given and the log shows that no node is recorded yet
+- if `F(n)` is zero, no reward is given and the log shows that the node has no carbon footprint yet
+- if `𝛴 F(n)` is zero, no reward is given and the log shows that it should not be a possible situation
+- the `CarbonReduction(N, F(n), 𝛴 F(n))` is calculated
+- the `AcceptNewSealers(N)` is calculated : equals `N``
+- the `GlobalInflationControl(M)` is calculated
+- the 3 values are multiplied using big int and added to the sealer balance and to the the smart contract balance
+
+The rest of the governance logic is classical smart contract logic that does not intervene in the reward mechanism and that can rely on the normal property of the EVM.
 
 ## 9. Attack vectors and remediations
 
