@@ -198,9 +198,9 @@ Finally:
 ## 6. Monetary policy of the crypto currency
 
 In the proposed model, the quantity of crypto currency issued in the network will reach an asymptotic amount at `16/3 10^7 crypto units`.    
-Unlike the bitcoin network, there will be not hard stop of producing the crypto currency. But from a computer standpoint, as the calculations are done on 64 bits integers, the power of 2 are calculated by a left shift of the binary representation of `1` with value `L` above which then will become maximum when `L = 2^64 -1`. 
+Unlike the bitcoin network, there will be not hard stop of producing the crypto currency. But from a computer standpoint, as the calculations are done on 64 bits integers, the power of 2 are calculated by a left shift of the binary representation of `1` with value `L` above which then will become maximum when `L = 2^63`. 
 
-The time it will take to reach a 1/32e facor reduction (3%) is 5 times the duration needed for the monetary creation to reach the first reduction stage.
+The time it will take to reach a 1/32e factor reduction (3%) is 5 times the duration needed for the monetary creation to reach the first reduction stage.
 
 With a single node it can be 150 years; with 15 nodes it will be 10 years; etc.
 
