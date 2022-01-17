@@ -41,7 +41,8 @@ None of these are ideal, in particular in the context of the Proof of Carbon Red
 ## Initialize VM in cloud
 Assumption of a IaaS approach to be as independant as possible from the cloud providers specificities
 
-- Span a ubuntu Vm in your cloud provider (here we are using a 1CPU 1Go Mem)
+- Span a ubuntu Vm in your cloud provider (here we are using a 1CPU 2Go Mem)    
+Note that a 1CPU/1Go Mem was tried but it shows that after a period of time when there are too much memory work the process silently crash because there is no enough memory.
 
 - connect to the main user via ssh (here `vmadmin`)
 
