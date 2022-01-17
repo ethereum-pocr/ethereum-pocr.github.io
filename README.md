@@ -189,7 +189,7 @@ Create the `enode://` url of this new node to be used as a bootnode by the other
 ```sh
 # as root on the VM
 cd /var/www/html
-/node/pocs-network/enode.sh > enode
+/node/pocr-network/enode.sh > enode
 ```
 Then from outside the vm you could curl the enode `curl https://host.name.com/enode`
 
