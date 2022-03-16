@@ -1,0 +1,101 @@
+version: "2"
+services:
+
+  geth-bootnode:
+    hostname: geth-bootnode
+    environment:
+      - nodekeyhex=${BOOTNODE_KEY_HEX} #Needs to be fix, so that the miners know the resulting enode id
+      - bootnodeId=${BOOTNODE_Id} # enodeId
+      - BOOTNODE_IP=${BOOTNODE_IP}
+      - PORT=${BOOTNODE_PORT}
+    build: pocr-network/bootnode
+    container_name: geth-bootnode
+    ports:
+      - ${BOOTNODE_PORT}:${BOOTNODE_PORT}/udp
+      - 30303:30303/udp
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.101 # The miners need to know the IP address later on
+
+  sealer-1:
+    hostname: sealer-1
+    depends_on:
+      - geth-bootnode
+    environment:
+      - address=${WALLET_MINER_1} #derived from the private key which is passed in the args
+      - password=${PASS_PKEY_MINER_1}
+      - bootnodeId=${BOOTNODE_ID} #derived from the nodekeyhex of the bootnode
+      - bootnodeIp=${BOOTNODE_IP}
+      - bootnodePort=${BOOTNODE_PORT}
+      - networkId=${NETWORK_ID}
+    build:
+      context: ./pocr-network/sealer
+    container_name: sealer-1
+    ports:
+      - 8541:8545
+      - 8542:8546
+    volumes:
+      - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
+      - ${MOUNT_DATADIR_NODE_1}:/root/.ethash
+      - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.102 # The monitor needs to know this address
+
+
+  sealer-2:
+    hostname: sealer-2
+    depends_on:
+      - geth-bootnode
+    environment:
+      - address=${WALLET_MINER_2} #derived from the private key which is passed in the args
+      - password=${PASS_PKEY_MINER_2}
+      - bootnodeId=${BOOTNODE_ID} #derived from the nodekeyhex of the bootnode
+      - bootnodeIp=${BOOTNODE_IP}
+      - bootnodePort=${BOOTNODE_PORT}
+      - networkId=${NETWORK_ID}
+    build:
+      context: ./pocr-network/sealer
+    container_name: sealer-2
+    ports:
+      - 8543:8545
+      - 8544:8546
+    volumes:
+      - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
+      - ${MOUNT_DATADIR_NODE_2}:/root/.ethash
+      - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.104
+ 
+  sealer-3:
+    hostname: sealer-3
+    depends_on:
+      - geth-bootnode
+    environment:
+      - address=${WALLET_MINER_3} #derived from the private key which is passed in the args
+      - password=${PASS_PKEY_MINER_3}
+      - bootnodeId=${BOOTNODE_ID} #derived from the nodekeyhex of the bootnode
+      - bootnodeIp=${BOOTNODE_IP}
+      - bootnodePort=${BOOTNODE_PORT}
+      - networkId=${NETWORK_ID}
+    build:
+      context: ./pocr-network/sealer
+    container_name: sealer-3
+    ports:
+      - 8545:8545
+      - 8546:8546
+    volumes:
+      - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
+      - ${MOUNT_DATADIR_NODE_3}:/root/.ethash
+      - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.105
+
+networks:
+  chainnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
