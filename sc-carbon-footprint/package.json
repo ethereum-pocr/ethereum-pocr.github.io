@@ -28,7 +28,8 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.3.2",
-    "@saturn-chain/smart-contract": "^1.0.4"
+    "@saturn-chain/smart-contract": "^1.0.4",
+    "solidity": "^0.0.1"
   },
   "mocha": {
     "spec": [

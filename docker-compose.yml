@@ -5,7 +5,7 @@ services:
     hostname: geth-bootnode
     environment:
       - nodekeyhex=${BOOTNODE_KEY_HEX} #Needs to be fix, so that the miners know the resulting enode id
-      - bootnodeId=${BOOTNODE_Id} # enodeId
+      # - bootnodeId=${BOOTNODE_Id} # enodeId
       - BOOTNODE_IP=${BOOTNODE_IP}
       - PORT=${BOOTNODE_PORT}
     build: pocr-network/bootnode
@@ -66,7 +66,7 @@ services:
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
-        ipv4_address: 172.25.0.104
+        ipv4_address: 172.25.0.103
  
   sealer-3:
     hostname: sealer-3
@@ -91,7 +91,46 @@ services:
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
-        ipv4_address: 172.25.0.105
+        ipv4_address: 172.25.0.104
+
+  lite-explorer:
+    hostname: lite-explorer
+    image: alethio/ethereum-lite-explorer
+    container_name: lite-explorer
+    environment:
+      - APP_NODE_URL=http://127.0.0.1:8545
+    ports:
+      - 8800:80
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.126
+
+  monitor:
+    hostname: monitor
+    depends_on:
+      - geth-dev-node
+    image: buythewhale/ethstats_monitor
+    container_name: monitor
+    volumes:
+      - ./app.json:/home/ethnetintel/eth-net-intelligence-api/app.json:ro
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.135
+
+  dashboard:
+    hostname: dashboard
+    depends_on:
+      - geth-dev-node
+      - monitor
+    image: buythewhale/ethstats
+    container_name: dashboard
+    volumes:
+      - ./ws_secret.json:/eth-netstats/ws_secret.json:ro
+    ports:
+      - 8008:3000
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.136
 
 networks:
   chainnet:
