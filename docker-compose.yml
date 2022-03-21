@@ -5,7 +5,6 @@ services:
     hostname: geth-bootnode
     environment:
       - nodekeyhex=${BOOTNODE_KEY_HEX} #Needs to be fix, so that the miners know the resulting enode id
-      # - bootnodeId=${BOOTNODE_Id} # enodeId
       - BOOTNODE_IP=${BOOTNODE_IP}
       - PORT=${BOOTNODE_PORT}
     build: pocr-network/bootnode
@@ -108,7 +107,7 @@ services:
   monitor:
     hostname: monitor
     depends_on:
-      - geth-dev-node
+      - sealer-3
     image: buythewhale/ethstats_monitor
     container_name: monitor
     volumes:
@@ -120,7 +119,7 @@ services:
   dashboard:
     hostname: dashboard
     depends_on:
-      - geth-dev-node
+      - sealer-3
       - monitor
     image: buythewhale/ethstats
     container_name: dashboard
@@ -131,6 +130,20 @@ services:
     networks:
       chainnet:
         ipv4_address: 172.25.0.136
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./pocr-network/data/portainer:/data
+    ports:
+      - 9000:9000
+
 
 networks:
   chainnet:
