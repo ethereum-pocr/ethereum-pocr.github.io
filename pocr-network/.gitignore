@@ -1,3 +1,5 @@
 node*
 .DS_store
 pocr-network/data
+pocr-network/data/*
+pocr-network/data/portainer
