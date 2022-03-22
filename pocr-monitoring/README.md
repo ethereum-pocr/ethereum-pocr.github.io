@@ -2,6 +2,10 @@
 
 ## Project setup
 ```
+# need to build the dependancies
+cd ../pocr-utils && npm install && npm run build
+cd ../sc-carbon-footprint && npm install && npm run build
+cd ../pocr-monitoring
 npm install
 ```
 
