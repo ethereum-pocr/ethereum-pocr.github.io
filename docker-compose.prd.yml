@@ -1,13 +1,26 @@
 version: "2"
 services:
 
+  reverse-proxy:
+    image: nginx
+    restart: unless-stopped
+    depends_on:
+      - pocr-monitoring
+      - sealer-1
+      - sealer-2
+      - sealer-3    
+    volumes:
+      - ./pocr-network/conf/:/etc/nginx/conf.d/
+    ports:
+      - 80:80
+
   geth-bootnode:
     hostname: geth-bootnode
     environment:
       - nodekeyhex=${BOOTNODE_KEY_HEX} #Needs to be fix, so that the miners know the resulting enode id
       - BOOTNODE_IP=${BOOTNODE_IP}
       - PORT=${BOOTNODE_PORT}
-    build: pocr-network/bootnode
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/bootnode:1.0.0
     container_name: geth-bootnode
     ports:
       - ${BOOTNODE_PORT}:${BOOTNODE_PORT}/udp
@@ -20,6 +33,7 @@ services:
     hostname: sealer-1
     depends_on:
       - geth-bootnode
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/sealer:1.0.0
     environment:
       - address=${WALLET_MINER_1} #derived from the private key which is passed in the args
       - password=${PASS_PKEY_MINER_1}
@@ -27,8 +41,6 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
-    build:
-      context: ./pocr-network/sealer
     container_name: sealer-1
     ports:
       - 8541:8545
@@ -46,6 +58,7 @@ services:
     hostname: sealer-2
     depends_on:
       - geth-bootnode
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/sealer:1.0.0
     environment:
       - address=${WALLET_MINER_2} #derived from the private key which is passed in the args
       - password=${PASS_PKEY_MINER_2}
@@ -53,8 +66,6 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
-    build:
-      context: ./pocr-network/sealer
     container_name: sealer-2
     ports:
       - 8543:8545
@@ -71,6 +82,7 @@ services:
     hostname: sealer-3
     depends_on:
       - geth-bootnode
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/sealer:1.0.0
     environment:
       - address=${WALLET_MINER_3} #derived from the private key which is passed in the args
       - password=${PASS_PKEY_MINER_3}
@@ -78,8 +90,6 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
-    build:
-      context: ./pocr-network/sealer
     container_name: sealer-3
     ports:
       - 8545:8545
@@ -99,10 +109,11 @@ services:
       - sealer-3
     # environment:
     #   - url=ws://server/ 
-    build:
-      context: ./pocr-monitoring
-    ports:
-      - 8081:80
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/pocr-monitoring:1.0.0
+    volumes:
+      - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
+      - ${MOUNT_DATADIR_NODE_3}:/root/.ethash
+      - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
 
 
   lite-explorer:
@@ -120,8 +131,6 @@ services:
   monitor:
     hostname: monitor
     depends_on:
-      - sealer-1
-      - sealer-2
       - sealer-3
     image: buythewhale/ethstats_monitor
     container_name: monitor
@@ -134,8 +143,6 @@ services:
   dashboard:
     hostname: dashboard
     depends_on:
-      - sealer-1
-      - sealer-2
       - sealer-3
       - monitor
     image: buythewhale/ethstats
@@ -147,20 +154,6 @@ services:
     networks:
       chainnet:
         ipv4_address: 172.25.0.136
-
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./pocr-network/data/portainer:/data
-    ports:
-      - 9000:9000
-
 
 networks:
   chainnet:

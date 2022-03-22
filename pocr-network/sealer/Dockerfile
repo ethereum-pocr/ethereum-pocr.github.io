@@ -1,3 +1,4 @@
+# FROM ubuntu:jammy\
 FROM ubuntu:xenial
 
 RUN apt-get update \
@@ -16,6 +17,11 @@ ENV address=""
 ENV bootnodeId=""
 ENV bootnodeIp=""
 
+RUN apt-get update && \
+    apt-get install -y build-essential
+
+COPY geth /usr/bin/geth-pocr
+RUN chmod +x /usr/bin/geth-pocr
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
