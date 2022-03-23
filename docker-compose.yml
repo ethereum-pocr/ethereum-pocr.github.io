@@ -95,17 +95,21 @@ services:
       chainnet:
         ipv4_address: 172.25.0.104
 
-  # pocr-monitoring:
-  #   depends_on:
-  #     - sealer-1
-  #     - sealer-2
-  #     - sealer-3
-  #   # environment:
-  #   #   - url=ws://server/ 
-  #   build:
-  #     context: ./pocr-monitoring
-  #   ports:
-  #     - 8081:80
+  pocr-monitoring:
+    depends_on:
+      - sealer-1
+      - sealer-2
+      - sealer-3
+    # environment:
+    #   - url=ws://server/ 
+    build:
+      context: ./pocr-monitoring
+    ports:
+      - 8081:8080
+    volumes:
+      - ./pocr-monitoring:/app/
+      - ./pocr-utils/:/pocr-utils/
+      - ./sc-carbon-footprint/:/sc-carbon-footprint/
 
 
   lite-explorer:
