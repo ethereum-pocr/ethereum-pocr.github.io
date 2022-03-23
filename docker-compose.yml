@@ -100,7 +100,8 @@ services:
     # environment:
     #   - url=ws://server/ 
     build:
-      context: ./pocr-monitoring
+      context: .
+      dockerfile: monitoring.dockerfile
     ports:
       - 8081:80
 
