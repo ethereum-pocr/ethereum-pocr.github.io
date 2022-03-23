@@ -27,7 +27,7 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
-      - verbosity=8
+      - verbosity=3
     build:
       context: ./pocr-network/sealer
     container_name: sealer-1
@@ -54,7 +54,7 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
-      - verbosity=8
+      - verbosity=3
     build:
       context: ./pocr-network/sealer
     container_name: sealer-2
@@ -80,7 +80,7 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
-      - verbosity=2
+      - verbosity=3
     build:
       context: ./pocr-network/sealer
     container_name: sealer-3
@@ -95,17 +95,17 @@ services:
       chainnet:
         ipv4_address: 172.25.0.104
 
-  pocr-monitoring:
-    depends_on:
-      - sealer-1
-      - sealer-2
-      - sealer-3
-    # environment:
-    #   - url=ws://server/ 
-    build:
-      context: ./pocr-monitoring
-    ports:
-      - 8081:80
+  # pocr-monitoring:
+  #   depends_on:
+  #     - sealer-1
+  #     - sealer-2
+  #     - sealer-3
+  #   # environment:
+  #   #   - url=ws://server/ 
+  #   build:
+  #     context: ./pocr-monitoring
+  #   ports:
+  #     - 8081:80
 
 
   lite-explorer:
@@ -160,7 +160,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./pocr-network/data/portainer:/data
+      - /tmp/portainer:/data
     ports:
       - 9000:9000
 

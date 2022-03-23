@@ -1,4 +1,4 @@
-# # FROM ubuntu:jammy
+FROM ubuntu:jammy
 # FROM ubuntu:xenial
 
 # RUN apt-get update \
@@ -18,8 +18,10 @@
 # RUN apt-get update && \
 #     apt-get install -y build-essential
 
-FROM testgeth
+# FROM testgeth
 
+COPY geth /usr/bin/geth
+RUN chmod +x /usr/bin/geth
 WORKDIR /root
 COPY entrypoint.sh /entrypoint.sh
 
