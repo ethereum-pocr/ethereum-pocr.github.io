@@ -27,6 +27,7 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
+      - verbosity=8
     build:
       context: ./pocr-network/sealer
     container_name: sealer-1
@@ -53,6 +54,7 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
+      - verbosity=8
     build:
       context: ./pocr-network/sealer
     container_name: sealer-2
@@ -78,6 +80,7 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
+      - verbosity=2
     build:
       context: ./pocr-network/sealer
     container_name: sealer-3
