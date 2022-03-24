@@ -40,7 +40,7 @@ services:
       - 8542:8546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_1}:/root/.ethash
+      - ${MOUNT_DATADIR_NODE_1}:/root/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
@@ -66,7 +66,7 @@ services:
       - 8544:8546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_2}:/root/.ethash
+      - ${MOUNT_DATADIR_NODE_2}:/root/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
@@ -91,7 +91,7 @@ services:
       - 8546:8546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_3}:/root/.ethash
+      - ${MOUNT_DATADIR_NODE_3}:/root/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
