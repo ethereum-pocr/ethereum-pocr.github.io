@@ -1,6 +1,22 @@
 version: "2"
 services:
 
+  reverse-proxy:
+    image: nginx
+    restart: unless-stopped
+    depends_on:
+      - pocr-monitoring
+      - sealer-1
+      - sealer-2
+      - sealer-3    
+    volumes:
+      - ./pocr-network/conf/:/etc/nginx/conf.d/
+    ports:
+      - 80:80
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.100
+
   geth-bootnode:
     hostname: geth-bootnode
     environment:
@@ -113,7 +129,9 @@ services:
     #   - ./pocr-monitoring:/app/
     #   - ./pocr-utils/:/pocr-utils/
     #   - ./sc-carbon-footprint/:/sc-carbon-footprint/
-
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.105
 
   lite-explorer:
     hostname: lite-explorer
