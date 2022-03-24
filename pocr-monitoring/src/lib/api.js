@@ -149,6 +149,7 @@ export async function currentBlockNumber() {
 }
 
 export async function blockRange(from, to, callMe) {
+  if (from<0) from = 0;
   for (let index = from; index <= to; index++) {
     const block = await web3.eth.getBlock(index, false);
     processBlock(block).then(callMe)

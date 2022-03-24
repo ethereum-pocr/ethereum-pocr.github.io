@@ -103,13 +103,14 @@ services:
     # environment:
     #   - url=ws://server/ 
     build:
-      context: ./pocr-monitoring
+      context: .
+      dockerfile: monitoring.dockerfile
     ports:
-      - 8081:8080
-    volumes:
-      - ./pocr-monitoring:/app/
-      - ./pocr-utils/:/pocr-utils/
-      - ./sc-carbon-footprint/:/sc-carbon-footprint/
+      - 8081:80
+    # volumes:
+    #   - ./pocr-monitoring:/app/
+    #   - ./pocr-utils/:/pocr-utils/
+    #   - ./sc-carbon-footprint/:/sc-carbon-footprint/
 
 
   lite-explorer:
