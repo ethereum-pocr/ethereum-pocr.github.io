@@ -28,8 +28,12 @@ services:
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
       - verbosity=3
+    image: sealer
     build:
       context: ./pocr-network/sealer
+      args:
+        GITLAB_USER: ${GITLAB_USER}
+        GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
     container_name: sealer-1
     ports:
       - 8541:8545
@@ -55,8 +59,7 @@ services:
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
       - verbosity=3
-    build:
-      context: ./pocr-network/sealer
+    image: sealer
     container_name: sealer-2
     ports:
       - 8543:8545
@@ -81,8 +84,7 @@ services:
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
       - verbosity=3
-    build:
-      context: ./pocr-network/sealer
+    image: sealer
     container_name: sealer-3
     ports:
       - 8545:8545
