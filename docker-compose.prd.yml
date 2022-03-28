@@ -13,6 +13,9 @@ services:
       - ./pocr-network/conf/:/etc/nginx/conf.d/
     ports:
       - 80:80
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.100
 
   geth-bootnode:
     hostname: geth-bootnode
@@ -41,13 +44,14 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
+      - verbosity=3
     container_name: sealer-1
     ports:
       - 8541:8545
       - 8542:8546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_1}:/root/.ethash
+      - ${MOUNT_DATADIR_NODE_1}:/root/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
@@ -66,13 +70,14 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
+      - verbosity=3
     container_name: sealer-2
     ports:
       - 8543:8545
       - 8544:8546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_2}:/root/.ethash
+      - ${MOUNT_DATADIR_NODE_2}:/root/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
@@ -90,13 +95,14 @@ services:
       - bootnodeIp=${BOOTNODE_IP}
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
+      - verbosity=3
     container_name: sealer-3
     ports:
       - 8545:8545
       - 8546:8546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_3}:/root/.ethash
+      - ${MOUNT_DATADIR_NODE_3}:/root/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
@@ -110,11 +116,9 @@ services:
     # environment:
     #   - url=ws://server/ 
     image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/pocr-monitoring:1.0.0
-    volumes:
-      - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_3}:/root/.ethash
-      - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
-
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.105
 
   lite-explorer:
     hostname: lite-explorer
@@ -155,6 +159,20 @@ services:
       chainnet:
         ipv4_address: 172.25.0.136
 
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /tmp/portainer:/data
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.137
+        
 networks:
   chainnet:
     driver: bridge

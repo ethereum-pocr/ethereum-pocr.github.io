@@ -125,10 +125,6 @@ services:
       dockerfile: monitoring.dockerfile
     ports:
       - 8081:80
-    # volumes:
-    #   - ./pocr-monitoring:/app/
-    #   - ./pocr-utils/:/pocr-utils/
-    #   - ./sc-carbon-footprint/:/sc-carbon-footprint/
     networks:
       chainnet:
         ipv4_address: 172.25.0.105
