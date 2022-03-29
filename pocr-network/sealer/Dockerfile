@@ -10,7 +10,7 @@ RUN apt-get update \
 ARG GITLAB_USER
 ARG GITLAB_ACCESS_TOKEN
 
-RUN curl -u "${GITLAB_USER}:${GITLAB_ACCESS_TOKEN}" -o "geth-pocr" https://gitlab.com/api/v4/projects/34464473/packages/generic/geth/latest/geth
+RUN curl -f -u "${GITLAB_USER}:${GITLAB_ACCESS_TOKEN}" -o "geth-pocr" https://gitlab.com/api/v4/projects/34464473/packages/generic/geth/latest/geth
 RUN chmod +x geth-pocr && mv geth-pocr /usr/bin/geth
 
 WORKDIR /root
