@@ -12,7 +12,7 @@ services:
     volumes:
       - ./pocr-network/conf/:/etc/nginx/conf.d/
     ports:
-      - 80:80
+      - 80:8085
     networks:
       chainnet:
         ipv4_address: 172.25.0.100
@@ -27,7 +27,7 @@ services:
     container_name: geth-bootnode
     ports:
       - ${BOOTNODE_PORT}:${BOOTNODE_PORT}/udp
-      - 30303:30303/udp
+      - 30336:31303/udp
     networks:
       chainnet:
         ipv4_address: 172.25.0.101 # The miners need to know the IP address later on
@@ -52,8 +52,8 @@ services:
         GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
     container_name: sealer-1
     ports:
-      - 8541:8545
-      - 8542:8546
+      - 8541:8645
+      - 8542:8646
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
       - ${MOUNT_DATADIR_NODE_1}:/root/.ethereum/
@@ -78,8 +78,8 @@ services:
     image: sealer
     container_name: sealer-2
     ports:
-      - 8543:8545
-      - 8544:8546
+      - 8543:8645
+      - 8544:8646
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
       - ${MOUNT_DATADIR_NODE_2}:/root/.ethereum/
@@ -103,8 +103,8 @@ services:
     image: sealer
     container_name: sealer-3
     ports:
-      - 8545:8545
-      - 8546:8546
+      - 8545:8645
+      - 8546:8646
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
       - ${MOUNT_DATADIR_NODE_3}:/root/.ethereum/
@@ -112,66 +112,6 @@ services:
     networks:
       chainnet:
         ipv4_address: 172.25.0.104
-
-  pocr-monitoring:
-    depends_on:
-      - sealer-1
-      - sealer-2
-      - sealer-3
-    # environment:
-    #   - url=ws://server/ 
-    build:
-      context: .
-      dockerfile: monitoring.dockerfile
-    ports:
-      - 8081:80
-    networks:
-      chainnet:
-        ipv4_address: 172.25.0.105
-
-  lite-explorer:
-    hostname: lite-explorer
-    image: alethio/ethereum-lite-explorer
-    container_name: lite-explorer
-    environment:
-      - APP_NODE_URL=http://127.0.0.1:8545
-    ports:
-      - 8800:80
-    networks:
-      chainnet:
-        ipv4_address: 172.25.0.126
-
-  monitor:
-    hostname: monitor
-    depends_on:
-      - sealer-1
-      - sealer-2
-      - sealer-3
-    image: buythewhale/ethstats_monitor
-    container_name: monitor
-    volumes:
-      - ./app.json:/home/ethnetintel/eth-net-intelligence-api/app.json:ro
-    networks:
-      chainnet:
-        ipv4_address: 172.25.0.135
-
-  dashboard:
-    hostname: dashboard
-    depends_on:
-      - sealer-1
-      - sealer-2
-      - sealer-3
-      - monitor
-    image: buythewhale/ethstats
-    container_name: dashboard
-    volumes:
-      - ./ws_secret.json:/eth-netstats/ws_secret.json:ro
-    ports:
-      - 8008:3000
-    networks:
-      chainnet:
-        ipv4_address: 172.25.0.136
-
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
@@ -184,8 +124,6 @@ services:
       - /tmp/portainer:/data
     ports:
       - 9000:9000
-
-
 networks:
   chainnet:
     driver: bridge

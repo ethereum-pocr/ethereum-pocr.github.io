@@ -17,8 +17,10 @@ docker build -f monitoring.dockerfile -t pocr-mon .
 ```
 
 ** Start the network
+
+For developers
 ```sh
-docker-compose up
+docker-compose -f  docker-compose.dev.yml up
 ```
 
 ** If the sources changes build all dockerfiles using
