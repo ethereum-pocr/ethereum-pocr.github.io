@@ -1,0 +1,181 @@
+version: "2"
+services:
+
+  reverse-proxy:
+    image: nginx
+    restart: unless-stopped
+    depends_on:
+      - pocr-monitoring
+      - sealer-1
+      - sealer-2
+      - sealer-3    
+    volumes:
+      - ./pocr-network/conf/:/etc/nginx/conf.d/
+    ports:
+      - 80:80
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.100
+
+  geth-bootnode:
+    hostname: geth-bootnode
+    environment:
+      - nodekeyhex=${BOOTNODE_KEY_HEX} #Needs to be fix, so that the miners know the resulting enode id
+      - BOOTNODE_IP=${BOOTNODE_IP}
+      - PORT=${BOOTNODE_PORT}
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/bootnode:1.0.0
+    container_name: geth-bootnode
+    ports:
+      - ${BOOTNODE_PORT}:${BOOTNODE_PORT}/udp
+      - 30303:30303/udp
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.101 # The miners need to know the IP address later on
+
+  sealer-1:
+    hostname: sealer-1
+    depends_on:
+      - geth-bootnode
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/sealer:1.0.0
+    environment:
+      - address=${WALLET_MINER_1} #derived from the private key which is passed in the args
+      - password=${PASS_PKEY_MINER_1}
+      - bootnodeId=${BOOTNODE_ID} #derived from the nodekeyhex of the bootnode
+      - bootnodeIp=${BOOTNODE_IP}
+      - bootnodePort=${BOOTNODE_PORT}
+      - networkId=${NETWORK_ID}
+      - verbosity=3
+    container_name: sealer-1
+    ports:
+      - 8541:8545
+      - 8542:8546
+    volumes:
+      - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
+      - ${MOUNT_DATADIR_NODE_1}:/root/.ethereum/
+      - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.102 # The monitor needs to know this address
+
+
+  sealer-2:
+    hostname: sealer-2
+    depends_on:
+      - geth-bootnode
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/sealer:1.0.0
+    environment:
+      - address=${WALLET_MINER_2} #derived from the private key which is passed in the args
+      - password=${PASS_PKEY_MINER_2}
+      - bootnodeId=${BOOTNODE_ID} #derived from the nodekeyhex of the bootnode
+      - bootnodeIp=${BOOTNODE_IP}
+      - bootnodePort=${BOOTNODE_PORT}
+      - networkId=${NETWORK_ID}
+      - verbosity=3
+    container_name: sealer-2
+    ports:
+      - 8543:8545
+      - 8544:8546
+    volumes:
+      - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
+      - ${MOUNT_DATADIR_NODE_2}:/root/.ethereum/
+      - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.103
+ 
+  sealer-3:
+    hostname: sealer-3
+    depends_on:
+      - geth-bootnode
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/sealer:1.0.0
+    environment:
+      - address=${WALLET_MINER_3} #derived from the private key which is passed in the args
+      - password=${PASS_PKEY_MINER_3}
+      - bootnodeId=${BOOTNODE_ID} #derived from the nodekeyhex of the bootnode
+      - bootnodeIp=${BOOTNODE_IP}
+      - bootnodePort=${BOOTNODE_PORT}
+      - networkId=${NETWORK_ID}
+      - verbosity=3
+    container_name: sealer-3
+    ports:
+      - 8545:8545
+      - 8546:8546
+    volumes:
+      - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
+      - ${MOUNT_DATADIR_NODE_3}:/root/.ethereum/
+      - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.104
+
+  pocr-monitoring:
+    depends_on:
+      - sealer-1
+      - sealer-2
+      - sealer-3
+    # environment:
+    #   - url=ws://server/ 
+    image: registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/pocr-monitoring:1.0.0
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.105
+
+  lite-explorer:
+    hostname: lite-explorer
+    image: alethio/ethereum-lite-explorer
+    container_name: lite-explorer
+    environment:
+      - APP_NODE_URL=http://127.0.0.1:8545
+    ports:
+      - 8800:80
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.126
+
+  monitor:
+    hostname: monitor
+    depends_on:
+      - sealer-3
+    image: buythewhale/ethstats_monitor
+    container_name: monitor
+    volumes:
+      - ./app.json:/home/ethnetintel/eth-net-intelligence-api/app.json:ro
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.135
+
+  dashboard:
+    hostname: dashboard
+    depends_on:
+      - sealer-3
+      - monitor
+    image: buythewhale/ethstats
+    container_name: dashboard
+    volumes:
+      - ./ws_secret.json:/eth-netstats/ws_secret.json:ro
+    ports:
+      - 8008:3000
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.136
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /tmp/portainer:/data
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.137
+        
+networks:
+  chainnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
