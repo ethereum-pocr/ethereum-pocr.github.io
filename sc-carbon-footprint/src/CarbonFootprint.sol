@@ -2,35 +2,62 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
+//import "./intf/ICarbonFootprint.sol";
+//import "./intf/IAuditorGovernance.sol";
+
+
+
+
+/** Contract cannot have initializer or constructor as its binary form will be embeded in the genesis block */
 contract CarbonFootprint {
+
     mapping(address => uint) public footprint;
+
     uint public nbNodes;
+    
     uint public totalFootprint;
 
-    address public owner;
+    event CarbonFootprintUpdate(address indexed node, uint footprint);
 
-    function setFootprint(address node, uint value) public {
-        // first get the current balance to make it as if we are removing
-        uint current = footprint[node];
-        if (current > 0) { // means node exists
+
+    //in final version, we should define the function external as it is intended to be used with an UI exclusively (?)
+    function setFootprint(address _node, uint _value) public {
+        
+        // IAuditorGovernance me = IAuditorGovernance(address(this));
+        // Ensure that the sender is an authorized auditor
+        // require(me.auditorSettingFootprint(msg.sender), "the caller is not authorized to set the carbon footprint");
+        require(msg.sender != _node, "the auditor cannot set its own footprint"); 
+
+
+        // Now we can set the footprint
+        uint current = footprint[_node];
+
+
+
+        //creation of a node and footprint setting
+        if ((current == 0) && (_value > 0)) {
+            footprint[_node] = _value;
+            nbNodes += 1;
+            totalFootprint += _value;
+        }
+
+        //update of a footprint node
+        if ((current > 0) && (_value > 0)) {
+            footprint[_node] = _value;
+            totalFootprint -= current;
+            totalFootprint += _value;
+        }
+
+       //delete of a footprint node
+        if ((current > 0) && (_value ==  0)) {
             totalFootprint -= current;
             nbNodes -= 1;
-            delete footprint[node];
+            delete footprint[_node];
         }
-        // if value is zero then it is a node removal
-        if (value >0) {
-            footprint[node] = value;
-            nbNodes += 1;
-            totalFootprint += value;
-        }
-    }
-    function setOwner(address newOwner) public {
-        if (owner == address(0x0) || owner==msg.sender) {
-            owner = newOwner;
-        }
-    }
-}
 
-// 0xb6c3dcf8 totalFootprint
-// 0x03b2ec98 nbNodes
-// 0x79f858160000000000000000000000005b38da6a701c568545dcfcb03fcb875f56beddc4 footprint
+ 
+
+        emit CarbonFootprintUpdate(_node, _value);
+    }
+
+}

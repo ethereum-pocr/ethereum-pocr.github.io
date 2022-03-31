@@ -1,3 +1,4 @@
+solc --version
 solc -o contracts --optimize --combined-json abi,bin --overwrite --base-path . --include-path ./node_modules  src/*.sol
 
 if [ $? -eq 0 ]
