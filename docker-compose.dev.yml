@@ -12,7 +12,7 @@ services:
     volumes:
       - ./pocr-network/conf/:/etc/nginx/conf.d/
     ports:
-      - 80:8085
+      - 8081:80
     networks:
       chainnet:
         ipv4_address: 172.25.0.100
@@ -27,7 +27,7 @@ services:
     container_name: geth-bootnode
     ports:
       - ${BOOTNODE_PORT}:${BOOTNODE_PORT}/udp
-      - 30336:31303/udp
+      - 31303:30303/udp
     networks:
       chainnet:
         ipv4_address: 172.25.0.101 # The miners need to know the IP address later on
@@ -52,8 +52,8 @@ services:
         GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
     container_name: sealer-1
     ports:
-      - 8541:8645
-      - 8542:8646
+      - 8641:8545
+      - 8642:8546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
       - ${MOUNT_DATADIR_NODE_1}:/root/.ethereum/
@@ -61,8 +61,6 @@ services:
     networks:
       chainnet:
         ipv4_address: 172.25.0.102 # The monitor needs to know this address
-
-
   sealer-2:
     hostname: sealer-2
     depends_on:
@@ -78,8 +76,8 @@ services:
     image: sealer
     container_name: sealer-2
     ports:
-      - 8543:8645
-      - 8544:8646
+      - 8643:8545
+      - 8644:8546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
       - ${MOUNT_DATADIR_NODE_2}:/root/.ethereum/
@@ -103,8 +101,8 @@ services:
     image: sealer
     container_name: sealer-3
     ports:
-      - 8545:8645
-      - 8546:8646
+      - 8645:9545
+      - 8646:9546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
       - ${MOUNT_DATADIR_NODE_3}:/root/.ethereum/
