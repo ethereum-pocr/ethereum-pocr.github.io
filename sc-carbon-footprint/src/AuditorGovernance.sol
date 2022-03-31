@@ -8,10 +8,13 @@ import "./intf/IPledgeContract.sol";
 
 
 contract AuditorGovernance is IAuditorGovernance {
+
   struct NodeVote {
     bool vote;
     uint atBlock;
   }
+
+
   struct AuditorStatus {
     bool registered;
     uint votes;
@@ -22,27 +25,37 @@ contract AuditorGovernance is IAuditorGovernance {
     uint minPledgeAtLastAudit; // the calculated amount of the minimum pledge at last audit done
     uint lastAuditAtBlock; // the block number of the last audit done
   }
+
+
+
   mapping(address => AuditorStatus) private auditorsStatus;
+
+
+
   uint private nbAuditors;
 
+
+
+
+
   function selfRegisterAuditor() override public {
-    AuditorStatus storage s = auditorsStatus[msg.sender];
-    if (s.registered) { // already registered
+    if (auditorsStatus[msg.sender].registered) { // already registered
       return;
+
     } else {
-      s.registered = true;
-      s.registeredAtBlock = block.number;
+      (auditorsStatus[msg.sender].registered, auditorsStatus[msg.sender].registeredAtBlock) = (true, block.number);
       emit AuditorRegistered(msg.sender);
 
       if (nbAuditors == 0) {
         // the first auditor is automatically approved as part of the bootstrap
         approveAuditor(msg.sender);
+        
       } else {
-        s.approved = false;
-        s.votes = 0;
+        (auditorsStatus[msg.sender].approved, auditorsStatus[msg.sender].votes)  = (false, 0);
       }
     }
   }
+
 
   function approveAuditor(address auditor) private {
     AuditorStatus storage s = auditorsStatus[auditor];
@@ -56,9 +69,12 @@ contract AuditorGovernance is IAuditorGovernance {
       emit AuditorApproved(auditor, true);
     }
   }
+
+
   function onAuditorRejected(address auditor) virtual internal {
 
   }
+
 
   function rejectAuditor(address auditor) private {
     AuditorStatus storage s = auditorsStatus[auditor];
@@ -81,6 +97,7 @@ contract AuditorGovernance is IAuditorGovernance {
   * An approved auditor that reaches enougth votes (N/2+1) becomes un approved
   * a node can vote in or out until the auditor change its status
   */
+
   function voteAuditor(address auditor, bool accept) override public {
     ICarbonFootprint me = ICarbonFootprint(address(this));
     require(me.footprint(msg.sender) > 0, "only audited nodes can vote for auditors");
@@ -131,26 +148,31 @@ contract AuditorGovernance is IAuditorGovernance {
     }
   }
 
+
   function auditorRegistered(address auditor) override public view returns (bool) {
     AuditorStatus storage s = auditorsStatus[auditor];
     return s.registered;
   }
+
 
   function auditorApproved(address auditor) override public view returns (bool) {
     AuditorStatus storage s = auditorsStatus[auditor];
     return s.approved;
   }
 
+
   function auditorVotes(address auditor) override public view returns (uint) {
     AuditorStatus storage s = auditorsStatus[auditor];
     return s.votes;
   }
+
 
   function auditorLastAuditInfo(address auditor) override public view returns (uint atBlock, uint minPledge) {
     AuditorStatus storage s = auditorsStatus[auditor];
     atBlock = s.lastAuditAtBlock;
     minPledge = s.minPledgeAtLastAudit;
   }
+
 
   function minPledgeAmountToAuditNode(address auditor) public view returns (uint) {
       AuditorStatus storage s = auditorsStatus[auditor];
@@ -167,6 +189,7 @@ contract AuditorGovernance is IAuditorGovernance {
       }
       return P;
   }
+
 
   function auditorSettingFootprint(address auditor) override public returns (bool) {
     AuditorStatus storage s = auditorsStatus[auditor];
