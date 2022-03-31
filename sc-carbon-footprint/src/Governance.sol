@@ -14,7 +14,6 @@ contract Governance is CarbonFootprint, AuditorGovernance, PledgeContract, Impro
   /** Auditor can transfer his pledge out if his last audit is more that 30 days ago */
   function canTransferPledge(address payable auditor, uint) override internal view returns (bool) {
 
-
     // First the auditor must be approved
     if (!auditorApproved(auditor)) {
       return false;
@@ -24,8 +23,9 @@ contract Governance is CarbonFootprint, AuditorGovernance, PledgeContract, Impro
     // Then the last audit should be less that 30 days ago
     uint maxNbBlock = 650_000; // 30 days
     uint atBlock;
-    uint minPledge;
-    (atBlock, minPledge) = auditorLastAuditInfo(auditor);
+
+
+    (atBlock, ) = auditorLastAuditInfo(auditor);
 
     return block.number >= (atBlock + maxNbBlock);
   }
@@ -39,6 +39,10 @@ contract Governance is CarbonFootprint, AuditorGovernance, PledgeContract, Impro
 
     return f > 0;
   }
+
+
+
+
 
   /** called when an auditor is rejected and is implemented by confiscating the pledge */
   function onAuditorRejected(address auditor) override internal {

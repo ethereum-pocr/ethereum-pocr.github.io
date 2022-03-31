@@ -21,7 +21,7 @@ contract CarbonFootprint {
 
 
     //in final version, we should define the function external as it is intended to be used with an UI exclusively (?)
-    function setFootprint(address _node, uint _value) public {
+    function setFootprint(address _node, uint _value) external {
         
         // IAuditorGovernance me = IAuditorGovernance(address(this));
         // Ensure that the sender is an authorized auditor
