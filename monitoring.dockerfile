@@ -14,7 +14,7 @@ COPY pocr-monitoring /app/pocr-monitoring
 
 # build the pocr utilities
 RUN cd pocr-utils &&  \
-    rm -Rf build \
+    rm -Rf build && \
     npm ci --verbose && \
     ls -l && \
     npm run build 
