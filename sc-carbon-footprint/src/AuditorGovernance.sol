@@ -86,7 +86,9 @@ contract AuditorGovernance is IAuditorGovernance {
   */
 
   function voteAuditor(address _auditor, bool _accept) override public {
+
     ICarbonFootprint me = ICarbonFootprint(address(this));
+
     require(me.footprint(msg.sender) > 0, "only audited nodes can vote for auditors");
     require(auditorsStatus[_auditor].registered, "the proposed _auditor is not registered");
 
@@ -97,17 +99,13 @@ contract AuditorGovernance is IAuditorGovernance {
       auditorsStatus[_auditor].voters[msg.sender].vote = auditorsStatus[_auditor].approved;
     }
 
-
-    uint _nbNodes = me.nbNodes();
-
-    uint minVotes = _nbNodes / 2 + 1;
+    uint minVotes = me.nbNodes() / 2 + 1;
 
     // the vote should be the inverse of the previous vote or it shall have no effect
-    if (_accept == auditorsStatus[_auditor].voters[msg.sender].vote) {
-      return;
-    } else {
-      auditorsStatus[_auditor].voters[msg.sender].vote  = _accept;
-      auditorsStatus[_auditor].voters[msg.sender].atBlock = block.number;
+    if (_accept != auditorsStatus[_auditor].voters[msg.sender].vote) {
+
+      (auditorsStatus[_auditor].voters[msg.sender].vote, auditorsStatus[_auditor].voters[msg.sender].atBlock)  = (_accept, block.number);
+
       emit AuditorVoted(_auditor, msg.sender, _accept);
 
       if (!auditorsStatus[_auditor].approved) {
@@ -117,16 +115,19 @@ contract AuditorGovernance is IAuditorGovernance {
         } else {
           auditorsStatus[_auditor].votes --;
         }
+
         if (auditorsStatus[_auditor].votes >= minVotes) {
           approveAuditor(_auditor);
         }
+
       } else {
-        // already approved : accept should decrease the numner of votes
+        // already approved : accept should decrease the number of votes
         if (_accept) {
           auditorsStatus[_auditor].votes --;
         } else {
           auditorsStatus[_auditor].votes ++;
         }
+
         if (auditorsStatus[_auditor].votes >= minVotes) {
           rejectAuditor(_auditor);
         }
@@ -135,28 +136,23 @@ contract AuditorGovernance is IAuditorGovernance {
   }
 
 
-  function auditorRegistered(address auditor) override public view returns (bool) {
-    AuditorStatus storage s = auditorsStatus[auditor];
-    return s.registered;
+  function auditorRegistered(address _auditor) override public view returns (bool) {
+    return auditorsStatus[_auditor].registered;
   }
 
 
-  function auditorApproved(address auditor) override public view returns (bool) {
-    AuditorStatus storage s = auditorsStatus[auditor];
-    return s.approved;
+  function auditorApproved(address _auditor) override public view returns (bool) {
+    return auditorsStatus[_auditor].approved;
   }
 
 
-  function auditorVotes(address auditor) override public view returns (uint) {
-    AuditorStatus storage s = auditorsStatus[auditor];
-    return s.votes;
+  function auditorVotes(address _auditor) override public view returns (uint) {
+    return auditorsStatus[_auditor].votes;
   }
 
 
-  function auditorLastAuditInfo(address auditor) override public view returns (uint atBlock, uint minPledge) {
-    AuditorStatus storage s = auditorsStatus[auditor];
-    atBlock = s.lastAuditAtBlock;
-    minPledge = s.minPledgeAtLastAudit;
+  function auditorLastAuditInfo(address _auditor) override public view returns (uint, uint) {
+    return (auditorsStatus[_auditor].lastAuditAtBlock, auditorsStatus[_auditor].minPledgeAtLastAudit);
   }
 
 
