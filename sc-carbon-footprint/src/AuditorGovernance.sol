@@ -156,37 +156,38 @@ contract AuditorGovernance is IAuditorGovernance {
   }
 
 
-  function minPledgeAmountToAuditNode(address auditor) public view returns (uint) {
-      AuditorStatus storage s = auditorsStatus[auditor];
-      uint M = s.minPledgeAtLastAudit;
-      uint B = s.lastAuditAtBlock;
-      uint maxNbBlock = 650_000;
-      uint nbBlocks = block.number - B;
-      uint P = 1000 ether;
-      if ( nbBlocks < maxNbBlock && M > 0) {
+  //Review here Michael
+
+
+  function minPledgeAmountToAuditNode(address _auditor) public view returns (uint) {
+
+      uint minPledgeAtLastAudit = auditorsStatus[_auditor].minPledgeAtLastAudit;
+      uint maxNbBlockPerPeriod = 650_000;
+      uint nbBlocks = block.number - auditorsStatus[_auditor].lastAuditAtBlock;
+      uint minPledge = 1000 ether;
+
+      if ( nbBlocks < maxNbBlockPerPeriod && minPledgeAtLastAudit > 0) {
         // there is an amortisation of the previous pledge amount to be added
-        //      P = M * (1 - b / 650 000) + 1 000
-        // eq   P = 1 000 + M - M*b/650 000
-        P = P + M - (M * nbBlocks / maxNbBlock);
+        //       = minPledge * (1 - nbBlocks / 650 000) + 1 000
+        // eq   minPledge = 1 000 + minPledge - minPledge * nbBlocks / 650 000
+        minPledge = minPledge + minPledgeAtLastAudit - (minPledgeAtLastAudit * nbBlocks / maxNbBlockPerPeriod);
       }
-      return P;
+
+      return minPledge;
   }
 
 
   function auditorSettingFootprint(address auditor) override public returns (bool) {
-    AuditorStatus storage s = auditorsStatus[auditor];
+
     IPledgeContract me = IPledgeContract(address(this));
 
-    if (s.approved) { // auditor must still be approved
-      uint currentPledge = me.pledgedAmount(auditor);
-      uint P = minPledgeAmountToAuditNode(auditor);
-      if (currentPledge < P) {
+    if (auditorsStatus[auditor].approved) { // auditor must still be approved
+      if (me.pledgedAmount(auditor) < minPledgeAmountToAuditNode(auditor)) {
         // not enough pledge in the contract
         return false;
       } else {
         // enough pledge, save the calculation
-        s.minPledgeAtLastAudit = P;
-        s.lastAuditAtBlock = block.number;
+        (auditorsStatus[auditor].minPledgeAtLastAudit, auditorsStatus[auditor].lastAuditAtBlock) = (minPledgeAmountToAuditNode(auditor), block.number);
         return true;
       }
     } else {
