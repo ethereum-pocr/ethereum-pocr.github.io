@@ -40,7 +40,7 @@ contract AuditorGovernance is IAuditorGovernance {
 
   function selfRegisterAuditor() override public {
     
-    AuditorStatus storage s = auditorsStatus[auditor];
+    AuditorStatus storage s = auditorsStatus[msg.sender];
     
     if (!s.registered) { // not registered
 
@@ -55,7 +55,7 @@ contract AuditorGovernance is IAuditorGovernance {
       } else {
 
         (s.approved, s.votes)  = (false, 0);
-        
+
       }
     }
   }
