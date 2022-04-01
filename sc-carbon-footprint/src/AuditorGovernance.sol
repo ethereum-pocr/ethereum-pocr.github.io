@@ -14,7 +14,6 @@ contract AuditorGovernance is IAuditorGovernance {
     uint atBlock;
   }
 
-
   struct AuditorStatus {
     bool registered;
     uint votes;
@@ -26,74 +25,57 @@ contract AuditorGovernance is IAuditorGovernance {
     uint lastAuditAtBlock; // the block number of the last audit done
   }
 
-
-
   mapping(address => AuditorStatus) private auditorsStatus;
-
-
 
   uint private nbAuditors;
 
 
-
-
-
   function selfRegisterAuditor() override public {
-    
+
     AuditorStatus storage s = auditorsStatus[msg.sender];
-    
-    if (!s.registered) { // not registered
 
+    if (!s.registered) {      // not registered
       (s.registered, s.registeredAtBlock) = (true, block.number);
-
       emit AuditorRegistered(msg.sender);
-
-      if (nbAuditors == 0) {
-        // the first auditor is automatically approved as part of the bootstrap
+      if (nbAuditors == 0) {  // the first auditor is automatically approved as part of the bootstrap
         approveAuditor(msg.sender);
-
       } else {
-
         (s.approved, s.votes)  = (false, 0);
-
       }
     }
   }
 
 
-  function approveAuditor(address auditor) private {
+  function approveAuditor(address _auditor) private {
 
-    AuditorStatus storage s = auditorsStatus[auditor];
+    AuditorStatus storage s = auditorsStatus[_auditor];
 
     if (!s.approved) { //not approved
-
       (s.approved, s.votes, s.approvalBlock) = (true, 0, block.number);
       nbAuditors ++;
-
-      emit AuditorApproved(auditor, true);
+      emit AuditorApproved(_auditor, true);
     }
   }
 
 
-  function onAuditorRejected(address auditor) virtual internal {
+  function onAuditorRejected(address _auditor) virtual internal {
 
   }
 
 
-  function rejectAuditor(address auditor) private {
+  function rejectAuditor(address _auditor) private {
 
-    AuditorStatus storage s = auditorsStatus[auditor];
+    AuditorStatus storage s = auditorsStatus[_auditor];
 
     if (s.approved) {
-
       (s.approved, s.votes, s.approvalBlock) = (false, 0, block.number);
       nbAuditors --;
-
-      onAuditorRejected(auditor);
-
-      emit AuditorApproved(auditor, false);
+      onAuditorRejected(_auditor);
+      emit AuditorApproved(_auditor, false);
     }
   }
+
+
 
   /**
   * Only a node with a footprint can vote on an auditor
@@ -103,51 +85,50 @@ contract AuditorGovernance is IAuditorGovernance {
   * a node can vote in or out until the auditor change its status
   */
 
-  function voteAuditor(address auditor, bool accept) override public {
+  function voteAuditor(address _auditor, bool _accept) override public {
     ICarbonFootprint me = ICarbonFootprint(address(this));
     require(me.footprint(msg.sender) > 0, "only audited nodes can vote for auditors");
-    
-    AuditorStatus storage s = auditorsStatus[auditor];
-    require(s.registered, "the proposed auditor is not registered");
+    require(auditorsStatus[_auditor].registered, "the proposed _auditor is not registered");
 
-    NodeVote storage lastVote = s.voters[msg.sender];
-    bool vote = lastVote.vote;
     // If the node has never voted, its lastVote.atBlock is zero
-    // If he has voted and the auditor status has changed since the vote, its like its last vote was in favor of the current status
-    if (lastVote.atBlock == 0 || lastVote.atBlock <= s.approvalBlock) {
+    // If the node has already voted & the auditor status has changed since the vote, its last vote was in favor of current status
+    if (auditorsStatus[_auditor].voters[msg.sender].atBlock == 0 || auditorsStatus[_auditor].voters[msg.sender].atBlock <= auditorsStatus[_auditor].approvalBlock) {
       // the node vote is forced to the current status to decide if the vote should change the status
-      vote = s.approved;
+      auditorsStatus[_auditor].voters[msg.sender].vote = auditorsStatus[_auditor].approved;
     }
-    uint N = me.nbNodes();
-    uint minVotes = N / 2 +1;
+
+
+    uint _nbNodes = me.nbNodes();
+
+    uint minVotes = _nbNodes / 2 + 1;
 
     // the vote should be the inverse of the previous vote or it shall have no effect
-    if (accept == vote) {
+    if (_accept == auditorsStatus[_auditor].voters[msg.sender].vote) {
       return;
     } else {
-      lastVote.vote = accept;
-      lastVote.atBlock = block.number;
-      emit AuditorVoted(auditor, msg.sender, accept);
+      auditorsStatus[_auditor].voters[msg.sender].vote  = _accept;
+      auditorsStatus[_auditor].voters[msg.sender].atBlock = block.number;
+      emit AuditorVoted(_auditor, msg.sender, _accept);
 
-      if (!s.approved) {
+      if (!auditorsStatus[_auditor].approved) {
         // not yet approved : accept should increase the number of votes
-        if (accept) {
-          s.votes ++;
+        if (_accept) {
+          auditorsStatus[_auditor].votes ++;
         } else {
-          s.votes --;
+          auditorsStatus[_auditor].votes --;
         }
-        if (s.votes>=minVotes) {
-          approveAuditor(auditor);
+        if (auditorsStatus[_auditor].votes >= minVotes) {
+          approveAuditor(_auditor);
         }
       } else {
         // already approved : accept should decrease the numner of votes
-        if (accept) {
-          s.votes --;
+        if (_accept) {
+          auditorsStatus[_auditor].votes --;
         } else {
-          s.votes ++;
+          auditorsStatus[_auditor].votes ++;
         }
-        if (s.votes>=minVotes) {
-          rejectAuditor(auditor);
+        if (auditorsStatus[_auditor].votes >= minVotes) {
+          rejectAuditor(_auditor);
         }
       }
     }
