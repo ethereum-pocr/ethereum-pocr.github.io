@@ -19,6 +19,12 @@ docker build -f monitoring.dockerfile -t pocr-mon .
 ** Start the network
 
 For developers
+First, remove all previous packages
+```sh
+docker-compose down
+docker rmi -f $(docker images -aq)
+```
+
 ```sh
 docker-compose -f  docker-compose.dev.yml up
 ```

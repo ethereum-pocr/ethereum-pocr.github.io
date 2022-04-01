@@ -47,6 +47,7 @@ services:
     image: sealer
     build:
       context: ./pocr-network/sealer
+      dockerfile: DockerfileDev
       args:
         GITLAB_USER: ${GITLAB_USER}
         GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
