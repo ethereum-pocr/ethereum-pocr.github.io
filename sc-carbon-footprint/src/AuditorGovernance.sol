@@ -92,28 +92,30 @@ contract AuditorGovernance is IAuditorGovernance {
     require(me.footprint(msg.sender) > 0, "only audited nodes can vote for auditors");
     require(auditorsStatus[_auditor].registered, "the proposed _auditor is not registered");
 
+    AuditorStatus storage s = auditorsStatus[_auditor];
+
     // If the node has never voted, its lastVote.atBlock is zero
     // If the node has already voted & the auditor status has changed since the vote, its last vote was in favor of current status
-    if (auditorsStatus[_auditor].voters[msg.sender].atBlock == 0 || auditorsStatus[_auditor].voters[msg.sender].atBlock <= auditorsStatus[_auditor].approvalBlock) {
+    if (s.voters[msg.sender].atBlock == 0 || s.voters[msg.sender].atBlock <= s.approvalBlock) {
       // the node vote is forced to the current status to decide if the vote should change the status
-      auditorsStatus[_auditor].voters[msg.sender].vote = auditorsStatus[_auditor].approved;
+      s.voters[msg.sender].vote = s.approved;
     }
 
     uint minVotes = me.nbNodes() / 2 + 1;
 
     // the vote should be the inverse of the previous vote or it shall have no effect
-    if (_accept != auditorsStatus[_auditor].voters[msg.sender].vote) {
+    if (_accept != s.voters[msg.sender].vote) {
 
-      (auditorsStatus[_auditor].voters[msg.sender].vote, auditorsStatus[_auditor].voters[msg.sender].atBlock)  = (_accept, block.number);
+      (s.voters[msg.sender].vote, s.voters[msg.sender].atBlock)  = (_accept, block.number);
 
       emit AuditorVoted(_auditor, msg.sender, _accept);
 
-      if (!auditorsStatus[_auditor].approved) {
+      if (!s.approved) {
         // not yet approved : accept should increase the number of votes
         if (_accept) {
-          auditorsStatus[_auditor].votes ++;
+          s.votes ++;
         } else {
-          auditorsStatus[_auditor].votes --;
+          s.votes --;
         }
 
         if (auditorsStatus[_auditor].votes >= minVotes) {
@@ -123,12 +125,12 @@ contract AuditorGovernance is IAuditorGovernance {
       } else {
         // already approved : accept should decrease the number of votes
         if (_accept) {
-          auditorsStatus[_auditor].votes --;
+          s.votes --;
         } else {
-          auditorsStatus[_auditor].votes ++;
+          s.votes ++;
         }
 
-        if (auditorsStatus[_auditor].votes >= minVotes) {
+        if (s.votes >= minVotes) {
           rejectAuditor(_auditor);
         }
       }
@@ -161,9 +163,10 @@ contract AuditorGovernance is IAuditorGovernance {
 
   function minPledgeAmountToAuditNode(address _auditor) public view returns (uint) {
 
-      uint minPledgeAtLastAudit = auditorsStatus[_auditor].minPledgeAtLastAudit;
+      AuditorStatus storage s = auditorsStatus[_auditor];
+      uint minPledgeAtLastAudit = s.minPledgeAtLastAudit;
       uint maxNbBlockPerPeriod = 650_000;
-      uint nbBlocks = block.number - auditorsStatus[_auditor].lastAuditAtBlock;
+      uint nbBlocks = block.number - s.lastAuditAtBlock;
       uint minPledge = 1000 ether;
 
       if ( nbBlocks < maxNbBlockPerPeriod && minPledgeAtLastAudit > 0) {
@@ -177,17 +180,18 @@ contract AuditorGovernance is IAuditorGovernance {
   }
 
 
-  function auditorSettingFootprint(address auditor) override public returns (bool) {
+  function auditorSettingFootprint(address _auditor) override public returns (bool) {
 
     IPledgeContract me = IPledgeContract(address(this));
+    AuditorStatus storage s = auditorsStatus[_auditor];
 
-    if (auditorsStatus[auditor].approved) { // auditor must still be approved
-      if (me.pledgedAmount(auditor) < minPledgeAmountToAuditNode(auditor)) {
+    if (s.approved) { // auditor must still be approved
+      if (me.pledgedAmount(_auditor) < minPledgeAmountToAuditNode(_auditor)) {
         // not enough pledge in the contract
         return false;
       } else {
         // enough pledge, save the calculation
-        (auditorsStatus[auditor].minPledgeAtLastAudit, auditorsStatus[auditor].lastAuditAtBlock) = (minPledgeAmountToAuditNode(auditor), block.number);
+        (s.minPledgeAtLastAudit, s.lastAuditAtBlock) = (minPledgeAmountToAuditNode(_auditor), block.number);
         return true;
       }
     } else {
