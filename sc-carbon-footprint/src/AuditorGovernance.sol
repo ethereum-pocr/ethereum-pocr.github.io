@@ -39,33 +39,37 @@ contract AuditorGovernance is IAuditorGovernance {
 
 
   function selfRegisterAuditor() override public {
-    if (auditorsStatus[msg.sender].registered) { // already registered
-      return;
+    
+    AuditorStatus storage s = auditorsStatus[auditor];
+    
+    if (!s.registered) { // not registered
 
-    } else {
-      (auditorsStatus[msg.sender].registered, auditorsStatus[msg.sender].registeredAtBlock) = (true, block.number);
+      (s.registered, s.registeredAtBlock) = (true, block.number);
+
       emit AuditorRegistered(msg.sender);
 
       if (nbAuditors == 0) {
         // the first auditor is automatically approved as part of the bootstrap
         approveAuditor(msg.sender);
-        
+
       } else {
-        (auditorsStatus[msg.sender].approved, auditorsStatus[msg.sender].votes)  = (false, 0);
+
+        (s.approved, s.votes)  = (false, 0);
+        
       }
     }
   }
 
 
   function approveAuditor(address auditor) private {
+
     AuditorStatus storage s = auditorsStatus[auditor];
-    if (s.approved) {
-      return;
-    } else {
-      s.approved = true;
-      s.votes = 0;
-      s.approvalBlock = block.number;
+
+    if (!s.approved) { //not approved
+
+      (s.approved, s.votes, s.approvalBlock) = (true, 0, block.number);
       nbAuditors ++;
+
       emit AuditorApproved(auditor, true);
     }
   }
@@ -77,15 +81,16 @@ contract AuditorGovernance is IAuditorGovernance {
 
 
   function rejectAuditor(address auditor) private {
+
     AuditorStatus storage s = auditorsStatus[auditor];
-    if (!s.approved) {
-      return;
-    } else {
-      s.approved = false;
-      s.votes = 0;
-      s.approvalBlock = block.number;
+
+    if (s.approved) {
+
+      (s.approved, s.votes, s.approvalBlock) = (false, 0, block.number);
       nbAuditors --;
+
       onAuditorRejected(auditor);
+
       emit AuditorApproved(auditor, false);
     }
   }
