@@ -29,7 +29,7 @@ services:
     image: sealer
     build:
       context: ./pocr-network/sealer
-      dockerfile: DockerfileDev
+      target: ${SEALER_TARGET}
       args:
         GITLAB_USER: ${GITLAB_USER}
         GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
@@ -84,8 +84,8 @@ services:
     image: sealer
     container_name: sealer-3
     ports:
-      - 8645:9545
-      - 8646:9546
+      - 8645:8545
+      - 8646:8546
     volumes:
       - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
       - ${MOUNT_DATADIR_NODE_3}:/root/.ethereum/
