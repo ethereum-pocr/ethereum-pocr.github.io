@@ -15,14 +15,14 @@ source $HOME/.bashrc
 ```sh
 docker build -f monitoring.dockerfile -t pocr-mon . 
 ```
----
-If you want to keep your blockchain running in the background, use
----
+
+** If you want to keep your blockchain running in the background, use
+
 ```go
 // to launch your docker-compose in background
 docker-compose  -f  docker-compose.dev.yml up -d
 ```
----
+
 And then open portainer in your browser http://localhost:9000
 At first, initiate Portainer with a login password
 You would then have the possibility to view your 3 nodes logs in real time directly in your browser, including possible monitoring services you would add in your network through the docker-compose.
