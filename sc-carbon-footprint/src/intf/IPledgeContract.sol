@@ -5,7 +5,7 @@ pragma solidity >=0.7.0 <0.9.0;
 interface IPledgeContract {
   function pledge() external payable;
   function pledgedAmount(address owner) external view returns (uint);
-  function transferPledge(address payable target, uint amount) external;
+  function transferPledge(address payable target, uint amount) external returns (bool);
   event AmountPledged(address indexed from, uint amount, uint total);
 
   function confiscatedAmount() external view returns (uint);

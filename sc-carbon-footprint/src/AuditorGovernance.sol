@@ -35,12 +35,14 @@ contract AuditorGovernance is IAuditorGovernance {
     AuditorStatus storage s = auditorsStatus[msg.sender];
 
     if (!s.registered) {      // not registered
-      (s.registered, s.registeredAtBlock) = (true, block.number);
+      s.registered = true;
+      s.registeredAtBlock = block.number;
       emit AuditorRegistered(msg.sender);
       if (nbAuditors == 0) {  // the first auditor is automatically approved as part of the bootstrap
         approveAuditor(msg.sender);
       } else {
-        (s.approved, s.votes)  = (false, 0);
+        s.approved = false;
+        s.votes = 0;
       }
     }
   }
@@ -51,7 +53,9 @@ contract AuditorGovernance is IAuditorGovernance {
     AuditorStatus storage s = auditorsStatus[_auditor];
 
     if (!s.approved) { //not approved
-      (s.approved, s.votes, s.approvalBlock) = (true, 0, block.number);
+      s.approved = true;
+      s.votes = 0;
+      s.approvalBlock = block.number;
       nbAuditors ++;
       emit AuditorApproved(_auditor, true);
     }
@@ -68,7 +72,9 @@ contract AuditorGovernance is IAuditorGovernance {
     AuditorStatus storage s = auditorsStatus[_auditor];
 
     if (s.approved) {
-      (s.approved, s.votes, s.approvalBlock) = (false, 0, block.number);
+      s.approved = false;
+      s.votes = 0;
+      s.approvalBlock = block.number;
       nbAuditors --;
       onAuditorRejected(_auditor);
       emit AuditorApproved(_auditor, false);
@@ -89,10 +95,12 @@ contract AuditorGovernance is IAuditorGovernance {
 
     ICarbonFootprint me = ICarbonFootprint(address(this));
 
-    require(me.footprint(msg.sender) > 0, "only audited nodes can vote for auditors");
-    require(auditorsStatus[_auditor].registered, "the proposed _auditor is not registered");
-
     AuditorStatus storage s = auditorsStatus[_auditor];
+
+    require(me.footprint(msg.sender) > 0, "only audited nodes can vote for auditors");
+    require(s.registered, "the proposed _auditor is not registered");
+
+    
 
     // If the node has never voted, its lastVote.atBlock is zero
     // If the node has already voted & the auditor status has changed since the vote, its last vote was in favor of current status
@@ -191,7 +199,8 @@ contract AuditorGovernance is IAuditorGovernance {
         return false;
       } else {
         // enough pledge, save the calculation
-        (s.minPledgeAtLastAudit, s.lastAuditAtBlock) = (minPledgeAmountToAuditNode(_auditor), block.number);
+        s.minPledgeAtLastAudit = minPledgeAmountToAuditNode(_auditor);
+        s.lastAuditAtBlock = block.number;
         return true;
       }
     } else {

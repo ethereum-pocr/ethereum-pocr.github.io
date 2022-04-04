@@ -69,7 +69,7 @@ describe("Run tests on POCR Governance contract", function () {
       })
     });
     
-
+    
     it('should enable an initial registration', async () => {
       const tx = await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
       console.log("Tx", await web3.eth.getTransactionReceipt(tx));
@@ -85,6 +85,7 @@ describe("Run tests on POCR Governance contract", function () {
 
     });
 
+    /*
     it('should not have event when registering a second time the auditor', async () => {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       // console.log("Registered?", registered)
@@ -519,7 +520,7 @@ describe("Run tests on POCR Governance contract", function () {
       let log: EventData|undefined;
       // console.log("Proposal", proposal, "\nBlock", await web3.eth.getBlockNumber());
       // When auditor vote for
-      await instance.voteFor(auditor.send({maxGas:100000}), 0);
+      await instance.voteForProposal(auditor.send({maxGas:100000}), 0);
       // Then an event reflecting the vote should be generated
       log = logs.pop();
       expect(log).to.be.ok;
@@ -541,7 +542,7 @@ describe("Run tests on POCR Governance contract", function () {
       expect(log!.returnValues.vote).equal('-1');
 
       // When the first node vote for
-      await instance.voteFor(node1.send({maxGas:100000}), 0);
+      await instance.voteForProposal(node1.send({maxGas:100000}), 0);
       // Then an event reflecting the vote should be generated
       log = logs.pop();
       expect(log).to.be.ok;
@@ -576,7 +577,7 @@ describe("Run tests on POCR Governance contract", function () {
       // proposal = await instance.getImprovementProposal(node1.call(), 0);
       // console.log("Proposal", proposal, "\nBlock", await web3.eth.getBlockNumber());
       // When a node try to vote
-      const p = instance.voteFor(node1.send({maxGas:100000}), 0);
+      const p = instance.voteForProposal(node1.send({maxGas:100000}), 0);
       return expect(p).to.be.rejectedWith(/vote is closed/)
     });
 
@@ -590,7 +591,7 @@ describe("Run tests on POCR Governance contract", function () {
       // proposal = await instance.getImprovementProposal(node1.call(), 0);
       // console.log("Proposal", proposal, "\nBlock", await web3.eth.getBlockNumber());
       // When a node try to vote
-      const p = instance.voteFor(node1.send({maxGas:100000}), 0);
+      const p = instance.voteForProposal(node1.send({maxGas:100000}), 0);
       return expect(p).to.be.rejectedWith(/vote is closed/)
     });
 
@@ -602,8 +603,8 @@ describe("Run tests on POCR Governance contract", function () {
       await passBlocks(nb);
       
       // Given one auditor and one node vote for
-      await instance.voteFor(auditor.send({maxGas:100000}), 0);
-      await instance.voteFor(node1.send({maxGas:100000}), 0);
+      await instance.voteForProposal(auditor.send({maxGas:100000}), 0);
+      await instance.voteForProposal(node1.send({maxGas:100000}), 0);
 
       // When the blocks passes after the vote is closed
       nb = Number.parseInt(proposal.voteUntilBlock) - await web3.eth.getBlockNumber() +2;
@@ -614,11 +615,9 @@ describe("Run tests on POCR Governance contract", function () {
       // console.log(nb, "Proposal", proposal, "\nBlock", await web3.eth.getBlockNumber());
       expect(proposal.status).equal('3');
     });
+
+    */
   });
   
+  
 });
-
-
-
-
-
