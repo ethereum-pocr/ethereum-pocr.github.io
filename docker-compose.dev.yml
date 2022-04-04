@@ -1,22 +1,5 @@
 version: "2"
 services:
-
-  reverse-proxy:
-    image: nginx
-    restart: unless-stopped
-    depends_on:
-      - pocr-monitoring
-      - sealer-1
-      - sealer-2
-      - sealer-3    
-    volumes:
-      - ./pocr-network/conf/:/etc/nginx/conf.d/
-    ports:
-      - 8081:80
-    networks:
-      chainnet:
-        ipv4_address: 172.25.0.100
-
   geth-bootnode:
     hostname: geth-bootnode
     environment:
@@ -31,7 +14,6 @@ services:
     networks:
       chainnet:
         ipv4_address: 172.25.0.101 # The miners need to know the IP address later on
-
   sealer-1:
     hostname: sealer-1
     depends_on:
