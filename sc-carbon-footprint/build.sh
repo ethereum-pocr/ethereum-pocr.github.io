@@ -16,3 +16,5 @@ then
   echo "- Verify compilation and script by displaying the loaded contracts"
   node -e 'console.log("  > "+require("./contracts/index.js").names().join("\n  > "))'
 fi
+
+

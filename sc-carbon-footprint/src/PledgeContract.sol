@@ -12,6 +12,8 @@ contract PledgeContract is IPledgeContract {
 
   mapping (address => uint) private pledgesAmountsByAuditor;
 
+  event Log(string func, address sender, uint value, bytes data);
+
 
   struct TransferTx {
     uint index;
@@ -45,11 +47,13 @@ contract PledgeContract is IPledgeContract {
 
   // reject any direct transfer without an explicit pledge
   receive() external payable {
+    emit Log("receive", msg.sender, msg.value, "");
     revert();
   }
 
   // reject any direct transfer to an unknown method
   fallback() external payable {
+    emit Log("fallback", msg.sender, msg.value, msg.data);
     revert();
   }
   

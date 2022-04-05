@@ -23,6 +23,7 @@ const CarbonFootprintName = "CarbonFootprint";
 
 
 
+
 describe("Run tests on POCR Governance contract", function () {
   this.timeout(10000);
   let web3: Web3;
@@ -484,17 +485,13 @@ describe("Run tests on POCR Governance contract", function () {
 
 
 
-
-
-    //J'en suis ici de ma lecture
-
-
-
   
 
   describe('Tests of the PledgeContract', () => {
     const PledgeContractName = "PledgeContract";
     let PledgeContract: SmartContract;
+    const logs: EventData[] = [];
+
     before(async ()=>{
       await init();
       if (allContracts.get(PledgeContractName)) {
@@ -503,6 +500,11 @@ describe("Run tests on POCR Governance contract", function () {
       } else {
         throw new Error(POCRContractName+" contract not defined in the compilation result");
       }
+      instance.allEvents(auditor.sub(), {})
+      .on("log", log=>{
+        logs.push(log);
+        console.log(`Log: ${log.event}(${JSON.stringify(log.returnValues)})`)
+      })
     });
 
 
@@ -532,7 +534,7 @@ describe("Run tests on POCR Governance contract", function () {
 
     
 
-    //tester message "not enough funds"
+    //Test of a pledge transfer which is superior to amount pledged
     it('should not allow to transfer more than the amount been pledged', async () => {
       // Given an amount being pledged
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -550,24 +552,30 @@ describe("Run tests on POCR Governance contract", function () {
     });
 
 
-    /*
+    
     it('should fail transferring crypto directly to the smart contract', async () => {
       const p = Crypto.transfer(auditor.send({maxGas:30000, amount: 100000n}), instance.deployedAt);
       return expect(p).to.be.rejectedWith(/revert/)
     });
 
+
+    
     it('should fail transferring crypto via a function call to the smart contract', async () => {
       const p = instance.getTransferCount(auditor.send({maxGas:30000, amount: 100000n}));
       return expect(p).to.be.rejectedWith(/revert/)
     });
 
+
+    
     it('should be able to transfer a pledge out', async () => {
       // Given an amount being pledged
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
+
       if (pledged <= 0n) {
         pledged = 1000000000000000000000n;
         await instance.pledge(auditor.send({maxGas:50000, amount: pledged}));
       }
+
       // When the sender tries to transfer the crypto to another wallet
       const wallet = (await web3.eth.getAccounts())[1];
       const initialWalletBalance = await web3.eth.getBalance(wallet);
@@ -576,14 +584,16 @@ describe("Run tests on POCR Governance contract", function () {
       // Then the target wallet should have been credited with the pledged amount
       const newWalletBalance = await web3.eth.getBalance(wallet);
       expect(BigInt(newWalletBalance)-BigInt(initialWalletBalance)).to.equal(pledged);
+
       // And the pledge amount should be zeroed
       pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
       expect(pledged).to.equal(0n);
     });
-
-
-
   });
+
+
+
+  //J'en suis ici
 
   describe('Tests of the confiscated amount transactions', () => {
     let node: EthProviderInterface;
@@ -591,6 +601,7 @@ describe("Run tests on POCR Governance contract", function () {
     let node2: EthProviderInterface;
     let node2Wallet: string;
     const logs: EventData[] = [];
+
     beforeEach(async () => {
       await init();
       instance.allEvents(auditor.sub(), {})
@@ -598,7 +609,10 @@ describe("Run tests on POCR Governance contract", function () {
         logs.push(log);
         console.log(`Log: ${log.event}(${JSON.stringify(log.returnValues)})`)
       })
+
+      //before each test, the data are put in condition so that the auditor 1 is rejected from the blockchain by the 2 nodes
       await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+
       const minPledge = BigInt(web3.utils.toWei('2000', "ether"));
       await instance.pledge(auditor.send({maxGas:50000, amount: minPledge})); 
       const wallets = await web3.eth.getAccounts();
@@ -612,11 +626,20 @@ describe("Run tests on POCR Governance contract", function () {
       await instance.voteAuditor(node2.send({maxGas: 200000}), auditorWallet, false);
     });
 
+
+
+
+
+
+
+
     it('should create a transfer', async () => {
       // Given the confiscated amount
       let confiscated = BigInt(await instance.confiscatedAmount(node.call()));
+
       // When a node create a transfer of that amount
       await instance.createTransfer(node.send({maxGas:200000}), auditorWallet, confiscated.toString());
+
       // Then a transfer should be created 
       const nb = Number.parseInt(await instance.getTransferCount(node.call()));
       expect(nb).to.equal(1);
@@ -630,6 +653,13 @@ describe("Run tests on POCR Governance contract", function () {
       confiscated = BigInt(await instance.confiscatedAmount(node.call()));
       expect(confiscated).to.equal(0n);
     });
+
+
+
+
+
+
+    
 
     it('should execute a transfer after 2 signatures', async () => {
       // Given a transfer created for the confiscated amount
@@ -662,6 +692,8 @@ describe("Run tests on POCR Governance contract", function () {
       expect(log?.returnValues.approvals).equal('2'); 
     });
 
+    
+
     it('should fail executing the transfer with not enough signatures', async () => {
       // Given a transfer created for the confiscated amount
       const confiscated = BigInt(await instance.confiscatedAmount(node.call()));
@@ -676,6 +708,8 @@ describe("Run tests on POCR Governance contract", function () {
       // Then it should fails because there is not enough validation
       return expect(p).to.be.rejectedWith(/not enough approvals/);
     });
+
+    
 
     it('should be able to cancel a transfer', async () => {
       // Given a transfer created for the confiscated amount
@@ -729,6 +763,10 @@ describe("Run tests on POCR Governance contract", function () {
     });
 
   });
+
+
+  //J'en suis ici de ma revue
+  /*
 
   describe('Tests the Improvement Proposal governance', () => {
     const logs: EventData[] = [];
@@ -931,8 +969,28 @@ describe("Run tests on POCR Governance contract", function () {
       expect(proposal.status).equal('3');
     });
 
-    */
+    
   });
   
-  
+  */
 });
+
+/*
+describe('Extract the runtime binary', () => {
+  it('deploy in ganache and get the runtime code',async () => {
+    const web3 = new Web3(Ganache.provider() as any);
+    const intf = new Web3FunctionProvider(web3.currentProvider, (list) =>
+      Promise.resolve(list[0])
+    );
+    if (allContracts.get(POCRContractNameActual)) {
+      const POCR = allContracts.get(POCRContractNameActual)!;
+      const instance = await POCR.deploy(intf.newi({ maxGas: 3000000 }));
+      const code = await web3.eth.getCode(instance.deployedAt)
+      console.log("CODE for the genesis block:")
+      console.log(code)
+    } else {
+      throw new Error(POCRContractNameActual+" contract not defined in the compilation result");
+    }
+  });
+});
+*/
