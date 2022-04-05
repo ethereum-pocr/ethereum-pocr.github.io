@@ -58,13 +58,6 @@ contract ImprovementProposal is IImprovementProposal {
   }
 
 
-  //Fonction pas utilisée
-  function statusToString(IPStatus s) private pure returns (string memory) {
-    bytes memory b = new bytes(1);
-    b[0] = bytes1(uint8(48 + uint(s)));
-    return string(b);
-  }
-
 
   //Fonction simplifiée (if groupé)
   function voteAllowed(IP storage ip) internal view returns (bool) {

@@ -19,7 +19,7 @@ contract AuditorGovernance is IAuditorGovernance {
     uint votes;
     bool approved;
     uint registeredAtBlock;
-    uint approvalBlock;
+    uint statusUpdateBlock;
     mapping (address => NodeVote) voters;
     uint minPledgeAtLastAudit; // the calculated amount of the minimum pledge at last audit done
     uint lastAuditAtBlock; // the block number of the last audit done
@@ -55,7 +55,7 @@ contract AuditorGovernance is IAuditorGovernance {
     if (!s.approved) { //not approved
       s.approved = true;
       s.votes = 0;
-      s.approvalBlock = block.number;
+      s.statusUpdateBlock = block.number;
       nbAuditors ++;
       emit AuditorApproved(_auditor, true);
     }
@@ -74,7 +74,7 @@ contract AuditorGovernance is IAuditorGovernance {
     if (s.approved) {
       s.approved = false;
       s.votes = 0;
-      s.approvalBlock = block.number;
+      s.statusUpdateBlock = block.number;
       nbAuditors --;
       onAuditorRejected(_auditor);
       emit AuditorApproved(_auditor, false);
@@ -97,14 +97,14 @@ contract AuditorGovernance is IAuditorGovernance {
 
     AuditorStatus storage s = auditorsStatus[_auditor];
 
-    require(me.footprint(msg.sender) > 0, "only audited nodes can vote for auditors");
+    require(me.footprint(msg.sender) > 0, "only audited nodes which have footprint can vote for auditors");
     require(s.registered, "the proposed _auditor is not registered");
 
     
 
     // If the node has never voted, its lastVote.atBlock is zero
     // If the node has already voted & the auditor status has changed since the vote, its last vote was in favor of current status
-    if (s.voters[msg.sender].atBlock == 0 || s.voters[msg.sender].atBlock <= s.approvalBlock) {
+    if (s.voters[msg.sender].atBlock == 0 || s.voters[msg.sender].atBlock <= s.statusUpdateBlock) {
       // the node vote is forced to the current status to decide if the vote should change the status
       s.voters[msg.sender].vote = s.approved;
     }

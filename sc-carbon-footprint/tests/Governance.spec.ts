@@ -769,7 +769,7 @@ describe("Run tests on POCR Governance contract", function () {
   /*
 
   describe('Tests the Improvement Proposal governance', () => {
-    const logs: EventData[] = [];
+    const logs: EventData[] = [];pledgesAmounts
     let auditor2: EthProviderInterface;
     let node1: EthProviderInterface;
     let node2: EthProviderInterface;

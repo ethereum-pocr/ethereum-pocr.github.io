@@ -7,10 +7,10 @@ import "./intf/IPledgeContract.sol";
 contract PledgeContract is IPledgeContract {
 
 
-  uint private totalConfiscatedAmount;
+  uint public totalConfiscatedAmount;
 
 
-  mapping (address => uint) private pledgesAmountsByAuditor;
+  mapping (address => uint) public pledgesAmounts;
 
   event Log(string func, address sender, uint value, bytes data);
 
@@ -35,10 +35,10 @@ contract PledgeContract is IPledgeContract {
   function pledge() override public payable {
 
 
-    pledgesAmountsByAuditor[msg.sender] += msg.value;
+    pledgesAmounts[msg.sender] += msg.value;
 
 
-    emit AmountPledged(msg.sender, msg.value, pledgesAmountsByAuditor[msg.sender]);
+    emit AmountPledged(msg.sender, msg.value, pledgesAmounts[msg.sender]);
 
 
   }
@@ -59,7 +59,7 @@ contract PledgeContract is IPledgeContract {
   
 
   function pledgedAmount(address owner) override public view returns (uint) {
-    return pledgesAmountsByAuditor[owner];
+    return pledgesAmounts[owner];
   }
 
 
@@ -72,13 +72,13 @@ contract PledgeContract is IPledgeContract {
 
   function transferPledge(address payable _target, uint _amount) public returns (bool){
 
-    require(_amount <= pledgesAmountsByAuditor[msg.sender], "not enough funds");
+    require(_amount <= pledgesAmounts[msg.sender], "not enough funds");
 
     // test if the sender is a registered auditor and therefore test if it can remove its pledge
 
     require(canTransferPledge(_target, _amount), "not allowed to transfer pledge out");
     
-    pledgesAmountsByAuditor[msg.sender] -= _amount;
+    pledgesAmounts[msg.sender] -= _amount;
 
     _target.transfer(_amount);
 
@@ -91,7 +91,7 @@ contract PledgeContract is IPledgeContract {
   /** to be called  */
   function confiscatePledge(address _auditor) internal {
 
-    uint amount =  pledgesAmountsByAuditor[_auditor];
+    uint amount =  pledgesAmounts[_auditor];
 
     if (amount == 0) {
       return;
@@ -99,7 +99,7 @@ contract PledgeContract is IPledgeContract {
 
     totalConfiscatedAmount += amount;
 
-    pledgesAmountsByAuditor[_auditor] = 0;
+    pledgesAmounts[_auditor] = 0;
 
     emit PledgeConfiscated(_auditor, amount, totalConfiscatedAmount);
 
@@ -108,9 +108,9 @@ contract PledgeContract is IPledgeContract {
 
 
 
-  function confiscatedAmount() override public view returns (uint) {
+  
     return totalConfiscatedAmount;
-  }
+  
 
 
   function canSenderOperateTransfer() virtual internal view returns (bool) {
