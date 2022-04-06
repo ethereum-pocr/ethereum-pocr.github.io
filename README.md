@@ -16,11 +16,78 @@ source $HOME/.bashrc
 docker build -f monitoring.dockerfile -t pocr-mon . 
 ```
 
-** If you want to keep your blockchain running in the background, use
+# docker-compose.yml content
 
-```go
-// to launch your docker-compose in background
-docker-compose  -f  docker-compose.dev.yml up -d
+In the root of the `pocr-monorepo` folder there is a `docker-compose.yml` that bootstrap many services 
+
+ * geth-bootnode: Used as discovery node for the blockchain and the `Dockerfile` of the service can be found at `pocr-network/bootnode/Dockerfile`
+
+ * sealer-1,2,3: Those are 3 nodes that start `geth` client with `Proof Of Carbon Reduction` and the `Dockerfile`can be found at `pocr-network/sealer/Dockerfile`
+ The `Dockerfile` uses `multistage` the default stage `runtime` will download the `geth` built priviously and available in the gitlab and the second stage `dev` is to get `geth` from local machine
+ To use `dev` stage update in `.env` file the key `SEALER_TARGET` by `dev` instead of `runtime` and then copy your `geth` binary to `pocr-network/sealer/geth`
+
+ * pocr-monitoring: frontend app that will monitor the network (local or remote) nodes and show the carbon footprint of each and the `CTC` rewards cumulated by each
+
+ * lite-explorer: An opensource solution, to explorer the blocks of the blockchain
+
+ * monitor and dahsboard: An opensource solution to start the ethstats monitor on the network
+
+
+**.env file** 
+This file is used by `docker-compose.yml` to read the default environment variables
+
+**pocr-network/genesis directory**
+This directory contains some genesis files used as example to bootstrap the blockchain locally.
+Example:
+ * `pocr-network/genesis/saturndev-sealer1-authorized.json`: init the network with only `sealer-1` as authorized node to seal blocks in the network
+ * `pocr-network/genesis/saturndev-all-sealers-authorized.json`: init the network with all the 3 sealers authorized
+
+You can start the local network with any `genesis` file you want by changing in `.env` file the path to genesis `MOUNT_GENESIS_FILE_PATH=<path_to_genesis_file>` and the network id `NETWORK_ID=<network_id_of_the_genesis>`
+
+
+# Start/stop the stack
+
+in the root folder there are `start.sh` and `stop.sh` scripts to start and stop the stack.
+
+Those scripts use `docker-compose.yml` to start all or some specific services
+
+By default start.sh will only start portainer if no arguments are passed to the script
+```sh
+./start.sh
+```
+
+If you want to start all the services (network, monitoring and lb) use `all` as argument
+```sh
+./start.sh all 
+```
+
+If you want to start just the network use `network` as argument
+```sh
+./start.sh network
+```
+
+If you want to start just the monitoring use `monitoring` as argument
+```sh
+./start.sh monitoring
+```
+
+You can also combine arguments if needed, like starting `network`services and `monitoring` services
+```sh
+./start.sh network monitoring
+```
+
+If you want to run process in background add `-d` option to the start command, example:
+```sh
+# start monitoring in background
+./start.sh monitoring -d
+
+# start network in background
+./start.sh network -d
+```
+
+To stop the stack use 
+```sh
+./stop.sh
 ```
 
 And then open portainer in your browser http://localhost:9000
@@ -34,20 +101,4 @@ INFO [04-04|15:38:08.002] Carbon footprint nb nodes                result=000000
 INFO [04-04|15:38:08.002] No reward for signer                     node=0x6E45c195E12D7FE5e02059F15d59c2c976A9b730 error="no node in PoCR smart contract"
 ```
 
-** Start the network
 
-For developers
-First, remove all previous packages
-```sh
-docker-compose down
-docker rmi -f $(docker images -aq)
-```
-
-```sh
-docker-compose -f  docker-compose.dev.yml up
-```
-
-** If the sources changes build all dockerfiles using
-```sh
-docker-compose build
-```
