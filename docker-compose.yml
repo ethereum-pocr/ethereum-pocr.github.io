@@ -128,7 +128,14 @@ services:
     networks:
       chainnet:
         ipv4_address: 172.25.0.105
-
+  remix:
+    hostname: remix
+    image: remixproject/remix-ide
+    ports:
+      - 8082:80
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.106
   lite-explorer:
     hostname: lite-explorer
     image: alethio/ethereum-lite-explorer

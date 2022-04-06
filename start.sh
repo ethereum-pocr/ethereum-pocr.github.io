@@ -9,7 +9,7 @@ do
     elif [[ "$a" == *"network"* ]] || [[ "$a" == "all" ]]; then
         apps="$apps geth-bootnode sealer-1 sealer-2 sealer-3"
     elif [[ "$a" == *"monitoring"* ]] || [[ "$a" == "all" ]]; then
-        apps="$apps pocr-monitoring lite-explorer monitor dashboard"
+        apps="$apps pocr-monitoring lite-explorer monitor dashboard remix"
     elif [[ "$a" == *"lb"* ]] || [[ "$a" == "all" ]]; then
         apps="$apps reverse-proxy"
     elif [[ "$a" == *"-d"* ]]; then
