@@ -6,7 +6,6 @@ import "./intf/ICarbonFootprint.sol";
 import "./intf/IAuditorGovernance.sol";
 import "./intf/IPledgeContract.sol";
 
-
 contract AuditorGovernance is IAuditorGovernance {
 
   struct NodeVote {
@@ -28,7 +27,6 @@ contract AuditorGovernance is IAuditorGovernance {
   mapping(address => AuditorStatus) private auditorsStatus;
 
   uint private nbAuditors;
-
 
   function selfRegisterAuditor() override public {
 
@@ -61,11 +59,8 @@ contract AuditorGovernance is IAuditorGovernance {
     }
   }
 
-
   function onAuditorRejected(address _auditor) virtual internal {
-
   }
-
 
   function rejectAuditor(address _auditor) private {
 
@@ -80,8 +75,6 @@ contract AuditorGovernance is IAuditorGovernance {
       emit AuditorApproved(_auditor, false);
     }
   }
-
-
 
   /**
   * Only a node with a footprint can vote on an auditor
@@ -145,29 +138,21 @@ contract AuditorGovernance is IAuditorGovernance {
     }
   }
 
-
   function auditorRegistered(address _auditor) override public view returns (bool) {
     return auditorsStatus[_auditor].registered;
   }
-
 
   function auditorApproved(address _auditor) override public view returns (bool) {
     return auditorsStatus[_auditor].approved;
   }
 
-
   function auditorVotes(address _auditor) override public view returns (uint) {
     return auditorsStatus[_auditor].votes;
   }
 
-
   function auditorLastAuditInfo(address _auditor) override public view returns (uint, uint) {
     return (auditorsStatus[_auditor].lastAuditAtBlock, auditorsStatus[_auditor].minPledgeAtLastAudit);
   }
-
-
-  //Review here Michael
-
 
   function minPledgeAmountToAuditNode(address _auditor) public view returns (uint) {
 
@@ -186,7 +171,6 @@ contract AuditorGovernance is IAuditorGovernance {
 
       return minPledge;
   }
-
 
   function auditorSettingFootprint(address _auditor) override public returns (bool) {
 

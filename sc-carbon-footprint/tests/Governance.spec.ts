@@ -57,12 +57,6 @@ describe("Run tests on POCR Governance contract", function () {
   }
 
 
-
-
-  
-  
-
-
   describe('Tests on the Auditors governance interface', () => {
     const logs: EventData[] = [];
     before(async () => {
@@ -75,6 +69,7 @@ describe("Run tests on POCR Governance contract", function () {
       })
     });
     
+
 
     
     it('should enable an initial registration', async () => {
@@ -136,7 +131,6 @@ describe("Run tests on POCR Governance contract", function () {
       expect(Number.parseInt(val)).to.equal(1000);
     });
 
-
     it("should create 1 node and set the variable nbNodes to 1", async () => {
       // Given the auditor is registered
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
@@ -187,7 +181,6 @@ describe("Run tests on POCR Governance contract", function () {
   
     });
 
-
     it("should create 3 nodes and calculate the total totalFootprint", async () => {
       // Given a new auditor
       const wallets = await web3.eth.getAccounts()
@@ -215,10 +208,6 @@ describe("Run tests on POCR Governance contract", function () {
       const totalfootprint = await instance.totalFootprint(auditor.call());
       expect(totalfootprint).to.equal('15830');
     });
-
-
-
-
 
     it("should create 2 nodes and modify the footprint of the first node", async () => {
 
@@ -252,7 +241,6 @@ describe("Run tests on POCR Governance contract", function () {
   
     });
 
-
     it("should revert because an address can not set its own footprint", async () =>  {
 
       // Given a new auditor
@@ -279,7 +267,6 @@ describe("Run tests on POCR Governance contract", function () {
       return expect(p).to.be.rejectedWith(/the auditor cannot set its own footprint/)
   
     });
-
 
     it("should generate an event if a node is created", async () =>  {
 
@@ -310,10 +297,41 @@ describe("Run tests on POCR Governance contract", function () {
       expect(log!.returnValues.node).to.equal(wallets[1]);
       expect(log!.returnValues.footprint).to.equal('1570');
 
-  })
+    })
 
+    it("should generate an event if a node is updated", async () =>  {
+        // Given a new auditor
+        const wallets = await web3.eth.getAccounts()
+        // Given that the bootstrap auditor has set the footprint for 2 nodes
+        const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
+        if (!registered) {
+          // first register
+          await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        }
 
-  it("should generate an event if a node is updated", async () =>  {
+        let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
+
+        const minPledge = BigInt(await instance.minPledgeAmountToAuditNode(auditor.call(), auditorWallet))
+                        + BigInt(web3.utils.toWei("1000", "ether")); // for the second setFootprint
+
+        if (pledged < minPledge) {
+          // then pledge enough crypto
+          await instance.pledge(auditor.send({maxGas:50000, amount: minPledge - pledged}));  
+        }
+
+        await instance.setFootprint(auditor.send({maxGas: 200000}), wallets[1], 1570);
+        await instance.setFootprint(auditor.send({maxGas: 200000}), wallets[2], 8760);
+        await instance.setFootprint(auditor.send({maxGas: 200000}), wallets[1], 5500);
+
+        let log = logs.pop();
+        expect(log).to.be.ok;
+        expect(log!.event).to.equal("CarbonFootprintUpdate");
+        expect(log!.returnValues.node).to.equal(wallets[1]);
+        expect(log!.returnValues.footprint).to.equal('5500');
+
+    })
+
+    it("should generate an event if a node is deleted", async () =>  {
       // Given a new auditor
       const wallets = await web3.eth.getAccounts()
       // Given that the bootstrap auditor has set the footprint for 2 nodes
@@ -334,47 +352,46 @@ describe("Run tests on POCR Governance contract", function () {
       }
 
       await instance.setFootprint(auditor.send({maxGas: 200000}), wallets[1], 1570);
-      await instance.setFootprint(auditor.send({maxGas: 200000}), wallets[2], 8760);
-      await instance.setFootprint(auditor.send({maxGas: 200000}), wallets[1], 5500);
+      await instance.setFootprint(auditor.send({maxGas: 200000}), wallets[1], 0);
 
       let log = logs.pop();
-      expect(log).to.be.ok;
-      expect(log!.event).to.equal("CarbonFootprintUpdate");
-      expect(log!.returnValues.node).to.equal(wallets[1]);
-      expect(log!.returnValues.footprint).to.equal('5500');
+        expect(log).to.be.ok;
+        expect(log!.event).to.equal("CarbonFootprintUpdate");
+        expect(log!.returnValues.node).to.equal(wallets[1]);
+        expect(log!.returnValues.footprint).to.equal('0');
+    })
 
-  })
+    
+  it('should test a function call in the future', async () => {
+      
+      
+      // Given the auditor is registered
+      const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
+      if (!registered) {
+        // first register
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+      }
+      // Given the pledge amount is present
+      let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
+      const minPledge = BigInt(web3.utils.toWei('1000', "ether"));
+      if (pledged < minPledge) {
+        // then pledge enough crypto
+        await instance.pledge(auditor.send({maxGas:50000, amount: minPledge - pledged}));  
+      }
+      // When the auditor sets the footprint of node1
+      await instance.setFootprint(auditor.send({maxGas: 200000}), await node1.account(1), 1000);
+      const nbnodes = await instance.nbNodes(auditor.call());
+      //Then the number of nodes is equal to 1
+      expect(nbnodes).to.equal('1');
 
 
-  it("should generate an event if a node is deleted", async () =>  {
-    // Given a new auditor
-    const wallets = await web3.eth.getAccounts()
-    // Given that the bootstrap auditor has set the footprint for 2 nodes
-    const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
-    if (!registered) {
-      // first register
-      await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
-    }
+      //ajouter test dans le futur
+      console.log("TEST DANS LE FUTUR "!);
 
-    let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
 
-    const minPledge = BigInt(await instance.minPledgeAmountToAuditNode(auditor.call(), auditorWallet))
-                    + BigInt(web3.utils.toWei("1000", "ether")); // for the second setFootprint
 
-    if (pledged < minPledge) {
-      // then pledge enough crypto
-      await instance.pledge(auditor.send({maxGas:50000, amount: minPledge - pledged}));  
-    }
 
-    await instance.setFootprint(auditor.send({maxGas: 200000}), wallets[1], 1570);
-    await instance.setFootprint(auditor.send({maxGas: 200000}), wallets[1], 0);
-
-    let log = logs.pop();
-      expect(log).to.be.ok;
-      expect(log!.event).to.equal("CarbonFootprintUpdate");
-      expect(log!.returnValues.node).to.equal(wallets[1]);
-      expect(log!.returnValues.footprint).to.equal('0');
-  })
+    });
 
 
     //Integration ci-dessus des tests unitaires du smart contract carbonfootprint
@@ -449,9 +466,6 @@ describe("Run tests on POCR Governance contract", function () {
 
 
 
-    
-
-
     it('should fail transferring the pledge', async () => {
       // Given the auditor is registered
 
@@ -480,11 +494,8 @@ describe("Run tests on POCR Governance contract", function () {
       
     });
 
+    
   });
-
-
-
-
   
 
   describe('Tests of the PledgeContract', () => {
@@ -592,9 +603,6 @@ describe("Run tests on POCR Governance contract", function () {
   });
 
 
-
-  //J'en suis ici
-
   describe('Tests of the confiscated amount transactions', () => {
     let node: EthProviderInterface;
     let nodeWallet: string;
@@ -628,11 +636,6 @@ describe("Run tests on POCR Governance contract", function () {
 
 
 
-
-
-
-
-
     it('should create a transfer', async () => {
       // Given the confiscated amount
       let confiscated = BigInt(await instance.confiscatedAmount(node.call()));
@@ -654,12 +657,6 @@ describe("Run tests on POCR Governance contract", function () {
       expect(confiscated).to.equal(0n);
     });
 
-
-
-
-
-
-    
 
     it('should execute a transfer after 2 signatures', async () => {
       // Given a transfer created for the confiscated amount
@@ -765,11 +762,13 @@ describe("Run tests on POCR Governance contract", function () {
   });
 
 
-  //J'en suis ici de ma revue
-  /*
+
+
+  //J'en suis ici
+
 
   describe('Tests the Improvement Proposal governance', () => {
-    const logs: EventData[] = [];pledgesAmounts
+    const logs: EventData[] = [];
     let auditor2: EthProviderInterface;
     let node1: EthProviderInterface;
     let node2: EthProviderInterface;
@@ -783,6 +782,8 @@ describe("Run tests on POCR Governance contract", function () {
         await mine();
       }
     }
+
+    
     beforeEach( async () => {
       await init();
       instance.allEvents(auditor.sub(), {})
@@ -820,6 +821,8 @@ describe("Run tests on POCR Governance contract", function () {
       })
       mine = (web3 as any).custom.mine;
     });
+
+    
     it('check intitialization', async () => {
       let auditorApproved: boolean;
       auditorApproved = await instance.auditorApproved(auditor.call(), auditorWallet);
@@ -833,6 +836,8 @@ describe("Run tests on POCR Governance contract", function () {
       expect(Number.parseInt(footprint)).to.equal(1000);
     });
 
+
+    
     it('declare an Improvement Proposal', async () => {
       // Given the initial setup
       // When an Improvement Proposal is created
@@ -969,13 +974,13 @@ describe("Run tests on POCR Governance contract", function () {
       expect(proposal.status).equal('3');
     });
 
-    
+
   });
+
   
-  */
 });
 
-/*
+
 describe('Extract the runtime binary', () => {
   it('deploy in ganache and get the runtime code',async () => {
     const web3 = new Web3(Ganache.provider() as any);
@@ -993,4 +998,4 @@ describe('Extract the runtime binary', () => {
     }
   });
 });
-*/
+

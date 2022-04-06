@@ -1,5 +1,6 @@
 solc --version
-solc -o contracts --optimize --combined-json abi,bin --overwrite --base-path . --include-path ./node_modules  src/*.sol
+solc -o contracts --optimize --combined-json abi,bin,bin-runtime --overwrite --base-path . --include-path ./node_modules  src/*.sol
+solc --input-file "./group/governance.sol" -o bytecode --bin --abi --overwrite
 
 if [ $? -eq 0 ]
 then
