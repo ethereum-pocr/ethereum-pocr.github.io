@@ -1,0 +1,48 @@
+
+stages:          # List of stages for jobs, and their order of execution
+  - build
+#  - test
+  - publish
+
+build-smart-contract:       # This job runs in the build stage, which runs first.
+  stage: build
+  image: node:16.8
+  tags:
+    - FINAXYS
+  before_script:
+    - apt-get update && apt-get install gettext jq -y
+    - curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-latest
+    - curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(cat solc-file)
+    - chmod +x solc && mv solc /bin/solc
+  script:
+    - cd sc-carbon-footprint/ &&  npm ci && ./build.sh
+    - export SMART_CONTRACT_BYTECODE=$(cat contracts/combined.json | jq -r .contracts[].bin-runtime)
+    - envsubst < ../pocr-network/genesis/kerleano.json > kerleano.final.json
+  artifacts:
+    paths:
+      - sc-carbon-footprint/kerleano.final.json
+    expire_in: 1 day
+  only:
+    # refs:
+    #   - master
+    changes:
+      - sc-carbon-footprint/**/*
+
+publish genesis:
+  stage: publish
+  image: curlimages/curl:latest
+  tags:
+    - FINAXYS
+  dependencies:
+    - build-smart-contract
+  script:
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file sc-carbon-footprint/kerleano.final.json "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/genesis/dev/kerleano.json"'
+  only:
+    # refs:
+    #   - master
+    changes:
+      - sc-carbon-footprint/**/*
+
+
+
+
