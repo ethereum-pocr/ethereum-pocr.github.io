@@ -16,7 +16,7 @@ build-smart-contract:       # This job runs in the build stage, which runs first
     - chmod +x solc && mv solc /bin/solc
   script:
     - cd sc-carbon-footprint/ &&  npm ci && ./build.sh
-    - export SMART_CONTRACT_BYTECODE=$(cat contracts/combined.json | jq -r .contracts[].bin-runtime)
+    - export SMART_CONTRACT_BYTECODE=$(node extract-bytecode.js)
     - envsubst < ../pocr-network/genesis/kerleano.json > kerleano.final.json
   artifacts:
     paths:
