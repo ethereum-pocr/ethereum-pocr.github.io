@@ -35,7 +35,7 @@ let intf;
 
 function initConnection() {
   web3 = new Web3(getWeb3ProviderUrl());
-  intf = new Web3FunctionProvider(web3.currentProvider, ()=>web3.eth.getCoinbase());
+  intf = new Web3FunctionProvider(web3.currentProvider, ()=>carbonFootprint.deployedAt);
 }
 initConnection();
 
