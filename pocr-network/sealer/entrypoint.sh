@@ -3,7 +3,7 @@
 echo $password > ~/.accountpassword
 
 echo "################################### Start init geth node with genesis block #################################################"
-geth init /root/genesis.json
+geth init /home/geth_user/genesis.json
 echo "################################### End init geth node with genesis block #################################################"
 
 echo "################################### Starting geth miner node #################################################"
