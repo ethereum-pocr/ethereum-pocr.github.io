@@ -6,6 +6,7 @@
   "main": "contracts/index.js",
   "scripts": {
     "test": "mocha --register ts-node/register '**/*.spec.ts'",
+    "testmike": "mocha --register ts-node/register '**/Governance.spec.ts'",
     "build": "./build.sh",
     "build:mon": "nodemon -w src -e sol --exec ./build.sh"
   },
@@ -28,8 +29,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.3.2",
-    "@saturn-chain/smart-contract": "^1.0.4",
-    "solidity": "^0.0.1"
+    "@saturn-chain/smart-contract": "^1.0.4"
   },
   "mocha": {
     "spec": [

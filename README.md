@@ -10,7 +10,7 @@ Your `GITLAB_USER` is the user without the `@` or alternatively the name of the 
 ```sh
 cho GITLAB_USER=your_gitlab_user >> $HOME/.bashrc 
 echo GITLAB_ACCESS_TOKEN=your_gitlab_password >> $HOME/.bashrc
-source $HOME/.bashrce
+source $HOME/.bashrc
 ```
 ---
 
@@ -42,6 +42,9 @@ In the root of the `pocr-monorepo` folder there is a `docker-compose.yml` that b
 This file is used by `docker-compose.yml` to read the default environment variables
 
 **pocr-network/genesis directory**
+Everytime the smartcontracts changes the CICD will build and publish 2 genesis files `kerleano.json`and `local.json`, the `sealer` download the genesis of the blockchain (check `pocr-network/sealer/Dockerfile` )  and then use `geth init` with the file downloaded to init the network before the start
+
+**Deprecated**
 This directory contains some genesis files used as example to bootstrap the blockchain locally.
 Example:
  * `pocr-network/genesis/saturndev-sealer1-authorized.json`: init the network with only `sealer-1` as authorized node to seal blocks in the network

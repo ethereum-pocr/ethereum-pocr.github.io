@@ -1,4 +1,5 @@
-solc -o contracts --optimize --combined-json abi,bin --overwrite --base-path . --include-path ./node_modules  src/*.sol
+solc --version
+solc -o contracts --optimize --combined-json abi,bin,bin-runtime --overwrite --base-path . --include-path ./node_modules  src/*.sol
 
 if [ $? -eq 0 ]
 then
@@ -15,3 +16,5 @@ then
   echo "- Verify compilation and script by displaying the loaded contracts"
   node -e 'console.log("  > "+require("./contracts/index.js").names().join("\n  > "))'
 fi
+
+
