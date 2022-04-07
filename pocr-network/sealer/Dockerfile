@@ -23,6 +23,8 @@ RUN chmod +x /usr/bin/geth
 
 FROM base as runtime 
 
+ARG GITLAB_USER
+ARG GITLAB_ACCESS_TOKEN
 ARG kerleano_version=dev
 #ARG genesis_filename=kerleano.json
 ARG genesis_filename=local.json
