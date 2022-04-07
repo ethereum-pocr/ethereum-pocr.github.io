@@ -10,7 +10,7 @@ Your `GITLAB_USER` is the user without the `@` or alternatively the name of the 
 ```sh
 cho GITLAB_USER=your_gitlab_user >> $HOME/.bashrc 
 echo GITLAB_ACCESS_TOKEN=your_gitlab_password >> $HOME/.bashrc
-source $HOME/.bashrce
+source $HOME/.bashrc
 ```
 ---
 
