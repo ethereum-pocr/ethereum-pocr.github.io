@@ -109,17 +109,42 @@ To stop the stack use
 ```
 ---
 
-And then open portainer in your browser http://localhost:9000
-At first, initiate Portainer with a login password
-You would then have the possibility to view your 3 nodes logs in real time directly in your browser, including possible monitoring services you would add in your network through the docker-compose.
+# persistance
 
-Logs are refreshed auomatically. Your network will be correclty mining if you see the logs
----
-```
-INFO [04-04|15:38:08.002] Commit new sealing work                  number=141 sealhash=f2a191..478cdb uncles=0 txs=0 gas=0 fees=0 elapsed="294.288µs"
-INFO [04-04|15:38:08.002] Carbon footprint nb nodes                result=0000000000000000000000000000000000000000000000000000000000000000
-INFO [04-04|15:38:08.002] No reward for signer                     node=0x6E45c195E12D7FE5e02059F15d59c2c976A9b730 error="no node in PoCR smart contract"
-```
+The `docker-compose` persiste the data of sealers by mounting the volumes to the host using the keys in `.env` file
+`MOUNT_DATADIR_NODE_1=./pocr-network/data/node1/`
+`MOUNT_DATADIR_NODE_2=./pocr-network/data/node2/`
+`MOUNT_DATADIR_NODE_3=./pocr-network/data/node3/`
+
+If you want to reset the blockchain then delete `/pocr-network/data` directory (`rm -rf /pocr-network/data/`)
+
+
+# apps and access
+
+When you start the stack you can access the diffrent services at the urls bellow:
+
+* Pocr-monitoring: `http://localhost:8081/pocr/`
+
+* ethstats: `http://localhost:8008`
+
+* lite-explorer: `http://localhost:8800`
+
+* rpc endpoints: `http://localhost:8541/`, `http://localhost:8543/` and `http://localhost:8545/`
+    if you start the `reverse-proxy` nginx service `lb` you can use `http://localhost/rpc` as a loadbalance url to the 3 rpc endpoints
+* ws endpoints: `ws://localhost:8542/`, `http://localhost:8544/` and `http://localhost:8546/`
+    if you start the `reverse-proxy` nginx service `lb` you can use `ws://localhost/ws` as a loadbalance url to the 3 ws endpoints
+
+* Portainer: accessible at the url `http://localhost:9000`
+    At first, initiate Portainer with a login password
+    You would then have the possibility to view your 3 nodes logs in real time directly in your browser, including possible monitoring services you would add in your network through the docker-compose.
+
+    Logs are refreshed auomatically. Your network will be correclty mining if you see the logs
+    ---
+    ```
+    INFO [04-04|15:38:08.002] Commit new sealing work                  number=141 sealhash=f2a191..478cdb uncles=0 txs=0 gas=0 fees=0 elapsed="294.288µs"
+    INFO [04-04|15:38:08.002] Carbon footprint nb nodes                result=0000000000000000000000000000000000000000000000000000000000000000
+    INFO [04-04|15:38:08.002] No reward for signer                     node=0x6E45c195E12D7FE5e02059F15d59c2c976A9b730 error="no node in PoCR smart contract"
+    ```
 ---
 
 
