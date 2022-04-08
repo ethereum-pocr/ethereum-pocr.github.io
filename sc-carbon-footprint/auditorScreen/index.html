@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="./js/web3.min.js"></script>
+    <script type="text/javascript" src="./js/abi.js"></script>
+    <script type="text/javascript" src="./js/main.js"></script>
+  </head>
+  <link rel="shortcut icon" href="#" />
+  <!-- Menu -->
+  <body>
+    <div class="jumbotron jumbotron-fluid">
+        <button type="button" id="connect_button" class="btn btn-secondary .float-right">Connect Wallet</button>
+        <span id="Wallet_user_output"></span>
+
+      </div>
+    </div>
+    <div class="container">
+      <div>
+        <h4>AUDITOR DASHBOARD</h4>
+        <button type="button" id="self_button" class="btn btn-success">Self Register</button>
+        <button type="button" id="pledge_button" class="btn btn-info">Pledge</button>
+        <br>
+        <br>
+        <br>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="node_input" placeholder="Node audited" >
+            <input type="number" class="form-control" id="footprint_input" placeholder="Footprint node" >
+          </div>
+          <br>
+        <button type="button" id="save_button" class="btn btn-info">Save audit</button>
+        <br>
+      </div>
+    </div>
+
+
+  </body>
+</html>
