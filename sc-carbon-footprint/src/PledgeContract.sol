@@ -41,6 +41,7 @@ contract PledgeContract is IPledgeContract {
     return true;
   }
 
+  /*
   function transferPledge(address payable _target, uint _amount) public returns (bool){
     require(_amount <= pledgesAmountsByAuditor[msg.sender], "not enough funds");
     // test if the sender is a registered auditor and therefore test if it can remove its pledge
@@ -49,6 +50,28 @@ contract PledgeContract is IPledgeContract {
     _target.transfer(_amount);
     return true;
   }
+  */
+
+  function getPledgeBack() public returns (bool){
+    uint amountPleged = pledgesAmountsByAuditor[msg.sender];
+    require(amountPleged > 0, "not enough funds");
+    // test if the sender is a registered auditor and therefore test if it can remove its pledge
+    require(canTransferPledge(payable(msg.sender), amountPleged), "not allowed to transfer pledge out");
+    pledgesAmountsByAuditor[msg.sender] -= amountPleged;
+    payable(msg.sender).transfer(amountPleged);
+    return true;
+  }
+
+
+  function transferPledge(address payable _target, uint _amount) public returns (bool){
+    require(_amount <= pledgesAmountsByAuditor[msg.sender], "not enough funds");
+    // test if the sender is a registered auditor and therefore test if it can remove its pledge
+    require(canTransferPledge(_target, _amount), "not allowed to transfer pledge out");
+    pledgesAmountsByAuditor[msg.sender] -= _amount;
+    _target.transfer(_amount);
+    return true;
+  }
+
 
   /** to be called  */
   function confiscatePledge(address _auditor) internal {
