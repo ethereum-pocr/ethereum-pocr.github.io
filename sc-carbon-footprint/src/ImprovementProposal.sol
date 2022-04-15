@@ -36,8 +36,8 @@ contract ImprovementProposal is IImprovementProposal {
     return string(b);
   }
 
-  function voteAllowed(IP storage ip) internal view returns (bool) {
-    IPStatus status = evaluateStatus(ip);
+  function voteAllowed(IP storage _ip) internal view returns (bool) {
+    IPStatus status = evaluateStatus(_ip);
     //require(false, statusToString(status));
     if (status == IPStatus.VoteOpen) {
       return true;
@@ -48,17 +48,17 @@ contract ImprovementProposal is IImprovementProposal {
     return false;
   }
 
-  function evaluateStatus(IP storage ip) private view returns (IPStatus status) {
+  function evaluateStatus(IP storage _ip) private view returns (IPStatus status) {
     (uint blockDelayBeforeVote, uint blockSpanForVote) = getBlockConstantValues();
-    uint voteFrom = ip.firstVoteAtBlock;
-    if (voteFrom < ip.createdAtBlock) {
-      voteFrom = ip.createdAtBlock + blockDelayBeforeVote;
+    uint voteFrom = _ip.firstVoteAtBlock;
+    if (voteFrom < _ip.createdAtBlock) {
+      voteFrom = _ip.createdAtBlock + blockDelayBeforeVote;
     }
     uint voteUntil = voteFrom + blockSpanForVote;
     if (block.number < voteFrom ) { // before the vote can start
       status = IPStatus.Proposed;
     } else if (block.number <= voteUntil) { // before the vote is closed
-      if (ip.auditorsVoteFor + ip.auditorsVoteAgainst + ip.nodesVoteFor + ip.nodesVoteAgainst == 0) {
+      if (_ip.auditorsVoteFor + _ip.auditorsVoteAgainst + _ip.nodesVoteFor + _ip.nodesVoteAgainst == 0) {
         // no vote yet
         status = IPStatus.VoteOpen;
       } else {
@@ -66,7 +66,7 @@ contract ImprovementProposal is IImprovementProposal {
         status = IPStatus.VoteStarted;
       }
     } else { // after the vote is closed
-      if (ip.nodesVoteFor > ip.nodesVoteAgainst && ip.auditorsVoteFor > ip.auditorsVoteAgainst) {
+      if (_ip.nodesVoteFor > _ip.nodesVoteAgainst && _ip.auditorsVoteFor > _ip.auditorsVoteAgainst) {
         // a majority of both categories are for the change
         status = IPStatus.Approved;
       } else {
@@ -118,9 +118,9 @@ contract ImprovementProposal is IImprovementProposal {
     emit IPChanged(ip.index, IPStatus.Proposed);
   }
 
-  function voteForProposal(uint index) public {
-    require(index < nbIPs, "invalid index");
-    IP storage ip = ips[index];
+  function voteForProposal(uint _index) public {
+    require(_index < nbIPs, "invalid index");
+    IP storage ip = ips[_index];
     require(voteAllowed(ip), "vote is closed");
     SenderType s = senderType();
     require(s != SenderType.Invalid, "not allowed to vote");
@@ -167,12 +167,12 @@ contract ImprovementProposal is IImprovementProposal {
         ip.nodeVotes[msg.sender] = 1;
       }
     }
-    emit IPVote(index, msg.sender, s, 1);
+    emit IPVote(_index, msg.sender, s, 1);
   }
 
-  function voteAgainstProposal(uint index) public {
-    require(index < nbIPs, "invalid index");
-    IP storage ip = ips[index];
+  function voteAgainstProposal(uint _index) public {
+    require(_index < nbIPs, "invalid index");
+    IP storage ip = ips[_index];
     require(voteAllowed(ip), "vote is closed");
     SenderType s = senderType();
     require(s != SenderType.Invalid, "not allowed to vote");
@@ -220,7 +220,7 @@ contract ImprovementProposal is IImprovementProposal {
       }
     }
 
-    emit IPVote(index, msg.sender, s, -1);
+    emit IPVote(_index, msg.sender, s, -1);
 
   }
 }
