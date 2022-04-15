@@ -2,8 +2,8 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-//import "./intf/ICarbonFootprint.sol";
-//import "./intf/IAuditorGovernance.sol";
+import "./intf/ICarbonFootprint.sol";
+import "./intf/IAuditorGovernance.sol";
 
 /** Contract cannot have initializer or constructor as its binary form will be embeded in the genesis block */
 contract CarbonFootprint {
@@ -19,9 +19,9 @@ contract CarbonFootprint {
     //in final version, we should define the function external as it is intended to be used with an UI exclusively (?)
     function setFootprint(address _node, uint _value) external {
         
-        // IAuditorGovernance me = IAuditorGovernance(address(this));
+         IAuditorGovernance me = IAuditorGovernance(address(this));
         // Ensure that the sender is an authorized auditor
-        // require(me.auditorSettingFootprint(msg.sender), "the caller is not authorized to set the carbon footprint");
+         require(me.auditorSettingFootprint(msg.sender), "the caller is not authorized to set the carbon footprint");
         require(msg.sender != _node, "the auditor cannot set its own footprint"); 
 
 

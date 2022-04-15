@@ -55,7 +55,6 @@ contract PledgeContract is IPledgeContract {
   function getPledgeBack() public returns (bool){
     uint amountPleged = pledgesAmountsByAuditor[msg.sender];
     require(amountPleged > 0, "not enough funds");
-    // test if the sender is a registered auditor and therefore test if it can remove its pledge
     pledgesAmountsByAuditor[msg.sender] -= amountPleged;
     payable(msg.sender).transfer(amountPleged);
     return true;

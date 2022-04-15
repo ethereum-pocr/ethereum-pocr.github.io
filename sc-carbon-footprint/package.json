@@ -6,7 +6,6 @@
   "main": "contracts/index.js",
   "scripts": {
     "test": "mocha --register ts-node/register '**/*.spec.ts'",
-    "testmike": "mocha --register ts-node/register '**/Governance.spec.ts'",
     "build": "./build.sh",
     "build:mon": "nodemon -w src -e sol --exec ./build.sh"
   },
