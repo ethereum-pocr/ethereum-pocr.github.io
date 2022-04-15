@@ -17,16 +17,15 @@
 
 <script>
 import AppMenu from "./components/AppMenu.vue";
-import { getContractInstance } from "@/lib/api";
+// import { getContractInstance } from "@/lib/api";
 import { call } from "vuex-pathify";
 
 export default {
   components: { AppMenu },
   data: () => ({}),
 
-  mounted() {
-    getContractInstance("Governance");
-    this.detectProvider();
+  async mounted() {
+    // getContractInstance("Governance");
   },
 
   methods: {

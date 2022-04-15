@@ -10,14 +10,15 @@
         "postbuild": "node create-config.js"
     },
     "dependencies": {
-        "@metamask/detect-provider": "^1.2.0",
-        "@saturn-chain/smart-contract": "^1.0.3",
         "@mdi/font": "5.9.55",
         "@mdi/js": "^6.1.95",
+        "@metamask/detect-provider": "^1.2.0",
+        "@saturn-chain/smart-contract": "^1.0.3",
         "axios": "^0.26.1",
         "bigint-polyfill": "^0.1.0",
         "bignumber.js": "^9.0.1",
         "core-js": "^3.6.5",
+        "document-ready-promise": "^3.0.1",
         "ethereum-blockies": "github:ethereum/blockies",
         "ethers": "^5.6.2",
         "oidc-client": "^1.11.5",

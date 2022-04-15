@@ -1,5 +1,5 @@
 <template>
-  <div></div>
+  <div>Status Page</div>
 </template>
 
 <script>
