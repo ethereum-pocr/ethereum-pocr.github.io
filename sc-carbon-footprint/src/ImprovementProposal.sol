@@ -30,11 +30,7 @@ contract ImprovementProposal is IImprovementProposal {
   function nbImprovementProposals() public view returns (uint) {
     return nbIPs;
   }
-  function statusToString(IPStatus s) private pure returns (string memory) {
-    bytes memory b = new bytes(1);
-    b[0] = bytes1(uint8(48 + uint(s)));
-    return string(b);
-  }
+
 
   function voteAllowed(IP storage _ip) internal view returns (bool) {
     IPStatus status = evaluateStatus(_ip);
