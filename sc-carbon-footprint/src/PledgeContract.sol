@@ -4,6 +4,8 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "./intf/IPledgeContract.sol";
 
+
+
 contract PledgeContract is IPledgeContract {
   uint private totalConfiscatedAmount;
   mapping (address => uint) private pledgesAmountsByAuditor;
@@ -33,8 +35,8 @@ contract PledgeContract is IPledgeContract {
     revert();
   }
   
-  function pledgedAmount(address owner) override public view returns (uint) {
-    return pledgesAmountsByAuditor[owner];
+  function pledgedAmount(address _owner) override public view returns (uint) {
+    return pledgesAmountsByAuditor[_owner];
   }
 
   function canTransferPledge(address payable, uint) virtual internal view returns (bool) {
@@ -116,12 +118,12 @@ contract PledgeContract is IPledgeContract {
     completed = t.completed;
   }
 
-  function approveTransfer(uint index) override public {
+  function approveTransfer(uint _index) override public {
     // test that the caller is a valid node
     require(canSenderOperateTransfer(), "not allowed to approve a transfer of confiscated pledge");
     
-    require(index < nbTransfers, "invalid index");
-    TransferTx storage t = transfers[index];
+    require(_index < nbTransfers, "invalid index");
+    TransferTx storage t = transfers[_index];
     require(!t.completed, "the transfer is already completed");
     
     if (t.approvals[msg.sender]) {
@@ -134,12 +136,12 @@ contract PledgeContract is IPledgeContract {
     }
   }
 
-  function rejectTransfer(uint index) override public {
+  function rejectTransfer(uint _index) override public {
     // test that the caller is a valid node
     require(canSenderOperateTransfer(), "not allowed to reject a transfer of confiscated pledge");
     
-    require(index < nbTransfers, "invalid index");
-    TransferTx storage t = transfers[index];
+    require(_index < nbTransfers, "invalid index");
+    TransferTx storage t = transfers[_index];
     require(!t.completed, "the transfer is already completed");
 
     if (t.approvals[msg.sender]) {
@@ -156,12 +158,12 @@ contract PledgeContract is IPledgeContract {
     return true;
   }
 
-  function executeTransfer(uint index) override public {
+  function executeTransfer(uint _index) override public {
     // test that the caller is a valid node
     require(canSenderOperateTransfer(), "not allowed to execute a transfer of confiscated pledge");
     
-    require(index < nbTransfers, "invalid index");
-    TransferTx storage t = transfers[index];
+    require(_index < nbTransfers, "invalid index");
+    TransferTx storage t = transfers[_index];
     require(!t.completed, "cannot execute the transfer");
     // test that the nb of approvals is greater than the number of nodes / 2 +1
     require(hasEnoughVote(t.nbApprovals), "not enough approvals");
@@ -171,12 +173,12 @@ contract PledgeContract is IPledgeContract {
     emit TransferChanged(t.index, TransferChangeStatus.Executed, t.nbApprovals);
   }
 
-  function cancelTransfer(uint index) override public {
+  function cancelTransfer(uint _index) override public {
     // test that the caller is a valid node
     require(canSenderOperateTransfer(), "not allowed to cancel a transfer of confiscated pledge");
     
-    require(index < nbTransfers, "invalid index");
-    TransferTx storage t = transfers[index];
+    require(_index < nbTransfers, "invalid index");
+    TransferTx storage t = transfers[_index];
     require(!t.completed, "cannot cancel the transfer");
     
     totalConfiscatedAmount += t.amount;
