@@ -1,6 +1,7 @@
 // import ready from "document-ready-promise";
 import detectEthereumProvider from '@metamask/detect-provider';
 import { make } from "vuex-pathify";
+import { intf } from "@/lib/api";
 
 import $store from "@/store/index";
 import router from "../router.js";
@@ -8,10 +9,8 @@ import router from "../router.js";
 const state = () => ({
     provider: null,
     wallet: null,
-    approved: false,
-    approbationVotes: 0,
-    // used for a nicer UX: if this is true, ignore the values above, we probably don't know the actual values yet
-    tryingToConnect: false
+    contract: null,
+    registered: false
 })
 
 const getters = {}
@@ -33,6 +32,7 @@ const actions = {
         const address = window.ethereum.selectedAddress;
         if (!address) return;
         $store.set("auth/wallet", address);
+        // We do it here because stuff breaks if we try to instanciat the interface before we know the address
         return address;
     },
 
@@ -41,6 +41,14 @@ const actions = {
         if (accounts.length === 0) return;
         $store.set("auth/wallet", accounts[0]);
         router.push({ name: "status" });
+    },
+
+    async fetchIsRegistered({ state }) {
+        const registered = await state.contract.auditorRegistered(
+            intf(state.provider).call(),
+            state.wallet
+        );
+        $store.set("auth/registered", registered);
     }
 }
 

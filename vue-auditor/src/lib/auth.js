@@ -1,3 +1,4 @@
+import { getContractInstance } from "./api";
 
 export function setupAuthNavigationGuard(router, store) {
   router.beforeEach(async (to, from, next) => {
@@ -19,6 +20,11 @@ export function setupAuthNavigationGuard(router, store) {
         return next({ name: "auth" });
       }
     }
+
+    if (!store.state.auth.contract) {
+      store.commit("auth/contract", getContractInstance())
+    }
+
     console.log("Everything's fine, going to", to.name);
     return next();
   })

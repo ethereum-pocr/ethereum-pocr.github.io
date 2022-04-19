@@ -1,9 +1,19 @@
 <template>
-  <div>Status Page</div>
+  <div>Status Page. Registered: {{ registered }}</div>
 </template>
 
 <script>
-// import { call } from "vuex-pathify";
+import { get, call } from "vuex-pathify";
 
-export default {};
+export default {
+  computed: {
+    ...get("auth", ["registered"]),
+  },
+  mounted() {
+    this.fetchIsRegistered();
+  },
+  methods: {
+    ...call("auth", ["fetchIsRegistered"]),
+  },
+};
 </script>

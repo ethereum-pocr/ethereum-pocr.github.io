@@ -1,6 +1,7 @@
 // import { DLTNodeApi } from "@saturn-chain/dlt-rest-api";
 // import { DLTInterface } from "@saturn-chain/dlt-functions";
 import { SmartContracts } from "@saturn-chain/smart-contract";
+import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
 import combinedFile from "../contracts/combined";
 
 // import { Crypto } from "@saturn-chain/dlt-tx-data-functions";
@@ -44,9 +45,20 @@ import combinedFile from "../contracts/combined";
 
 const governanceAddress = "0x0000000000000000000000000000000000000100";
 
-export function getContractInstance(contractName) {
+export function getContractInstanceByName(contractName) {
     const contracts = SmartContracts.load(combinedFile);
     const contract = contracts.get(contractName);
     const instance = contract.createInstance(governanceAddress);
     console.log("Instance", instance);
+    return instance;
+}
+
+export function getContractInstance() {
+    return getContractInstanceByName("Governance");
+}
+
+export function intf(provider) {
+    return new Web3FunctionProvider(provider, (list) =>
+        Promise.resolve(list[0])
+    )
 }

@@ -8,6 +8,11 @@ import auth from "./auth"
 
 Vue.use(Vuex);
 
+const state = {
+    // used for a nicer UX: if this is true, ignore the values above, we probably don't know the actual values yet
+    tryingToConnect: false
+}
+
 const store = new Vuex.Store({
     modules: {
         auth
@@ -16,17 +21,7 @@ const store = new Vuex.Store({
         pathify.plugin,
         // createPersistedState({ key: "wallets", paths: ["wallets"] })
     ],
-    state: {
-
-    },
-    mutations: {
-
-    },
-    actions: {
-
-    },
-    getters: {
-
-    },
+    state,
+    mutations: {}
 });
 export default store;
