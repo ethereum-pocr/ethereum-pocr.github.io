@@ -17,6 +17,12 @@ const actions = {
         const approved = await readOnlyCall("auditorApproved", wallet);
 
         $store.set("status/approved", approved);
+    },
+    async fetchApprobationVotes() {
+        const wallet = $store.get("auth/wallet");
+        const votes = await readOnlyCall("auditorVotes", wallet);
+
+        $store.set("status/approbationVotes", Number(votes));
     }
 }
 
