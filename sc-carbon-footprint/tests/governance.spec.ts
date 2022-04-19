@@ -380,7 +380,7 @@ describe("Run tests on POCR Governance contract", function () {
     });
 
 
-    it('should fail transferring the pledge', async () => {
+    it('should fail transferring the pledge when calling transferPledge function', async () => {
       // Given the auditor is registered
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
@@ -396,6 +396,27 @@ describe("Run tests on POCR Governance contract", function () {
       }
       // Given the auditor trying to take the pledge away
       const p = instance.transferPledge(auditor.send({maxGas:50000}), auditorWallet, pledged.toString());
+      // Then the execution should fail
+      return expect(p).to.be.rejectedWith(/not allowed to transfer pledge out/)
+      
+    });
+
+    it('should fail transferring the pledge when calling getPledgeBack function', async () => {
+      // Given the auditor is registered
+      const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
+      if (!registered) {
+        // first register
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+      }
+      // Given the pledge amount is present
+      let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
+      const minPledge = BigInt(web3.utils.toWei('1000', "ether"));
+      if (pledged < minPledge) {
+        // then pledge enough crypto
+        await instance.pledge(auditor.send({maxGas:50000, amount: minPledge - pledged}));  
+      }
+      // Given the auditor trying to take the pledge away
+      const p = instance.getPledgeBack(auditor.send({maxGas:50000}));
       // Then the execution should fail
       return expect(p).to.be.rejectedWith(/not allowed to transfer pledge out/)
       
@@ -441,7 +462,7 @@ describe("Run tests on POCR Governance contract", function () {
       return expect(p).to.be.rejectedWith(/revert/)
     });
 
-    it('should be able to transfer a pledge out', async () => {
+    it('should be able to transfer a pledge out when calling transferPledge function', async () => {
       // Given an amount being pledged
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
       if (pledged <= 0n) {
@@ -461,6 +482,25 @@ describe("Run tests on POCR Governance contract", function () {
       expect(pledged).to.equal(0n);
     });
 
+
+    it('should be able to transfer a pledge back to the auditor when calling getPledgeBack function', async () => {
+      // Given an amount being pledged
+      let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
+      if (pledged <= 0n) {
+        pledged = 1000000000000000000000n;
+        await instance.pledge(auditor.send({maxGas:50000, amount: pledged}));
+      }
+
+      // Then the target wallet should have been credited with the pledged amount
+      pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
+      expect(pledged).to.equal(1000000000000000000000n);
+
+      await instance.getPledgeBack(auditor.send({maxGas:100000}));
+
+      // Then the target wallet should have been credited with the pledged amount
+      pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
+      expect(pledged).to.equal(0n);
+    });
 
 
   });
@@ -811,4 +851,5 @@ describe("Run tests on POCR Governance contract", function () {
       expect(proposal.status).equal('3');
     });
   });
+  
 });
