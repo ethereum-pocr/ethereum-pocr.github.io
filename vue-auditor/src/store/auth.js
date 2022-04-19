@@ -1,7 +1,7 @@
 // import ready from "document-ready-promise";
 import detectEthereumProvider from '@metamask/detect-provider';
 import { make } from "vuex-pathify";
-import { intf } from "@/lib/api";
+import { readOnlyCall } from "@/lib/api";
 
 import $store from "@/store/index";
 import router from "../router.js";
@@ -44,10 +44,7 @@ const actions = {
     },
 
     async fetchIsRegistered({ state }) {
-        const registered = await state.contract.auditorRegistered(
-            intf(state.provider).call(),
-            state.wallet
-        );
+        const registered = await readOnlyCall("auditorRegistered", state.wallet);
         $store.set("auth/registered", registered);
     }
 }

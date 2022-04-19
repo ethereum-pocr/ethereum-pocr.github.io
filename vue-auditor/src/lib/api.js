@@ -3,6 +3,7 @@
 import { SmartContracts } from "@saturn-chain/smart-contract";
 import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
 import combinedFile from "../contracts/combined";
+import $store from "@/store/index";
 
 // import { Crypto } from "@saturn-chain/dlt-tx-data-functions";
 
@@ -61,4 +62,14 @@ export function intf(provider) {
     return new Web3FunctionProvider(provider, (list) =>
         Promise.resolve(list[0])
     )
+}
+
+export function readOnlyCall(methodName, ...args) {
+    const provider = $store.get("auth/provider");
+    const contract = $store.get("auth/contract");
+
+    return contract[methodName](
+        intf(provider).call(),
+        ...args
+    );
 }

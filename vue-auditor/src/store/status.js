@@ -1,5 +1,6 @@
 import { make } from "vuex-pathify";
-// import $store from "@/store/index";
+import { readOnlyCall } from "@/lib/api";
+import $store from "@/store/index";
 
 const state = () => ({
     approved: false,
@@ -11,8 +12,11 @@ const getters = {}
 const mutations = make.mutations(state);
 
 const actions = {
-    async getIsApproved() {
+    async fetchIsApproved() {
+        const wallet = $store.get("auth/wallet");
+        const approved = await readOnlyCall("auditorApproved", wallet);
 
+        $store.set("status/approved", approved);
     }
 }
 

@@ -5,6 +5,7 @@ import pathify from '@/plugins/pathify'
 // import createPersistedState from "vuex-persistedstate";
 
 import auth from "./auth"
+import status from "./status"
 
 Vue.use(Vuex);
 
@@ -15,7 +16,8 @@ const state = {
 
 const store = new Vuex.Store({
     modules: {
-        auth
+        auth,
+        status
     },
     plugins: [
         pathify.plugin,
