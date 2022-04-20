@@ -1,7 +1,7 @@
 // import ready from "document-ready-promise";
 import detectEthereumProvider from '@metamask/detect-provider';
 import { make } from "vuex-pathify";
-import { readOnlyCall } from "@/lib/api";
+import { readOnlyCall, writeCall } from "@/lib/api";
 
 import $store from "@/store/index";
 import router from "../router.js";
@@ -24,15 +24,16 @@ const actions = {
             router.push({ name: "installMetaMask" });
             return;
         }
+        provider.on('accountsChanged', () => window.location.reload())
         $store.set("auth/provider", provider);
     },
 
     async attemptToConnectWallet() {
-        // await ready();
-        const address = window.ethereum.selectedAddress;
+        const addresses = await window.ethereum.request({ method: "eth_accounts" })
+        const address = addresses.length > 0 ? addresses[0] : null;
         if (!address) return;
         $store.set("auth/wallet", address);
-        // We do it here because stuff breaks if we try to instanciat the interface before we know the address
+        // We do it here because stuff breaks if we try to instanciate the interface before we know the address
         return address;
     },
 
@@ -46,6 +47,13 @@ const actions = {
     async fetchIsRegistered({ state }) {
         const registered = await readOnlyCall("auditorRegistered", state.wallet);
         $store.set("auth/registered", registered);
+    },
+
+    async selfRegister({ dispatch }) {
+        $store.set("mmIsOpen", true);
+        await writeCall("selfRegisterAuditor");
+        $store.set("mmIsOpen", false);
+        dispatch("fetchIsRegistered");
     }
 }
 

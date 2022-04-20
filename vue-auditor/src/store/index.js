@@ -2,21 +2,25 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 import pathify from '@/plugins/pathify'
+import { make } from "vuex-pathify";
 // import createPersistedState from "vuex-persistedstate";
 
 import auth from "./auth"
+import pledge from "./pledge"
 import status from "./status"
 
 Vue.use(Vuex);
 
 const state = {
     // used for a nicer UX: if this is true, ignore the values above, we probably don't know the actual values yet
-    tryingToConnect: false
+    tryingToConnect: false,
+    mmIsOpen: false
 }
 
 const store = new Vuex.Store({
     modules: {
         auth,
+        pledge,
         status
     },
     plugins: [
@@ -24,6 +28,6 @@ const store = new Vuex.Store({
         // createPersistedState({ key: "wallets", paths: ["wallets"] })
     ],
     state,
-    mutations: {}
+    mutations: make.mutations(state)
 });
 export default store;

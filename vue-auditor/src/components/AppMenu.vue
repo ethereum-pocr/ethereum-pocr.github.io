@@ -13,10 +13,11 @@
     <v-list>
       <v-list-item-group :value="$route.name" mandatory color="primary">
         <v-list-item
-          v-for="{ icon, label, route } in links"
+          v-for="{ icon, label, route, required } in links"
           :key="route"
           :value="route"
           @click="goTo(route)"
+          :disabled="required && !required()"
           link
         >
           <v-list-item-icon>
@@ -33,20 +34,37 @@
 </template>
 
 <script>
-// import { get } from "vuex-pathify";
+import { get } from "vuex-pathify";
 export default {
-  data: () => ({
+  data: (vm) => ({
     drawer: null,
     links: [
       { icon: "mdi-wallet", label: "Status", route: "status" },
-      { icon: "mdi-wallet", label: "Audit", route: "audit" },
-      { icon: "mdi-wallet", label: "Pledge", route: "pledge" },
-      { icon: "mdi-wallet", label: "History", route: "history" },
+      {
+        icon: "mdi-wallet",
+        label: "Audit",
+        route: "audit",
+        required: () => !vm.mmIsOpen && vm.approved,
+      },
+      {
+        icon: "mdi-wallet",
+        label: "Pledge",
+        route: "pledge",
+        required: () => !vm.mmIsOpen && vm.approved,
+      },
+      {
+        icon: "mdi-wallet",
+        label: "History",
+        route: "history",
+        required: () => !vm.mmIsOpen && vm.approved,
+      },
     ],
   }),
 
   computed: {
-    // ...get("auth", ["profile"]),
+    ...get(["mmIsOpen"]),
+    ...get("auth", ["registered"]),
+    ...get("status", ["approved"]),
   },
 
   methods: {

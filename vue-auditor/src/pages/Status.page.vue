@@ -5,11 +5,15 @@
       APPROVED
     </v-card-subtitle>
     <v-card-subtitle style="color: red" v-if="registered && !approved">
-      DENIED
+      AWAITING APPROVAL
     </v-card-subtitle>
     <v-card-text v-if="!registered">
-      <p>You are not registered, please make sure to register</p>
-      <router-link to="/auth"> <a> click here</a> </router-link>
+      <p>
+        You are not registered, please make sure to register
+        <v-btn small class="mx-2" @click="selfRegister" :disabled="mmIsOpen">
+          Self register
+        </v-btn>
+      </p>
     </v-card-text>
     <v-card-text v-if="registered">
       <p style="color: black">
@@ -24,8 +28,9 @@ import { get, call } from "vuex-pathify";
 
 export default {
   computed: {
+    mmIsOpen: get("mmIsOpen"),
     ...get("auth", ["registered"]),
-    ...get("status", ["approved"]),
+    ...get("status", ["approved", "approbationVotes"]),
   },
   mounted() {
     this.fetchIsRegistered();
@@ -33,7 +38,7 @@ export default {
     this.fetchApprobationVotes();
   },
   methods: {
-    ...call("auth", ["fetchIsRegistered"]),
+    ...call("auth", ["fetchIsRegistered", "selfRegister"]),
     ...call("status", ["fetchIsApproved", "fetchApprobationVotes"]),
   },
 };

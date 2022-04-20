@@ -15,6 +15,7 @@
         "@metamask/detect-provider": "^1.2.0",
         "@saturn-chain/smart-contract": "^1.0.3",
         "@saturn-chain/web3-functions": "^1.0.9",
+        "@saturn-chain/web3-custody-functions": "^0.0.7",
         "axios": "^0.26.1",
         "bigint-polyfill": "^0.1.0",
         "bignumber.js": "^9.0.1",
