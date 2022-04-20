@@ -1,7 +1,7 @@
 import { make } from "vuex-pathify";
-import { readOnlyCall } from "@/lib/api";
+import { readOnlyCall, writeCallWithOptions, handleMMResponse } from "@/lib/api";
 import $store from "@/store/index";
-import { toEther } from "@/lib/numbers";
+import { toWei } from "@/lib/numbers";
 import { getWalletBalance } from "@/lib/api";
 
 const state = () => ({
@@ -23,22 +23,25 @@ const actions = {
 
     async fetchBalance({ rootState }) {
         const balance = await getWalletBalance(rootState.auth.wallet);
-        $store.set("pledge/balance", toEther(balance).toFixed());
+        $store.set("pledge/balance", balance);
     },
 
     async fetchMinPledgeAmount() {
         const wallet = $store.get("auth/wallet");
         const minPledgeAmount = await readOnlyCall("minPledgeAmountToAuditNode", wallet);
-        $store.set("pledge/minPledgeAmount", toEther(minPledgeAmount).toFixed());
+        $store.set("pledge/minPledgeAmount", minPledgeAmount);
     },
 
     async fetchPledgedAmount() {
         const wallet = $store.get("auth/wallet");
         const pledgedAmount = await readOnlyCall("pledgedAmount", wallet);
-        $store.set("pledge/pledgedAmount", toEther(pledgedAmount).toFixed());
+        $store.set("pledge/pledgedAmount", pledgedAmount);
     },
 
-
+    async addToPledge({ dispatch }, amount) {
+        await handleMMResponse(writeCallWithOptions("pledge", { amount: toWei(amount) }));
+        dispatch("fetchPledgedAmount");
+    }
 }
 
 export default {

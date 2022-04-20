@@ -3,14 +3,16 @@
     <v-col cols="12">
       <v-card>
         <v-card-title>Current Wallet Balance</v-card-title>
-        <v-card-text> {{ balance }}&nbsp;CRC </v-card-text>
+        <v-card-text> {{ toEther(balance) }}&nbsp;CRC </v-card-text>
       </v-card>
     </v-col>
     <v-col cols="8">
       <v-card>
         <v-card-title>Pledge Informations</v-card-title>
         <v-card-text>
-          <div>Min pledge to start audit: {{ minPledgeAmount }}&nbsp;CRC</div>
+          <div>
+            Min pledge to start audit: {{ toEther(minPledgeAmount) }}&nbsp;CRC
+          </div>
           <div>
             Current pledged amount: {{ pledgedAmount }}&nbsp;CRC
             <v-btn small disabled>Start audit</v-btn>
@@ -22,8 +24,26 @@
       <v-card>
         <v-card-title>Pledge Actions</v-card-title>
         <v-card-text>
-          <div>Pledge more</div>
-          <div>Redeem Pledge</div>
+          <v-row>
+            <v-col cols="12" class="pb-0">
+              <v-text-field
+                v-model="amountToAdd"
+                dense
+                hide-details
+                outlined
+                type="number"
+                :min="0"
+                placeholder="Amount to add to the pledge"
+            /></v-col>
+            <v-col cols="12">
+              <v-btn small style="width: 100%" @click="pledgeMore"
+                >Pledge more</v-btn
+              >
+            </v-col>
+            <v-col cols="12">
+              <v-btn small style="width: 100%">Redeem Pledge</v-btn>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-col>
@@ -31,10 +51,12 @@
 </template>
 <script>
 import { get, call } from "vuex-pathify";
+import { toEther } from "@/lib/numbers";
 
 export default {
   data: () => ({
     intervalId: null,
+    amountToAdd: 0,
   }),
   computed: {
     ...get("pledge", ["balance", "minPledgeAmount", "pledgedAmount"]),
@@ -48,7 +70,12 @@ export default {
     next();
   },
   methods: {
-    ...call("pledge", ["fetchAllValues"]),
+    toEther,
+    ...call("pledge", ["fetchAllValues", "addToPledge"]),
+    async pledgeMore() {
+      await this.addToPledge(this.amountToAdd);
+      this.amountToAdd = 0;
+    },
   },
 };
 </script>

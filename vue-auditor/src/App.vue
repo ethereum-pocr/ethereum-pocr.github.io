@@ -12,20 +12,31 @@
         </v-container>
       </v-main>
     </v-container>
+    <v-overlay :value="mmIsOpen">
+      <v-progress-circular indeterminate></v-progress-circular>
+    </v-overlay>
+    <v-snackbar
+      v-model="displaySnackbar"
+      multi-line
+      :color="snackbarColor"
+      right
+    >
+      {{ snackbarMessage }}
+    </v-snackbar>
   </v-app>
 </template>
 
 <script>
 import AppMenu from "./components/AppMenu.vue";
-// import { getContractInstance } from "@/lib/api";
-import { call } from "vuex-pathify";
+import { get, sync, call } from "vuex-pathify";
 
 export default {
   components: { AppMenu },
   data: () => ({}),
 
-  async mounted() {
-    // getContractInstance("Governance");
+  computed: {
+    ...sync(["displaySnackbar", "snackbarMessage", "snackbarColor"]),
+    ...get(["mmIsOpen"]),
   },
 
   methods: {

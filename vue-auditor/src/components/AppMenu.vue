@@ -1,13 +1,10 @@
 <template>
   <v-navigation-drawer v-model="drawer" app clipped flat>
-    <v-sheet color="grey lighten-4 d-flex flex-column align-center">
+    <!-- <v-sheet color="grey lighten-4 d-flex flex-column align-center">
       <v-avatar class="ma-4" color="grey darken-1" size="64">
         <v-icon dark> mdi-account-circle </v-icon>
       </v-avatar>
-
-      <!-- <div v-if="profile">{{ profile.name }}</div>
-      <div v-if="profile">{{ profile.email }}</div> -->
-    </v-sheet>
+    </v-sheet>-->
 
     <v-divider></v-divider>
     <v-list>
@@ -39,7 +36,12 @@ export default {
   data: (vm) => ({
     drawer: null,
     links: [
-      { icon: "mdi-wallet", label: "Status", route: "status" },
+      {
+        icon: "mdi-wallet",
+        label: "Status",
+        route: "status",
+        required: () => !vm.mmIsOpen,
+      },
       {
         icon: "mdi-wallet",
         label: "Audit",

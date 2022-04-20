@@ -48,3 +48,44 @@ export function writeCall(methodName, ...args) {
         ...args
     );
 }
+
+export function writeCallWithOptions(methodName, options, ...args) {
+    const provider = $store.get("auth/provider");
+    const contract = $store.get("auth/contract");
+
+    return contract[methodName](
+        intf(provider).send(options),
+        ...args
+    );
+}
+
+export async function handleMMResponse(promise, errorCallback) {
+    let response = null;
+    try {
+        $store.set("mmIsOpen", true);
+        response = await promise;
+    }
+    catch (err) {
+        $store.dispatch("errorFlash", err.message);
+        errorCallback && errorCallback(err);
+    }
+    finally {
+        $store.set("mmIsOpen", false);
+    }
+    return response;
+}
+
+// Not used currently but lets you run any arbitrary code and the mmIsOpen flag is handled automatically
+// aswell as the error flash production if you decide to trigger an exception.
+export async function handleMM(func) {
+    try {
+        $store.set("mmIsOpen", true);
+        await func();
+    }
+    catch (err) {
+        $store.dispatch("errorFlash", err.message);
+    }
+    finally {
+        $store.set("mmIsOpen", false);
+    }
+}

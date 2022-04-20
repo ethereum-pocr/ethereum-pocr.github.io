@@ -1,7 +1,7 @@
 // import ready from "document-ready-promise";
 import detectEthereumProvider from '@metamask/detect-provider';
 import { make } from "vuex-pathify";
-import { readOnlyCall, writeCall } from "@/lib/api";
+import { readOnlyCall, writeCall, handleMMResponse } from "@/lib/api";
 
 import $store from "@/store/index";
 import router from "../router.js";
@@ -45,14 +45,12 @@ const actions = {
     },
 
     async fetchIsRegistered({ state }) {
-        const registered = await readOnlyCall("auditorRegistered", state.wallet);
+        const registered = await handleMMResponse(readOnlyCall("auditorRegistered", state.wallet));
         $store.set("auth/registered", registered);
     },
 
     async selfRegister({ dispatch }) {
-        $store.set("mmIsOpen", true);
-        await writeCall("selfRegisterAuditor");
-        $store.set("mmIsOpen", false);
+        await handleMMResponse(writeCall("selfRegisterAuditor"));
         dispatch("fetchIsRegistered");
     }
 }
