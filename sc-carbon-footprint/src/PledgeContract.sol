@@ -3,10 +3,11 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "./intf/IPledgeContract.sol";
+import "./utils/ReentrancyGuard.sol";
 
 
 
-contract PledgeContract is IPledgeContract {
+contract PledgeContract is IPledgeContract,ReentrancyGuard {
   uint private totalConfiscatedAmount;
   mapping (address => uint) private pledgesAmountsByAuditor;
   struct TransferTx {
@@ -49,7 +50,7 @@ contract PledgeContract is IPledgeContract {
   }
 
 
-  function transferPledge(address payable _target, uint _amount) public override returns (bool){
+  function transferPledge(address payable _target, uint _amount) nonReentrant public override  returns (bool){
     require(_amount <= pledgesAmountsByAuditor[msg.sender], "not enough funds");
     // test if the sender is a registered auditor and therefore test if it can remove its pledge
     require(canTransferPledge(_target, _amount), "not allowed to transfer pledge out");
@@ -158,7 +159,7 @@ contract PledgeContract is IPledgeContract {
     return true;
   }
 
-  function executeTransfer(uint _index) override public {
+  function executeTransfer(uint _index) nonReentrant override public {
     // test that the caller is a valid node
     require(canSenderOperateTransfer(), "not allowed to execute a transfer of confiscated pledge");
     
