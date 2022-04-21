@@ -81,3 +81,5 @@ build_docker_sealer:
   only:
       changes:
           - pocr-network/sealer/**/*
+      refs:
+        - master
