@@ -1,9 +1,24 @@
 <template>
-  <div>Audit Page</div>
+  <v-row>
+    <v-col>Number of Nodes: {{ nbOfNodes }}</v-col>
+    <v-col>Total Footprint: {{ totalFootprint }}</v-col>
+    <v-col cols="12"> Nodes: </v-col>
+  </v-row>
 </template>
 
 <script>
-// import { call } from "vuex-pathify";
+import { get, call } from "vuex-pathify";
 
-export default {};
+export default {
+  computed: {
+    ...get("audit", ["nbOfNodes", "totalFootprint"]),
+  },
+
+  mounted() {
+    this.fetchAllValues();
+  },
+  methods: {
+    ...call("audit", ["fetchAllValues"]),
+  },
+};
 </script>

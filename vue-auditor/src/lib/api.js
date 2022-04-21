@@ -66,6 +66,7 @@ export async function handleMMResponse(promise, errorCallback) {
         response = await promise;
     }
     catch (err) {
+        console.log(err);
         $store.dispatch("errorFlash", err.message);
         errorCallback && errorCallback(err);
     }
@@ -83,6 +84,7 @@ export async function handleMM(func) {
         await func();
     }
     catch (err) {
+        console.log(err);
         $store.dispatch("errorFlash", err.message);
     }
     finally {

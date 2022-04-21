@@ -41,7 +41,13 @@
               >
             </v-col>
             <v-col cols="12">
-              <v-btn small style="width: 100%">Redeem Pledge</v-btn>
+              <v-btn
+                small
+                style="width: 100%"
+                @click="redeemPledge"
+                :disabled="pledgedAmount === 0"
+                >Redeem Pledge</v-btn
+              >
             </v-col>
           </v-row>
         </v-card-text>
@@ -71,7 +77,7 @@ export default {
   },
   methods: {
     toEther,
-    ...call("pledge", ["fetchAllValues", "addToPledge"]),
+    ...call("pledge", ["fetchAllValues", "addToPledge", "redeemPledge"]),
     async pledgeMore() {
       await this.addToPledge(this.amountToAdd);
       this.amountToAdd = 0;

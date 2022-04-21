@@ -5,6 +5,7 @@ import pathify from '@/plugins/pathify'
 import { make } from "vuex-pathify";
 // import createPersistedState from "vuex-persistedstate";
 
+import audit from "./audit"
 import auth from "./auth"
 import pledge from "./pledge"
 import status from "./status"
@@ -23,6 +24,7 @@ const state = {
 
 const store = new Vuex.Store({
     modules: {
+        audit,
         auth,
         pledge,
         status

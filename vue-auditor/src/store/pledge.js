@@ -1,5 +1,5 @@
 import { make } from "vuex-pathify";
-import { readOnlyCall, writeCallWithOptions, handleMMResponse } from "@/lib/api";
+import { readOnlyCall, writeCall, writeCallWithOptions, handleMMResponse } from "@/lib/api";
 import $store from "@/store/index";
 import { toWei } from "@/lib/numbers";
 import { getWalletBalance } from "@/lib/api";
@@ -40,6 +40,11 @@ const actions = {
 
     async addToPledge({ dispatch }, amount) {
         await handleMMResponse(writeCallWithOptions("pledge", { amount: toWei(amount) }));
+        dispatch("fetchPledgedAmount");
+    },
+
+    async redeemPledge({ dispatch }) {
+        await handleMMResponse(writeCall("getPledgeBack"));
         dispatch("fetchPledgedAmount");
     }
 }
