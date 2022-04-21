@@ -29,13 +29,14 @@ FROM base as runtime
 
 ARG GITLAB_USER
 ARG GITLAB_ACCESS_TOKEN
-ARG kerleano_version=dev
-#ARG genesis_filename=kerleano.json
-ARG genesis_filename=local.json
+ARG kerleano_version=latest
 ARG geth_version=latest
 
-RUN curl -f -u "${GITLAB_USER}:${GITLAB_ACCESS_TOKEN}" -o /home/geth_user/genesis.json \
-    https://gitlab.com/api/v4/projects/34381428/packages/generic/genesis/${kerleano_version}/${genesis_filename}
+RUN curl -f -u "${GITLAB_USER}:${GITLAB_ACCESS_TOKEN}" -o /home/geth_user/kerleano.json \
+    https://gitlab.com/api/v4/projects/34381428/packages/generic/genesis/${kerleano_version}/kerleano.json
+
+RUN curl -f -u "${GITLAB_USER}:${GITLAB_ACCESS_TOKEN}" -o /home/geth_user/local.json \
+    https://gitlab.com/api/v4/projects/34381428/packages/generic/genesis/${kerleano_version}/local.json
 
 RUN curl -f -u "${GITLAB_USER}:${GITLAB_ACCESS_TOKEN}" -o "geth-pocr" \
     https://gitlab.com/api/v4/projects/34464473/packages/generic/geth/${geth_version}/geth && \
