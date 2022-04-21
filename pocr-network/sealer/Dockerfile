@@ -1,4 +1,4 @@
-FROM ubuntu:jammy as base
+FROM ubuntu:jammy@sha256:62b95dd050572873dbe140d8c5ced653a02f08512585489ed8d7a6ef6ef7a727 as base
 
 RUN apt-get update \
   && apt-get install -y curl  \
