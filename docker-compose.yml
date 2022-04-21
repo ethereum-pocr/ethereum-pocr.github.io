@@ -44,6 +44,10 @@ services:
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
       - verbosity=3
+      # The image is packaged with 2 genesis file 'kerleano.json' and 'local.json'
+      # default genesis file is 'local.json' where 3 sealers are authorized
+      # you can override the genesis to use 'kerleano.json' where only '0x6e45c195e12d7fe5e02059f15d59c2c976a9b730' is authorized to seal
+      # - genesisFileName=kerleano.json
     build:
       context: ./pocr-network/sealer
       args:
@@ -54,8 +58,7 @@ services:
       - 8541:8545
       - 8542:8546
     volumes:
-      # - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_1}:/root/.ethereum/
+      - ${MOUNT_DATADIR_NODE_1}:/home/geth_user/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
@@ -74,6 +77,10 @@ services:
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
       - verbosity=3
+      # The image is packaged with 2 genesis file 'kerleano.json' and 'local.json'
+      # default genesis file is 'local.json' where 3 sealers are authorized
+      # you can override the genesis to use 'kerleano.json' where only '0x6e45c195e12d7fe5e02059f15d59c2c976a9b730' is authorized to seal
+      # - genesisFileName=kerleano.json
     build:
       context: ./pocr-network/sealer
       args:
@@ -84,8 +91,7 @@ services:
       - 8543:8545
       - 8544:8546
     volumes:
-      # - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_2}:/root/.ethereum/
+      - ${MOUNT_DATADIR_NODE_2}:/home/geth_user/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
@@ -103,6 +109,10 @@ services:
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
       - verbosity=3
+      # The image is packaged with 2 genesis file 'kerleano.json' and 'local.json'
+      # default genesis file is 'local.json' where 3 sealers are authorized
+      # you can override the genesis to use 'kerleano.json' where only '0x6e45c195e12d7fe5e02059f15d59c2c976a9b730' is authorized to seal
+      # - genesisFileName=kerleano.json
     build:
       context: ./pocr-network/sealer
       args:
@@ -113,8 +123,7 @@ services:
       - 8545:8545
       - 8546:8546
     volumes:
-      # - ${MOUNT_GENESIS_FILE_PATH}:/root/genesis.json:ro
-      - ${MOUNT_DATADIR_NODE_3}:/root/.ethereum/
+      - ${MOUNT_DATADIR_NODE_3}:/home/geth_user/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
