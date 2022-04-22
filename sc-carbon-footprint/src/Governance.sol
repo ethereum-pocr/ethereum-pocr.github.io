@@ -18,11 +18,11 @@ contract Governance is
         internal
         view
         override
-        returns (bool)
+        returns (bool, uint256)
     {
         // First the auditor must be approved
         if (!auditorApproved(_auditor)) {
-            return false;
+            return (false,0);
         }
 
         // Then the last audit should be less that 30 days ago
@@ -31,7 +31,10 @@ contract Governance is
 
         (lastAuditAtBlock, ) = auditorLastAuditInfo(_auditor);
 
-        return block.number >= (lastAuditAtBlock + minimalPeriod);
+        bool isBlockOK = (block.number >= (lastAuditAtBlock + minimalPeriod));
+        uint256 redeemAtBlock = lastAuditAtBlock + minimalPeriod;
+
+        return (isBlockOK, redeemAtBlock);
     }
 
     /** the caller must be a node with a footprint superior to zero (means the node exists)*/

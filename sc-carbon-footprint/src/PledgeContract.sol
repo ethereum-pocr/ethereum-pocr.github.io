@@ -51,9 +51,9 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
         internal
         view
         virtual
-        returns (bool)
+        returns (bool, uint256)
     {
-        return true;
+        return (true, 0);
     }
 
     function getPledgeBack() public {
@@ -72,8 +72,10 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
             "not enough funds"
         );
         // test if the sender is a registered auditor and therefore test if it can remove its pledge
+        bool mayTransfer;
+        (mayTransfer,) = canTransferPledge(_target, _amount);
         require(
-            canTransferPledge(_target, _amount),
+            mayTransfer,
             "not allowed to transfer pledge out"
         );
         pledgesAmountsByAuditor[msg.sender] -= _amount;
