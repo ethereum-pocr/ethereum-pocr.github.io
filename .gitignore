@@ -1,2 +1,6 @@
 node_modules
 .idea
+
+# macOS index files
+.DS_Store
+**/.DS_Store
