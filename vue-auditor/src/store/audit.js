@@ -1,21 +1,21 @@
 import Web3 from "web3";
 import { make } from "vuex-pathify";
 import { poaBlockHashToSealerInfo } from "pocr-utils";
-import { readOnlyCall } from "@/lib/api";
+import { readOnlyCall, intf as _intf, writeCall, handleMMResponse } from "@/lib/api";
 import $store from "@/store/index";
 
 const state = () => ({
     nbOfNodes: 0,
-    totalFootprint: 0
+    totalFootprint: 0,
+    sealers: []
 })
 
 const getters = {}
 
 const mutations = make.mutations(state);
 
-async function processBlock(web3, block) {
+async function processBlock(web3, intf, block) {
     // console.log("Receiving block", block.number)
-    const intf = _intf();
     const carbonFootprint = $store.get("auth/contract");
 
     const data = { block, sealer: undefined }
@@ -64,8 +64,9 @@ const actions = {
     async fetchNodeInformations({ rootState }) {
         const web3 = new Web3(rootState.auth.provider);
         const blockNumber = await web3.eth.getBlockNumber();
+        const intf = _intf(rootState.auth.provider);
 
-        // const nodes = {};
+        const sealers = {};
 
         const maxBlocksToCheck = 10;
         let i = 0;
@@ -73,10 +74,18 @@ const actions = {
         while (i < maxBlocksToCheck) {
             const index = blockNumber - i;
             const block = await web3.eth.getBlock(index, false);
-            const data = await processBlock(web3, block);
-            console.log(block, data);
+            const data = await processBlock(web3, intf, block);
+            console.log(data);
+            if (!sealers[data.sealer.address]) sealers[data.sealer.address] = data.sealer;
+            // else break;
             i++;
         }
+        $store.set("audit/sealers", Object.values(sealers));
+    },
+
+    async updateFootprint({ dispatch }, { sealerAddress, footprint }) {
+        await handleMMResponse(writeCall("setFootprint", sealerAddress, footprint));
+        dispatch("fetchNodeInformations");
     }
 }
 
