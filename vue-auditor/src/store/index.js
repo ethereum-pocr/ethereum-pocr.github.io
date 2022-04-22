@@ -7,6 +7,7 @@ import { make } from "vuex-pathify";
 
 import audit from "./audit"
 import auth from "./auth"
+import history from "./history";
 import pledge from "./pledge"
 import status from "./status"
 
@@ -26,6 +27,7 @@ const store = new Vuex.Store({
     modules: {
         audit,
         auth,
+        history,
         pledge,
         status
     },

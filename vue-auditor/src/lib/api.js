@@ -1,5 +1,4 @@
 import Web3 from "web3";
-// import { Web3Wallet } from "@saturn-chain/web3-custody-functions";
 import { SmartContracts } from "@saturn-chain/smart-contract";
 import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
 import combinedFile from "../contracts/combined";
@@ -11,7 +10,7 @@ export async function getWalletBalance(walletAddress) {
     // return await wallet.getBalance();
 }
 
-const governanceAddress = "0x0000000000000000000000000000000000000100";
+export const governanceAddress = "0x0000000000000000000000000000000000000100";
 
 export function getContractInstanceByName(contractName) {
     const contracts = SmartContracts.load(combinedFile);

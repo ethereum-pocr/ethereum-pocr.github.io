@@ -13,10 +13,10 @@
           <div>
             Min pledge to start audit: {{ toEther(minPledgeAmount) }}&nbsp;CRC
           </div>
-          <div>
-            Current pledged amount: {{ pledgedAmount }}&nbsp;CRC
-            <v-btn small disabled>Start audit</v-btn>
-          </div>
+          <div>Current pledged amount: {{ pledgedAmount }}&nbsp;CRC</div>
+          <v-btn small @click="redeemPledge" :disabled="pledgedAmount === 0"
+            >Redeem Pledge</v-btn
+          >
         </v-card-text>
       </v-card>
     </v-col>
@@ -38,15 +38,6 @@
             <v-col cols="12">
               <v-btn small style="width: 100%" @click="pledgeMore"
                 >Pledge more</v-btn
-              >
-            </v-col>
-            <v-col cols="12">
-              <v-btn
-                small
-                style="width: 100%"
-                @click="redeemPledge"
-                :disabled="pledgedAmount === 0"
-                >Redeem Pledge</v-btn
               >
             </v-col>
           </v-row>

@@ -80,7 +80,7 @@ const actions = {
             // else break;
             i++;
         }
-        $store.set("audit/sealers", Object.values(sealers));
+        $store.set("audit/sealers", Object.values(sealers).sort((a, b) => a.footprint < b.footprint));
     },
 
     async updateFootprint({ dispatch }, { sealerAddress, footprint }) {
