@@ -28,6 +28,7 @@ build-smart-contract:       # This job runs in the build stage, which runs first
   only:
     changes:
       - sc-carbon-footprint/**/*
+      - pocr-network/genesis/**/*
     refs:
       - tags
       - master
@@ -47,6 +48,7 @@ publish genesis:
       - master
     changes:
       - sc-carbon-footprint/**/*
+      - pocr-network/genesis/**/*
 
 release genesis:
   stage: publish
@@ -62,6 +64,7 @@ release genesis:
       - tags
     changes:
       - sc-carbon-footprint/**/*
+      - pocr-network/genesis/**/*
   except:
     - branches
 
