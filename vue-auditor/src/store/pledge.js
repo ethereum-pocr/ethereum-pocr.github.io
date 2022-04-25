@@ -1,7 +1,7 @@
 import { make } from "vuex-pathify";
 import { readOnlyCall, writeCall, writeCallWithOptions, handleMMResponse } from "@/lib/api";
 import $store from "@/store/index";
-import { toWei } from "@/lib/numbers";
+import { toWei, toEther } from "@/lib/numbers";
 import { getWalletBalance } from "@/lib/api";
 
 const state = () => ({
@@ -35,16 +35,22 @@ const actions = {
     async fetchPledgedAmount() {
         const wallet = $store.get("auth/wallet");
         const pledgedAmount = await readOnlyCall("pledgedAmount", wallet);
-        $store.set("pledge/pledgedAmount", pledgedAmount);
+        $store.set("pledge/pledgedAmount", toEther(pledgedAmount));
     },
 
     async addToPledge({ dispatch }, amount) {
-        await handleMMResponse(writeCallWithOptions("pledge", { amount: toWei(amount) }));
+        console.log("Pledging", amount)
+        await handleMMResponse(writeCallWithOptions("pledge", { amount: toWei(amount, "ether") }));
         dispatch("fetchPledgedAmount");
     },
 
     async redeemPledge({ dispatch }) {
-        await handleMMResponse(writeCall("getPledgeBack"));
+        // when the smart contract is redeployed with the getPledgeBack function replace the below code
+        const wallet = $store.get("auth/wallet");
+        const amount = $store.get("pledge/pledgedAmount");
+        await  handleMMResponse(writeCall("transferPledge", wallet, amount));
+        // replace with:
+        // await handleMMResponse(writeCall("getPledgeBack"));
         dispatch("fetchPledgedAmount");
     }
 }

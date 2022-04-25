@@ -1,7 +1,11 @@
 import { make } from "vuex-pathify";
 import { governanceAddress } from "@/lib/api";
-import Web3 from "web3";
-import combinedFile from "../contracts/combined";
+import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
+import allContracts from "sc-carbon-footprint";
+import { toEther } from "@/lib/numbers";
+
+// eslint-disable-next-line 
+import { SmartContractInstance } from "@saturn-chain/smart-contract" // needed only for typings resolution in the code
 import $store from "@/store/index";
 
 const state = () => ({
@@ -11,45 +15,65 @@ const state = () => ({
 
 const getters = {}
 
-const mutations = make.mutations(state);
+const mutations = {
+    ...make.mutations(state),
+    appendFootprint: (state, value) => {
+        state.footprintHistory.push(value)
+    },
+    appendPledge: (state, value) => {
+        state.pledgeHistory.push(value)
+    },
+};
 
 const actions = {
     fetchAllValues({ dispatch }) {
-        const web3 = new Web3($store.get("auth/provider"));
+        const prov = new Web3FunctionProvider($store.get("auth/provider"), ()=>Promise.resolve($store.get("auth/wallet")))
+        const contract = allContracts.get("Governance").at(governanceAddress);
 
-        const contract = new web3.eth.Contract(
-            combinedFile.contracts["src/Governance.sol:Governance"].abi,
-            governanceAddress
-        );
-
-        dispatch("fetchFootprintHistory", contract);
-        dispatch("fetchPledgeHistory", contract);
+        dispatch("fetchFootprintHistory", {contract, prov});
+        dispatch("fetchPledgeHistory", {contract, prov});
     },
 
-    async fetchFootprintHistory(empty, web3ContractInstance) {
-        const res = await web3ContractInstance.getPastEvents("CarbonFootprintUpdate", {
-            fromBlock: 1,
-        });
-        const data = res
-            .map(r => ({
-                blockNumber: r.blockNumber,
-                node: r.returnValues[0],
-                footprint: r.returnValues[1]
-            }))
-        $store.set("history/footprintHistory", data);
+    /**
+     * Get the list of setting footprint from the begining.     
+     * TODO: Replace by a pagination scheme 
+     * @param {*} empty 
+     * @param {{contract:SmartContractInstance, prov:Web3FunctionProvider} param1 
+     */
+    async fetchFootprintHistory({commit}, {contract, prov}) {
+        $store.set("history/footprintHistory", []);
+        contract.events.CarbonFootprintUpdate(prov.get({fromBlock: 1}), {})
+        .on("log", log=>{
+            // console.log("get logs ", log);
+            const footprint = {
+                blockNumber: log.blockNumber,
+                node: log.returnValues.node,
+                footprint: log.returnValues.footprint
+            };
+            commit("appendFootprint", footprint);
+        })
     },
 
-    async fetchPledgeHistory(empty, web3ContractInstance) {
-        const res = await web3ContractInstance.getPastEvents("AmountPledged", {
-            fromBlock: 1,
-        });
-        const data = res
-            .map(r => ({
-                blockNumber: r.blockNumber,
-                node: r.returnValues[0],
-                pledge: r.returnValues[1]
-            }))
-        $store.set("history/pledgeHistory", data);
+    /**
+     * Get the list of pledging from the begining.     
+     * TODO: Replace by a pagination scheme 
+     * @param {*} empty 
+     * @param {{contract:SmartContractInstance, prov:Web3FunctionProvider} param1 
+     */
+    async fetchPledgeHistory({commit}, {contract, prov}) {
+        $store.set("history/pledgeHistory", []);
+        // get the logs of the current auditor only
+        contract.events.AmountPledged(prov.get({fromBlock: 1}), {from: await prov.account()})
+        .on("log", log=>{
+            // console.log("get logs ", log);
+            const pledge = {
+                blockNumber: log.blockNumber,
+                node: log.returnValues.from,
+                pledge: toEther(log.returnValues.amount),
+                total: toEther(log.returnValues.total)
+            };
+            commit("appendPledge", pledge)
+        })
     }
 }
 

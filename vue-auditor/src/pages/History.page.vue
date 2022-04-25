@@ -44,12 +44,12 @@ export default {
     currentTab: "footprints",
     footprintTableHeaders: [
       { text: "Block N°", value: "blockNumber" },
-      { text: "Node", value: "node" },
+      { text: "Node address", value: "node" },
       { text: "Assigned Footprint", value: "footprint" },
     ],
     pledgeTableHeaders: [
       { text: "Block N°", value: "blockNumber" },
-      { text: "Node", value: "node" },
+      { text: "Auditor address", value: "node" },
       { text: "Pledge", value: "pledge" },
     ],
   }),
