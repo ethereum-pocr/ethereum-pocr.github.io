@@ -24,7 +24,7 @@
           >
             <template v-slot:item.vanity="{ item }">
               <div>Address: {{ item.address }}</div>
-              <div>Vanity: {{ item.vanity.custom }}</div>
+              <div>Name: {{ item.vanity.custom }}</div>
             </template>
             <!-- 
             <template v-slot:item.footprint="{ item }">

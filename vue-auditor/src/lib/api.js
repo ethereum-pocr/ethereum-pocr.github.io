@@ -1,7 +1,6 @@
 import Web3 from "web3";
-import { SmartContracts } from "@saturn-chain/smart-contract";
 import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
-import combinedFile from "../contracts/combined";
+import allContracts from "sc-carbon-footprint";
 import $store from "@/store/index";
 
 export async function getWalletBalance(walletAddress) {
@@ -13,9 +12,8 @@ export async function getWalletBalance(walletAddress) {
 export const governanceAddress = "0x0000000000000000000000000000000000000100";
 
 export function getContractInstanceByName(contractName) {
-    const contracts = SmartContracts.load(combinedFile);
-    const contract = contracts.get(contractName);
-    const instance = contract.createInstance(governanceAddress);
+    const contract = allContracts.get(contractName);
+    const instance = contract.at(governanceAddress);
     console.log("Instance", instance);
     return instance;
 }
@@ -25,13 +23,15 @@ export function getContractInstance() {
 }
 
 export function intf(provider) {
+    // TODO (suggestion): This approach work, but why not storing in the "store" the intf result instead of the web3 provider ?
+    //      you would save writing the intf(provider)
     return new Web3FunctionProvider(provider, (list) => Promise.resolve(list[0]))
 }
 
 export function readOnlyCall(methodName, ...args) {
     const provider = $store.get("auth/provider");
     const contract = $store.get("auth/contract");
-
+    if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
     return contract[methodName](
         intf(provider).call(),
         ...args
@@ -39,23 +39,46 @@ export function readOnlyCall(methodName, ...args) {
 }
 
 export function writeCall(methodName, ...args) {
-    const provider = $store.get("auth/provider");
-    const contract = $store.get("auth/contract");
+    return writeCallWithOptions(methodName, {maxGas: 100000}, ...args);
+}
 
-    return contract[methodName](
-        intf(provider).send(),
-        ...args
-    );
+function convertMMErrorMessage(message) {
+    if(typeof message !== "string") message = `\n {"message":"invalid error message"}`;
+    let split = message.split("\n");
+    if(split.length==1) split =  `\n ${JSON.stringify({message})}`.split('\n');
+    try {
+        const obj = JSON.parse(split.splice(1).join(" "))
+        return obj;
+    } catch (error) {
+        return {
+            message: "invalid JSON message"
+        }
+    }
 }
 
 export function writeCallWithOptions(methodName, options, ...args) {
     const provider = $store.get("auth/provider");
     const contract = $store.get("auth/contract");
+    if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
 
-    return contract[methodName](
-        intf(provider).send(options),
-        ...args
-    );
+    return new Promise( (resolve, reject)=>{
+        // First test the execution with the node using the call approach
+        readOnlyCall(methodName, ...args)
+        .then(async v=>{
+            console.log("Tested call", v)
+            resolve(
+                // as it succeeded, try executing it as a transaction
+                await contract[methodName](
+                    intf(provider).send(options),
+                    ...args
+                )
+            )
+        })
+        .catch(e => {
+            const err = convertMMErrorMessage(e.message)
+            reject(err)
+        })
+    });
 }
 
 export async function handleMMResponse(promise, errorCallback) {

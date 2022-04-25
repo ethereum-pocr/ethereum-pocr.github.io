@@ -68,16 +68,22 @@ const actions = {
 
         const sealers = {};
 
-        const maxBlocksToCheck = 10;
+        // const maxBlocksToCheck = 10; // cannot use a fixed amount if they are more than 10 nodes it will not pick them all
         let i = 0;
-
-        while (i < maxBlocksToCheck) {
+        let maxSealerSeenCounter = 0;
+        while (maxSealerSeenCounter <= 2) { // makes at least 2 full loops of PoA signature
             const index = blockNumber - i;
             const block = await web3.eth.getBlock(index, false);
             const data = await processBlock(web3, intf, block);
-            console.log(data);
-            if (!sealers[data.sealer.address]) sealers[data.sealer.address] = data.sealer;
-            // else break;
+            console.log("block", data.block.number, "sealer", data.sealer);
+            if (!sealers[data.sealer.address]) {
+                sealers[data.sealer.address] = data.sealer;
+                sealers[data.sealer.address].seenCounter = 1;
+            } else {
+                sealers[data.sealer.address].seenCounter ++;
+            }
+            // capture the max of the node seen
+            if (maxSealerSeenCounter<sealers[data.sealer.address].seenCounter) maxSealerSeenCounter = sealers[data.sealer.address].seenCounter;
             i++;
         }
         $store.set("audit/sealers", Object.values(sealers).sort((a, b) => a.footprint < b.footprint));
