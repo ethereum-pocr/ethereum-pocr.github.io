@@ -14,7 +14,10 @@
             Min pledge to start audit: {{ toEther(minPledgeAmount) }}&nbsp;CRC
           </div>
           <div>Current pledged amount: {{ pledgedAmount }}&nbsp;CRC</div>
-          <v-btn small @click="redeemPledge" :disabled="pledgedAmount === 0"
+          <v-btn
+            small
+            @click="redeemPledge"
+            :disabled="pledgedAmount === 0 || !redeemBool"
             >Redeem Pledge</v-btn
           >
         </v-card-text>
@@ -56,7 +59,12 @@ export default {
     amountToAdd: 0,
   }),
   computed: {
-    ...get("pledge", ["balance", "minPledgeAmount", "pledgedAmount"]),
+    ...get("pledge", [
+      "balance",
+      "minPledgeAmount",
+      "pledgedAmount",
+      "redeemBool",
+    ]),
   },
   mounted() {
     this.fetchAllValues();

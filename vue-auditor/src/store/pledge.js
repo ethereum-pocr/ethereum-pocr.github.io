@@ -7,7 +7,8 @@ import { getWalletBalance } from "@/lib/api";
 const state = () => ({
     balance: 0,
     minPledgeAmount: 0,
-    pledgedAmount: 0
+    pledgedAmount: 0,
+    redeemBool: false,
 })
 
 const getters = {}
@@ -19,11 +20,19 @@ const actions = {
         dispatch("fetchBalance");
         dispatch("fetchMinPledgeAmount");
         dispatch("fetchPledgedAmount");
+        dispatch("fetchCanTransferPledge");
     },
 
     async fetchBalance({ rootState }) {
         const balance = await getWalletBalance(rootState.auth.wallet);
         $store.set("pledge/balance", balance);
+    },
+
+    async fetchCanTransferPledge() {
+        const wallet = $store.get("auth/wallet");
+        const redeemBool = await readOnlyCall("canTransferPledge", wallet);
+        console.log("just trying", redeemBool);
+        $store.set("pledge/redeemBool", redeemBool);
     },
 
     async fetchMinPledgeAmount() {
