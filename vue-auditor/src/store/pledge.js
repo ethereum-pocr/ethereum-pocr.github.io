@@ -30,7 +30,7 @@ const actions = {
 
     async fetchCanTransferPledge() {
         const wallet = $store.get("auth/wallet");
-        const redeemBool = await readOnlyCall("canTransferPledge", wallet);
+        const redeemBool = await readOnlyCall("canTransferPledge", wallet,"1");
         console.log("just trying", redeemBool);
         $store.set("pledge/redeemBool", redeemBool);
     },
