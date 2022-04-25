@@ -3,6 +3,7 @@ stages:          # List of stages for jobs, and their order of execution
   - build
 #  - test
   - publish
+  - build_docker
 
 build-smart-contract:       # This job runs in the build stage, which runs first.
   stage: build
@@ -27,6 +28,7 @@ build-smart-contract:       # This job runs in the build stage, which runs first
   only:
     changes:
       - sc-carbon-footprint/**/*
+      - pocr-network/genesis/**/*
     refs:
       - tags
       - master
@@ -46,6 +48,7 @@ publish genesis:
       - master
     changes:
       - sc-carbon-footprint/**/*
+      - pocr-network/genesis/**/*
 
 release genesis:
   stage: publish
@@ -61,6 +64,25 @@ release genesis:
       - tags
     changes:
       - sc-carbon-footprint/**/*
+      - pocr-network/genesis/**/*
   except:
     - branches
 
+
+build_docker_sealer:
+  stage: build_docker
+  tags:
+      - FINAXYS
+  image:
+      name: gcr.io/kaniko-project/executor:v1.7.0-debug
+      entrypoint: [""]
+  script:
+      - mkdir -p /kaniko/.docker
+      - export KANIKO_BUILDARGS="--build-arg GITLAB_USER=$GITLAB_USER --build-arg GITLAB_ACCESS_TOKEN=$GITLAB_ACCESS_TOKEN"
+      - echo "{\"auths\":{\"registry.gitlab.com\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+      - /kaniko/executor --context ${CI_PROJECT_DIR}/pocr-network/sealer $KANIKO_BUILDARGS --destination "registry.gitlab.com/saturnproject/externalgrp/pocr/pocr-monorepo/sealer:latest"
+  only:
+      changes:
+          - pocr-network/sealer/**/*
+      refs:
+        - master
