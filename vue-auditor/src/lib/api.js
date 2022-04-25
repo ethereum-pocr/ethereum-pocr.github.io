@@ -38,8 +38,8 @@ export function readOnlyCall(methodName, ...args) {
     );
 }
 
-export function writeCall(methodName, ...args) {
-    return writeCallWithOptions(methodName, {maxGas: 100000}, ...args);
+export function writeCall(methodName, ...args) {// return writeCallWithOptions(methodName, {maxGas: 1000000}, ...args);
+    return writeCallWithOptions(methodName, {}, ...args);
 }
 
 function convertMMErrorMessage(message) {
