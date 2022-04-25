@@ -5,6 +5,7 @@ pragma solidity >=0.7.0 <0.9.0;
 import "./intf/IPledgeContract.sol";
 import "./utils/ReentrancyGuard.sol";
 
+
 contract PledgeContract is IPledgeContract, ReentrancyGuard {
     uint256 private totalConfiscatedAmount;
     mapping(address => uint256) private pledgesAmountsByAuditor;
@@ -48,7 +49,7 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
     }
 
     function canTransferPledge(address payable, uint256)
-        internal
+        public
         view
         virtual
         returns (bool, uint256)
