@@ -15,7 +15,7 @@ contract Governance is
 {
     /** Auditor can transfer his pledge out if his last audit is more that 30 days ago */
     function canTransferPledge(address payable _auditor, uint256)
-        internal
+        public
         view
         override
         returns (bool, uint256)
