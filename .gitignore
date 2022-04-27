@@ -3,4 +3,6 @@ node_modules
 
 # macOS index files
 .DS_Store
+._.DS_Store
 **/.DS_Store
+**/._.DS_Store
