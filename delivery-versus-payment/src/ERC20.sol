@@ -36,15 +36,15 @@ import "./utils/Context.sol";
  */
 
  
-contract ERC20 is Context, IERC20, IERC20Metadata {
+contract Register is Context, IERC20, IERC20Metadata {
     mapping(address => uint256) private _balances;
 
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    //mapping(address => bool) private issuer;
-    //mapping(address => bool) private dealers;
-    //mapping(address => bool) private custodians;
-    //mapping(address => bool) private investors;
+    mapping(address => bool) private issuer;
+    mapping(address => bool) private dealers;
+    mapping(address => bool) private custodians;
+    mapping(address => bool) private investors;
 
     uint256 public _couponPrice;
     uint256 private _couponAmount;
@@ -102,7 +102,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev See {IERC20-totalSupply}.
      */
-    function couponAmount() public view virtual returns (uint256) {
+    function couponAmount() public view virtual override returns (uint256) {
         return _couponAmount;
     }
 
