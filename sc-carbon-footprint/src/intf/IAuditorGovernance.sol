@@ -5,6 +5,9 @@ pragma solidity >=0.7.0 <0.9.0;
 interface IAuditorGovernance {
   function selfRegisterAuditor() external;
   function voteAuditor(address auditor, bool accept) external;
+  function nbAuditors() external view returns (uint); // Getter nbAuditor
+  function auditorAddress(uint256 index) external view returns (address); // Getter auditor address by index ?
+  function currentAuditorVote(address auditor) external view returns (bool); // Getter currentVote ?
   function auditorRegistered(address auditor) external view returns (bool);
   function auditorApproved(address auditor) external view returns (bool);
   function auditorVotes(address auditor) external view returns (uint);

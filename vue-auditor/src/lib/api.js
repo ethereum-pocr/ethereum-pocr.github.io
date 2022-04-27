@@ -11,6 +11,8 @@ export async function getWalletBalance(walletAddress) {
 
 export const governanceAddress = "0x0000000000000000000000000000000000000100";
 
+export const auditorGovernanceAddress = "0x0000000000000000000000000000000000000200";
+
 export function getContractInstanceByName(contractName) {
     const contract = allContracts.get(contractName);
     const instance = contract.at(governanceAddress);
@@ -28,14 +30,18 @@ export function intf(provider) {
     return new Web3FunctionProvider(provider, (list) => Promise.resolve(list[0]))
 }
 
-export function readOnlyCall(methodName, ...args) {
+export async function readOnlyCall(methodName, ...args) {
     const provider = $store.get("auth/provider");
     const contract = $store.get("auth/contract");
     if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
-    return contract[methodName](
+    console.log(`In readOnlyCall -> before call of ${methodName} in contract, ${methodName in contract}`);
+    const res = await contract[methodName](
         intf(provider).call(),
         ...args
     );
+    console.log(`In readOnlyCall -> after call of ${methodName} in contract, ${methodName in contract}`);
+    console.dir(res);
+    return res;
 }
 
 export function writeCall(methodName, ...args) {// return writeCallWithOptions(methodName, {maxGas: 1000000}, ...args);

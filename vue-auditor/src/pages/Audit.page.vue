@@ -86,6 +86,12 @@
         </v-card-text>
       </v-card>
     </v-col>
+    <v-col>
+      <v-card>
+        <v-card-title>Number of Auditors</v-card-title>
+        <v-card-text>{{ nbAuditors }}</v-card-text>
+      </v-card>
+    </v-col>
   </v-row>
 </template>
 
@@ -105,13 +111,16 @@ export default {
   }),
   computed: {
     ...get("audit", ["nbOfNodes", "totalFootprint", "sealers"]),
+    ...get("nodeGovernance", ["nbAuditors", "auditors"]),
   },
 
   mounted() {
     this.fetchAllValues();
+    this.fetchAllAuditorsValues();
   },
   methods: {
     ...call("audit", ["fetchAllValues", "updateFootprint"]),
+    ...call("nodeGovernance", ["fetchAllAuditorsValues"]),
     openUpdateFootprintDialog(sealer) {
       this.selectedSealer = sealer;
       this.newFootprintValue = sealer.footprint;
