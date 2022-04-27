@@ -15,7 +15,7 @@
         </v-btn>
       </p>
     </v-card-text>
-    <v-card-text v-if="registered">
+    <v-card-text v-if="registered && !approved">
       <p style="color: black">
         You have the total vote of {{ approbationVotes }}
       </p>

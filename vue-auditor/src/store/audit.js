@@ -80,13 +80,15 @@ const actions = {
                 sealers[data.sealer.address] = data.sealer;
                 sealers[data.sealer.address].seenCounter = 1;
             } else {
-                sealers[data.sealer.address].seenCounter ++;
+                sealers[data.sealer.address].seenCounter++;
             }
             // capture the max of the node seen
-            if (maxSealerSeenCounter<sealers[data.sealer.address].seenCounter) maxSealerSeenCounter = sealers[data.sealer.address].seenCounter;
+            if (maxSealerSeenCounter < sealers[data.sealer.address].seenCounter) maxSealerSeenCounter = sealers[data.sealer.address].seenCounter;
             i++;
         }
-        $store.set("audit/sealers", Object.values(sealers).sort((a, b) => a.footprint < b.footprint));
+        const sortedSealers = Object.values(sealers).sort((a, b) => a.footprint < b.footprint);
+        // console.log(sortedSealers.map(s => s.footprint));
+        $store.set("audit/sealers", sortedSealers);
     },
 
     async updateFootprint({ dispatch }, { sealerAddress, footprint }) {
