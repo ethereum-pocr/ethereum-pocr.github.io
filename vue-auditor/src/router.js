@@ -10,17 +10,19 @@ import Status from "@/pages/Status.page.vue";
 
 Vue.use(VueRouter);
 
+export const routes = [
+    // Auth
+    { name: "installMetaMask", path: "/installmetamask", component: InstallMetaMask },
+    { name: "auth", path: "/auth", component: Auth },
+    { name: "status", path: "/status", component: Status },
+    { name: "pledge", path: "/pledge", component: Pledge },
+    { name: "audit", path: "/audit", component: Audit },
+    { name: "history", path: "/history", component: History },
+    { path: "*", redirect: "auth" }
+]
+
 const router = new VueRouter({
-    routes: [
-        // Auth
-        { name: "installMetaMask", path: "/installmetamask", component: InstallMetaMask },
-        { name: "auth", path: "/auth", component: Auth },
-        { name: "status", path: "/status", component: Status },
-        { name: "pledge", path: "/pledge", component: Pledge },
-        { name: "audit", path: "/audit", component: Audit },
-        { name: "history", path: "/history", component: History },
-        { path: "*", redirect: "auth" }
-    ],
+    routes,
     base: "",
     mode: "history"
 })
