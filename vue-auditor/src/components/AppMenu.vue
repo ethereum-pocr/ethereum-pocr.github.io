@@ -1,30 +1,37 @@
 <template>
   <v-navigation-drawer v-model="drawer" app clipped flat>
-    <!-- <v-sheet color="grey lighten-4 d-flex flex-column align-center">
-      <v-avatar class="ma-4" color="grey darken-1" size="64">
-        <v-icon dark> mdi-account-circle </v-icon>
-      </v-avatar>
-    </v-sheet>-->
-
     <v-divider></v-divider>
     <v-list>
       <v-list-item-group :value="$route.name" mandatory color="primary">
-        <v-list-item
-          v-for="{ icon, label, route, required } in links"
-          :key="route"
-          :value="route"
-          @click="goTo(route)"
-          :disabled="required && !required()"
-          link
+        <template
+          v-for="(
+            { icon, label, route, required, subheader }, index
+          ) in sidenav"
         >
-          <v-list-item-icon>
-            <v-icon>{{ icon }}</v-icon>
-          </v-list-item-icon>
+          <v-divider
+            v-if="subheader && label !== '' && index !== 0"
+            :key="`${subheader}-divider`"
+          ></v-divider>
+          <v-subheader :key="label" v-if="subheader && label !== ''">{{
+            label
+          }}</v-subheader>
+          <v-list-item
+            v-else
+            :key="route"
+            :value="route"
+            @click="goTo(route)"
+            :disabled="required && !required()"
+            link
+          >
+            <v-list-item-icon>
+              <v-icon>{{ icon }}</v-icon>
+            </v-list-item-icon>
 
-          <v-list-item-content>
-            <v-list-item-title>{{ label }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{ label }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </template>
       </v-list-item-group>
     </v-list>
   </v-navigation-drawer>
@@ -32,6 +39,8 @@
 
 <script>
 import { get } from "vuex-pathify";
+import { routes } from "@/router";
+
 export default {
   data: (vm) => ({
     drawer: null,
@@ -67,6 +76,34 @@ export default {
     ...get(["mmIsOpen"]),
     ...get("auth", ["registered"]),
     ...get("status", ["approved"]),
+    sidenav() {
+      const list = routes
+        .filter((r) => r?.meta?.displayInSidenav !== undefined)
+        .map((r) => ({
+          icon: "mdi-wallet",
+          label: r.name.charAt(0).toUpperCase() + r.name.slice(1),
+          route: r.name,
+          meta: r.meta,
+        }));
+      const nav = [];
+      const categories = [];
+      for (const el of list) {
+        if (
+          el.meta &&
+          el.meta.displayInSidenav !== "" &&
+          !categories.includes(el.meta.displayInSidenav)
+        ) {
+          nav.push({ subheader: true, label: el.meta.displayInSidenav });
+          categories.push(el.meta.displayInSidenav);
+        }
+        nav.push(el);
+      }
+      return nav;
+    },
+  },
+
+  mounted() {
+    console.log("routes", routes);
   },
 
   methods: {
