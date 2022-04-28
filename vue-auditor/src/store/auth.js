@@ -10,7 +10,9 @@ const state = () => ({
     provider: null,
     wallet: null,
     contract: null,
-    registered: false
+    registered: false,
+    isNode: false,
+    isAuditor: false,
 })
 
 const getters = {}
@@ -18,6 +20,22 @@ const getters = {}
 const mutations = make.mutations(state);
 
 const actions = {
+
+    async fetchRole() {
+        // get the current address
+        const wallet = $store.get("auth/wallet");
+        // check if it's Auditor
+        const isAuditor = await readOnlyCall("auditorRegistered", wallet);
+        // get the value of the footprint
+        const Node = await readOnlyCall("footprint", wallet);
+        let isNode = false;
+        // if value different to 0 then it's a node
+        if (Node != 0) isNode = true;
+        // set the values to the store
+        $store.set("auth/isAuditor", isAuditor);
+        $store.set("auth/isNode", isNode);
+    },
+
     async detectProvider() {
         const provider = await detectEthereumProvider();
         if (!provider) {
