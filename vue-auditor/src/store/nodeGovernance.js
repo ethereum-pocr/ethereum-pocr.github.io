@@ -1,5 +1,6 @@
 import { make } from "vuex-pathify";
 import {
+    handleMMResponse,
     readOnlyCall, writeCall,
     // writeCall,
     // writeCallWithOptions,
@@ -19,44 +20,45 @@ const getters = {}
 const mutations = make.mutations(state);
 
 const actions = {
-    fetchAllAuditorsValues({ dispatch }) {
-        console.log('before dispatch fetch auditors gouv actions');
-        dispatch("fetchNbAuditors");
-        // dispatch("fetchAuditorsInfos");
-        console.log('after dispatch fetch auditors gouv actions');
+    async fetchAllAuditorsValues({ dispatch }) {
+        console.log('xxx before fetch nbAudit');
+        await dispatch("fetchNbAuditors");
+        console.log('xxx before AuditInfos');
+        await dispatch("fetchAuditorsInfos");
+        console.log('xxx  after dispatch');
         // dispatch("fetchPledgedAmount");
         // dispatch("fetchCanTransferPledge");
     },
 
     async fetchNbAuditors() {
-        console.log('+++++before readOnlyCall nbNode in nbAuditors');
-        const nbNode = await readOnlyCall("nbNodes");
-        console.log(`+++++after readOnlyCall nbNode in nbAuditors : ${nbNode}`);
-        console.log('+++++before readOnlyCall nbAuditors');
-        const nbAuditors = await writeCall("nbAuditors");
-        console.log(`+++++after readOnlyCall nbAuditors : ${nbAuditors}`);
+        const nbAuditors = await readOnlyCall("nbAuditors");
+        console.log(`+++ after readOnlyCall nbAuditors : ${nbAuditors}`);
         $store.set("nodeGovernance/nbAuditors", nbAuditors);
     },
 
     async fetchAuditorsInfos() {
-        console.log('before readOnlyCall loop auditors');
-        const nbAuditors = $store.get("nodeGovernance/nbAuditors");
-        console.log(`nbAuditors: ${nbAuditors}`);
-        const auditors = {};
+        console.log('*** before readOnlyCall loop auditors');
+        const nbAuditors = await readOnlyCall("nbAuditors");
+        const nodeAdr = $store.get("auth/wallet");
+        const minVotes = Math.floor((await readOnlyCall("nbNodes")) / 2) + 1;
+        console.log(`*** nbAuditors: ${nbAuditors}`);
+        console.log(`*** nodeAdr: ${nodeAdr}`);
+        const auditors = [];
         for (let i = 0; i < nbAuditors; i++) {
-            console.log(`before loop ${i} auditors call`);
+            console.log(`*** before loop ${i} auditors call`);
             const address = await readOnlyCall("auditorAddress", i);
-            console.log(`after adress call : ${address}`);
+            console.log(`*** after adress call : ${address}`);
             const nbVotes = await readOnlyCall("auditorVotes", address);
-            console.log(`after nbVotes call : ${nbVotes}`);
-            const currentVote = await readOnlyCall("currentAuditorVote", address);
-            console.log(`after currentVote call : ${currentVote}`);
+            console.log(`*** after nbVotes call : ${nbVotes}`);
+            const currentVote = await readOnlyCall("currentAuditorVote", address, nodeAdr);
+            console.log(`*** after currentVote call : ${currentVote}`);
             const isApproved = await readOnlyCall("auditorApproved", address);
-            console.log(`after isApproved call : ${isApproved}`);
-            console.log(`after loop ${i} auditors call`);
-            auditors[address] = {
+            console.log(`*** after isApproved call : ${isApproved}`);
+            console.log(`*** after loop ${i} auditors call`);
+            auditors[i] = {
                 address,
                 nbVotes,
+                minVotes,
                 currentVote,
                 isApproved
             };
@@ -67,6 +69,12 @@ const actions = {
         // console.log("just trying", redeemBool);
         $store.set("nodeGovernance/auditors", auditors);
     },
+
+    async voteAuditor(context, {auditorAddress, accept}) {
+        console.log(`calling voteAuditor for auditor ${auditorAddress} with value ${accept}`)
+        const res = await handleMMResponse(writeCall("voteAuditor", auditorAddress, accept));
+        console.log(`res voteAuditor -> ${res}`);
+    }
 
     // async fetchMinPledgeAmount() {
     //     const wallet = $store.get("auth/wallet");

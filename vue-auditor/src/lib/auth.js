@@ -33,19 +33,19 @@ export function setupAuthNavigationGuard(router, store) {
 
     // Alright, you have the extension, and you've connected a wallet. But do you have the right to
     // go where you're trying to go?
-    if ((!store.state.auth.registered || !store.state.status.approved) && to.name !== "status") {
-      // Maybe we don't know it yet but you're actually approved (first navigation). We double-check,
-      // to avoid sending you back to status on first navigation (that would be quite annoying)
-      console.log("Didn't find the proper authorizations to go to this route. Checking again with the smart contract...")
-      await Promise.all([
-        store.dispatch("auth/fetchIsRegistered"),
-        store.dispatch("status/fetchIsApproved")
-      ]);
-      // You're actually NOT approved or registered at all. Go back to Status, you shouldn't try to go
-      // anywhere else.
-      if (!store.state.auth.registered || !store.state.status.approved) return next({ name: "status" });
-      console.log("Found the proper authorizations.");
-    }
+    // if ((!store.state.auth.registered || !store.state.status.approved) && to.name !== "status") {
+    //   // Maybe we don't know it yet but you're actually approved (first navigation). We double-check,
+    //   // to avoid sending you back to status on first navigation (that would be quite annoying)
+    //   console.log("Didn't find the proper authorizations to go to this route. Checking again with the smart contract...")
+    //   await Promise.all([
+    //     store.dispatch("auth/fetchIsRegistered"),
+    //     store.dispatch("status/fetchIsApproved")
+    //   ]);
+    //   // You're actually NOT approved or registered at all. Go back to Status, you shouldn't try to go
+    //   // anywhere else.
+    //   if (!store.state.auth.registered || !store.state.status.approved) return next({ name: "status" });
+    //   console.log("Found the proper authorizations.");
+    // }
 
     // Alright, if you managed to go this far, everything's fine.
     // console.log("Everything's fine, going to", to.name);

@@ -92,6 +92,34 @@
         <v-card-text>{{ nbAuditors }}</v-card-text>
       </v-card>
     </v-col>
+
+    <v-col cols="12">
+      <v-card>
+        <v-card-title>Auditors</v-card-title>
+        <v-card-text>
+          <v-data-table
+              :items="auditors"
+              :headers="tableHeadersAuditors"
+              :items-per-page="-1"
+              hide-default-footer
+          >
+            <template v-slot:item.votes="{ item }">
+              <div>{{ item.nbVotes }} / {{ item.minVotes }} avant approbation</div>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <v-switch
+                  color="primary"
+                  :input-value="item.currentVote"
+                  @change="nodeVote(item.address, $event)"
+              >
+                Update footprint
+              </v-switch>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-col>
+
   </v-row>
 </template>
 
@@ -105,6 +133,11 @@ export default {
       { text: "Footprint", value: "footprint" },
       { text: "Actions", value: "actions", sortable: false },
     ],
+    tableHeadersAuditors: [
+      { text: "Auditor", value: "address" },
+      { text: "Votes courants", value: "votes" },
+      { text: "Mon Vote", value: "actions", sortable: false },
+    ],
     footprintDialog: false,
     selectedSealer: null,
     newFootprintValue: 0,
@@ -114,13 +147,13 @@ export default {
     ...get("nodeGovernance", ["nbAuditors", "auditors"]),
   },
 
-  mounted() {
+  async mounted() {
     this.fetchAllValues();
-    this.fetchAllAuditorsValues();
+    await this.fetchAllAuditorsValues();
   },
   methods: {
     ...call("audit", ["fetchAllValues", "updateFootprint"]),
-    ...call("nodeGovernance", ["fetchAllAuditorsValues"]),
+    ...call("nodeGovernance", ["fetchAllAuditorsValues", "voteAuditor"]),
     openUpdateFootprintDialog(sealer) {
       this.selectedSealer = sealer;
       this.newFootprintValue = sealer.footprint;
@@ -133,6 +166,14 @@ export default {
         sealerAddress: this.selectedSealer.address,
         footprint: this.newFootprintValue,
       });
+    },
+
+    async nodeVote(address, event) {
+      console.log(`address : ${address} / switch value : ${!!event}`);
+      await this.voteAuditor({
+        auditorAddress: address,
+      accept: !!event
+    });
     },
   },
 };

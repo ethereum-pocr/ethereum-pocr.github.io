@@ -23,9 +23,9 @@ contract AuditorGovernance is IAuditorGovernance {
         uint256 lastAuditAtBlock; // the block number of the last audit done
     }
 
-    mapping(address => AuditorStatus) private auditorsStatus; // prend une adresse auditeur, renvoi son statut
+    mapping(address => AuditorStatus) private auditorsStatus;
 
-    mapping(uint256 => address) public auditorsAddresses; // prend un index auditeur, renvoi son address
+    mapping(uint256 => address) public auditorsAddresses;
 
     uint256 public nbAuditors;
 
@@ -97,7 +97,7 @@ contract AuditorGovernance is IAuditorGovernance {
         );
         require(s.registered, "the proposed _auditor is not registered");
 
-        bool currentVote = currentAuditorVote(_auditor);
+        bool currentVote = currentAuditorVote(_auditor, msg.sender);
         uint256 minVotes = me.nbNodes() / 2 + 1;
 
         // the new vote should be the inverse of the current vote or it shall have no effect
@@ -144,25 +144,18 @@ contract AuditorGovernance is IAuditorGovernance {
         return auditorsAddresses[_index];
     }
 
-    function currentAuditorVote(address _auditor)
+    function currentAuditorVote(address _auditor, address _node)
         public
         view
         override
         returns (bool)
     {
-        ICarbonFootprint me = ICarbonFootprint(address(this));
         AuditorStatus storage s = auditorsStatus[_auditor];
-
-        require(
-            me.footprint(msg.sender) > 0,
-            "only audited nodes which have footprint can vote for auditors"
-        );
-        require(s.registered, "the _auditor is not registered");
 
         // If the node has not yet vote since last auditor status update, the current node vote is considered agreed with the current status (no vote for status change)
         if (
-            s.voters[msg.sender].atBlock == 0 || // The node has never voted at all (lastVote.atBlock is zero)
-            s.voters[msg.sender].atBlock <= s.statusUpdateBlock // The node has not vote since last auditor status update (s.voters[msg.sender].atBlock <= s.statusUpdateBlock)
+            s.voters[_node].atBlock == 0 || // The node has never voted at all (lastVote.atBlock is zero)
+            s.voters[_node].atBlock <= s.statusUpdateBlock // The node has not vote since last auditor status update (s.voters[msg.sender].atBlock <= s.statusUpdateBlock)
         ) {
             // the current node vote is considered agreed with the current status (no vote for status change)
             return s.approved;
