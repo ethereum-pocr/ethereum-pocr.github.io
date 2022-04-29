@@ -28,12 +28,12 @@ export function intf(provider) {
     return new Web3FunctionProvider(provider, (list) => Promise.resolve(list[0]))
 }
 
-export function readOnlyCall(methodName, ...args) {
+export async function readOnlyCall(methodName, ...args) {
     const provider = $store.get("auth/provider");
     const contract = $store.get("auth/contract");
     if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
     return contract[methodName](
-        intf(provider).call(),
+        intf(provider).call({ maxGas: 10000000 }),
         ...args
     );
 }

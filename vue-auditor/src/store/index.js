@@ -10,6 +10,7 @@ import auth from "./auth"
 import history from "./history";
 import pledge from "./pledge"
 import status from "./status"
+import nodeGovernance from "./nodeGovernance"
 
 Vue.use(Vuex);
 
@@ -29,7 +30,8 @@ const store = new Vuex.Store({
         auth,
         history,
         pledge,
-        status
+        status,
+        nodeGovernance
     },
     plugins: [
         pathify.plugin,
