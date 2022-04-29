@@ -5,7 +5,6 @@ pragma solidity >=0.7.0 <0.9.0;
 import "./intf/IPledgeContract.sol";
 import "./utils/ReentrancyGuard.sol";
 
-
 contract PledgeContract is IPledgeContract, ReentrancyGuard {
     uint256 private totalConfiscatedAmount;
     mapping(address => uint256) private pledgesAmountsByAuditor;
@@ -74,11 +73,8 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
         );
         // test if the sender is a registered auditor and therefore test if it can remove its pledge
         bool mayTransfer;
-        (mayTransfer,) = canTransferPledge(_target, _amount);
-        require(
-            mayTransfer,
-            "not allowed to transfer pledge out"
-        );
+        (mayTransfer, ) = canTransferPledge(_target, _amount);
+        require(mayTransfer, "not allowed to transfer pledge out");
         pledgesAmountsByAuditor[msg.sender] -= _amount;
         _target.transfer(_amount);
         return true;

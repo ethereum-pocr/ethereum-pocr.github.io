@@ -58,7 +58,8 @@ services:
       - 8541:8545
       - 8542:8546
     volumes:
-      - ${MOUNT_DATADIR_NODE_1}:/home/geth_user/.ethereum/
+      - ${MOUNT_GENESIS_FILE_PATH}:/home/geth_user/local.json:ro
+#      - ${MOUNT_DATADIR_NODE_1}:/home/geth_user/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
@@ -91,7 +92,8 @@ services:
       - 8543:8545
       - 8544:8546
     volumes:
-      - ${MOUNT_DATADIR_NODE_2}:/home/geth_user/.ethereum/
+      - ${MOUNT_GENESIS_FILE_PATH}:/home/geth_user/local.json:ro
+#      - ${MOUNT_DATADIR_NODE_2}:/home/geth_user/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:
@@ -123,7 +125,8 @@ services:
       - 8545:8545
       - 8546:8546
     volumes:
-      - ${MOUNT_DATADIR_NODE_3}:/home/geth_user/.ethereum/
+      - ${MOUNT_GENESIS_FILE_PATH}:/home/geth_user/local.json:ro
+#      - ${MOUNT_DATADIR_NODE_3}:/home/geth_user/.ethereum/
       - ${MOUNT_KEYSTORE_PATH}:/app/keystore:ro
     networks:
       chainnet:

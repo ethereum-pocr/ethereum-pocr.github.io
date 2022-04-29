@@ -25,7 +25,11 @@ contract AuditorGovernance is IAuditorGovernance {
 
     mapping(address => AuditorStatus) private auditorsStatus;
 
-    uint256 private nbAuditors;
+    mapping(uint256 => address) public auditorsAddresses;
+
+    uint256 public nbAuditors;
+
+    uint256 private nbApprovedAuditors;
 
     function selfRegisterAuditor() public override {
         AuditorStatus storage s = auditorsStatus[msg.sender];
@@ -35,13 +39,15 @@ contract AuditorGovernance is IAuditorGovernance {
             s.registered = true;
             s.registeredAtBlock = block.number;
             emit AuditorRegistered(msg.sender);
-            if (nbAuditors == 0) {
+            if (nbApprovedAuditors == 0) {
                 // the first auditor is automatically approved as part of the bootstrap
                 approveAuditor(msg.sender);
             } else {
                 s.approved = false;
                 s.votes = 0;
             }
+            auditorsAddresses[nbAuditors] = msg.sender;
+            nbAuditors++;
         }
     }
 
@@ -53,7 +59,7 @@ contract AuditorGovernance is IAuditorGovernance {
             s.approved = true;
             s.votes = 0;
             s.statusUpdateBlock = block.number;
-            nbAuditors++;
+            nbApprovedAuditors++;
             emit AuditorApproved(_auditor, true);
         }
     }
@@ -67,7 +73,7 @@ contract AuditorGovernance is IAuditorGovernance {
             s.approved = false;
             s.votes = 0;
             s.statusUpdateBlock = block.number;
-            nbAuditors--;
+            nbApprovedAuditors--;
             onAuditorRejected(_auditor);
             emit AuditorApproved(_auditor, false);
         }
@@ -83,7 +89,6 @@ contract AuditorGovernance is IAuditorGovernance {
 
     function voteAuditor(address _auditor, bool _accept) public override {
         ICarbonFootprint me = ICarbonFootprint(address(this));
-
         AuditorStatus storage s = auditorsStatus[_auditor];
 
         require(
@@ -92,20 +97,11 @@ contract AuditorGovernance is IAuditorGovernance {
         );
         require(s.registered, "the proposed _auditor is not registered");
 
-        // If the node has never voted, its lastVote.atBlock is zero
-        // If the node has already voted & the auditor status has changed since the vote, its last vote was in favor of current status
-        if (
-            s.voters[msg.sender].atBlock == 0 ||
-            s.voters[msg.sender].atBlock <= s.statusUpdateBlock
-        ) {
-            // the node vote is forced to the current status to decide if the vote should change the status
-            s.voters[msg.sender].vote = s.approved;
-        }
-
+        bool currentVote = currentAuditorVote(_auditor, msg.sender);
         uint256 minVotes = me.nbNodes() / 2 + 1;
 
-        // the vote should be the inverse of the previous vote or it shall have no effect
-        if (_accept != s.voters[msg.sender].vote) {
+        // the new vote should be the inverse of the current vote or it shall have no effect
+        if (_accept != currentVote) {
             (s.voters[msg.sender].vote, s.voters[msg.sender].atBlock) = (
                 _accept,
                 block.number
@@ -137,6 +133,35 @@ contract AuditorGovernance is IAuditorGovernance {
                 }
             }
         }
+    }
+
+    function auditorAddress(uint256 _index)
+        public
+        view
+        override
+        returns (address)
+    {
+        return auditorsAddresses[_index];
+    }
+
+    function currentAuditorVote(address _auditor, address _node)
+        public
+        view
+        override
+        returns (bool)
+    {
+        AuditorStatus storage s = auditorsStatus[_auditor];
+
+        // If the node has not yet vote since last auditor status update, the current node vote is considered agreed with the current status (no vote for status change)
+        if (
+            s.voters[_node].atBlock == 0 || // The node has never voted at all (lastVote.atBlock is zero)
+            s.voters[_node].atBlock <= s.statusUpdateBlock // The node has not vote since last auditor status update (s.voters[msg.sender].atBlock <= s.statusUpdateBlock)
+        ) {
+            // the current node vote is considered agreed with the current status (no vote for status change)
+            return s.approved;
+        }
+
+        return s.voters[msg.sender].vote;
     }
 
     function auditorRegistered(address _auditor)

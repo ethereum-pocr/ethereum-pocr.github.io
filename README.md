@@ -7,9 +7,10 @@ Use gitlab personal page to create the token: https://gitlab.com/-/profile/perso
 Your `GITLAB_USER` is the user without the `@` or alternatively the name of the token you created.
 
 ---
+Note: when put in the `.bashrc` file the var must be exported to be available in the `start.sh` script
 ```sh
-cho GITLAB_USER=your_gitlab_user >> $HOME/.bashrc 
-echo GITLAB_ACCESS_TOKEN=your_gitlab_password >> $HOME/.bashrc
+echo export GITLAB_USER=your_gitlab_user >> $HOME/.bashrc 
+echo export GITLAB_ACCESS_TOKEN=your_gitlab_password >> $HOME/.bashrc
 source $HOME/.bashrc
 ```
 ---
@@ -111,6 +112,9 @@ To stop the stack use
 ./stop.sh
 ```
 ---
+
+# Use the initialized CRC
+The account `0x3D0a5f7514906c02178c6Ce5c4ec33256F08Ce58` is initialized with some CRC (6000 for now) in the genesis. To use it you have in the `pocr-network/keystore` folder the json wallet (which password is `password`) or the auditor private key.
 
 # persistance
 
