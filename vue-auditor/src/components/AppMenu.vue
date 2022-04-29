@@ -5,12 +5,12 @@
       <v-list-item-group :value="$route.name" mandatory color="primary">
         <template
           v-for="(
-            { icon, label, route, required, subheader }, index
+            { icon, label, route, disabled, subheader }, index
           ) in sidenav"
         >
           <v-divider
             v-if="subheader && label !== '' && index !== 0"
-            :key="`${subheader}-divider`"
+            :key="`${label}-divider`"
           ></v-divider>
           <v-subheader :key="label" v-if="subheader && label !== ''">{{
             label
@@ -20,7 +20,7 @@
             :key="route"
             :value="route"
             @click="goTo(route)"
-            :disabled="required && !required()"
+            :disabled="disabled()"
             link
           >
             <v-list-item-icon>
@@ -42,34 +42,8 @@ import { get } from "vuex-pathify";
 import { routes } from "@/router";
 
 export default {
-  data: (vm) => ({
+  data: () => ({
     drawer: null,
-    links: [
-      {
-        icon: "mdi-wallet",
-        label: "Status",
-        route: "status",
-        required: () => !vm.mmIsOpen,
-      },
-      {
-        icon: "mdi-wallet",
-        label: "Audit",
-        route: "audit",
-        required: () => !vm.mmIsOpen && vm.approved,
-      },
-      {
-        icon: "mdi-wallet",
-        label: "Pledge",
-        route: "pledge",
-        required: () => !vm.mmIsOpen && vm.approved,
-      },
-      {
-        icon: "mdi-wallet",
-        label: "History",
-        route: "history",
-        required: () => !vm.mmIsOpen && vm.approved,
-      },
-    ],
   }),
 
   computed: {
@@ -77,6 +51,8 @@ export default {
     ...get("auth", ["registered"]),
     ...get("status", ["approved"]),
     sidenav() {
+      // Filter the routes to keep the ones that could appear in the sidenav,
+      // and map them to a more usable object
       const list = routes
         .filter((r) => r?.meta?.displayInSidenav !== undefined)
         .map((r) => ({
@@ -84,10 +60,17 @@ export default {
           label: r.name.charAt(0).toUpperCase() + r.name.slice(1),
           route: r.name,
           meta: r.meta,
+          restricted: r.meta.restricted,
+          disabled: () =>
+            this.mmIsOpen ||
+            (r.meta.restricted && !r.meta.restricted({ store: this.$store })),
+          hidden: r.meta.hidden,
         }));
+
       const nav = [];
       const categories = [];
       for (const el of list) {
+        if (el.hidden && el.hidden({ store: this.$store })) continue;
         if (
           el.meta &&
           el.meta.displayInSidenav !== "" &&

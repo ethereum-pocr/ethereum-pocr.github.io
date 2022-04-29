@@ -5,7 +5,7 @@ export function setupAuthNavigationGuard(router, store) {
 
     // You're going to a non-auth route, keep going.
     if (to.name === "installMetaMask") return next();
-    if (to.name === "auth") return next();
+    if (to.name === "authentication") return next();
 
     // Oh, you're trying to go somewhere where being connected to metamask is important, uh?
     // If that's the case, we'll check you actually installed the extension.
@@ -21,7 +21,7 @@ export function setupAuthNavigationGuard(router, store) {
       const address = await store.dispatch("auth/attemptToConnectWallet");
       if (!address) {
         console.log("Didn't find it. Redirecting to auth.");
-        return next({ name: "auth" });
+        return next({ name: "authentication" });
       }
       console.log("Found a connected wallet.");
     }

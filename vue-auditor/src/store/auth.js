@@ -71,6 +71,7 @@ const actions = {
         await handleMMResponse(writeCall("selfRegisterAuditor"));
         dispatch("fetchIsRegistered");
         dispatch("status/fetchIsApproved", null, { root: true });
+        dispatch("fetchRole");
     }
 }
 
