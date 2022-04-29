@@ -1,6 +1,8 @@
-.DS_Store
+# project files
 node_modules
-/dist
+bin
+build
+dist
 
 # local env files
 .env.local
@@ -20,6 +22,9 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-bin
-build
-dist
+
+# macOS index files
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
