@@ -13,7 +13,7 @@ jobs:
       - run: chmod +x solc 
       - run: ls -als 
       - run: mkdir bin 
-      - run: mv solc bin/solc 
+      - run: mv solc /snap/solc 
       - run: ls -als bin
       - run: export PATH=$PATH:bin
       - run: echo $PATH && ls -als bin && solc --version
