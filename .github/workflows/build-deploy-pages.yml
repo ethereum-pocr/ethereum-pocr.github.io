@@ -1,0 +1,21 @@
+name: deploy-github-pages
+on: [push]
+jobs:
+  compile-build-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-latest
+      - run: curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(cat solc-file)
+      - run: chmod +x solc && mkdir bin && mv solc $(pwd)/bin/solc && export PATH=$PATH:$(pwd)/bin
+
+      - run: cd pocr-utils && npm i && npm run build && cd ..
+      - run: cd sc-carbon-footprint && npm i && npm run build && cd ..
+      - run: cd vue-auditor
+      - run: npm install
+      - run: npm run build
+      - run: cd dist
+      - run: ls -als
