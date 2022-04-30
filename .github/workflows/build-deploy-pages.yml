@@ -1,7 +1,7 @@
 name: deploy-github-pages
 on: [push]
 jobs:
-  compile-build-upload:
+  compile-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,3 +19,22 @@ jobs:
       - run: cd sc-carbon-footprint && npm i && npm run build 
       - run: cd vue-auditor && npm install && npm run build
       - run: cd vue-auditor/dist && ls -als
+      - uses: actions/cache@v3
+        with:
+          path: vue-auditor/dist
+          key: vue-build-result
+
+  upload-gh-pages:
+    runs-on: ubuntu-latest
+    needs:
+      - compile-build
+    defaults:
+      run:
+        working-directory: vue-auditor/dist
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: vue-auditor/dist
+          key: vue-build-result
+      - run: pwd
+      - run: ls -als .
