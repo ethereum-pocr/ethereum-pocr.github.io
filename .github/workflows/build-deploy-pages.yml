@@ -11,8 +11,10 @@ jobs:
       - run: curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-latest
       - run: curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(cat solc-file)
       - run: chmod +x solc 
+      - run: ls -als 
       - run: mkdir bin 
       - run: mv solc bin/solc 
+      - run: ls -als bin
       - run: export PATH=$PATH:bin
       - run: echo $PATH && ls -als bin && solc --version
 
