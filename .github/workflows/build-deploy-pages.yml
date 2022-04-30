@@ -10,7 +10,8 @@ jobs:
           node-version: '16'
       - run: curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-latest
       - run: curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(cat solc-file)
-      - run: chmod +x solc && mkdir bin && mv solc $(pwd)/bin/solc && export PATH=$PATH:$(pwd)/bin
+      - run: chmod +x solc && mkdir bin && mv solc bin/solc && export PATH=$PATH:bin
+      - run: echo $PATH && ls -als bin && solc --version
 
       - run: cd pocr-utils && npm i && npm run build && cd ..
       - run: cd sc-carbon-footprint && npm i && npm run build && cd ..
