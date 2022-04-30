@@ -33,8 +33,6 @@ jobs:
         working-directory: vue-auditor/dist
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: gh-pages
       - uses: actions/cache@v3
         with:
           path: vue-auditor/dist
@@ -42,6 +40,6 @@ jobs:
       - run: pwd
       - run: ls -als .
       # - run: git checkout --orphan gh-pages
-      - run: git add --all
-      - run: git commit -m "gh pages"
+      - run: git --work-tree vue-auditor/dist add --all
+      - run: git --work-tree vue-auditor/dist commit -m "gh pages"
       - run: git push origin HEAD:gh-pages --force
