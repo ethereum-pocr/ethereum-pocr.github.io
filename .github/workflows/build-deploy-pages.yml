@@ -15,10 +15,7 @@ jobs:
       - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - run: echo $PATH && solc --version
 
-      - run: cd pocr-utils && npm i && npm run build && cd ..
-      - run: cd sc-carbon-footprint && npm i && npm run build && cd ..
-      - run: cd vue-auditor
-      - run: npm install
-      - run: npm run build
-      - run: cd dist
-      - run: ls -als
+      - run: cd pocr-utils && npm i && npm run build 
+      - run: cd sc-carbon-footprint && npm i && npm run build 
+      - run: cd vue-auditor && npm install && npm run build
+      - run: cd dist && ls -als
