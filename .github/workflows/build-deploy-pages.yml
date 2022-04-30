@@ -38,3 +38,7 @@ jobs:
           key: vue-build-result
       - run: pwd
       - run: ls -als .
+      - run: git checkout --orphan gh-pages
+      - run: git add --all
+      - run: git commit -m "gh pages"
+      - run: git push origin HEAD:gh-pages --force
