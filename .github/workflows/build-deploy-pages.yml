@@ -18,4 +18,4 @@ jobs:
       - run: cd pocr-utils && npm i && npm run build 
       - run: cd sc-carbon-footprint && npm i && npm run build 
       - run: cd vue-auditor && npm install && npm run build
-      - run: cd dist && ls -als
+      - run: cd vue-auditor/dist && ls -als
