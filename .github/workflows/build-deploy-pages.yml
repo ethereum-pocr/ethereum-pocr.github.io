@@ -22,7 +22,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: vue-auditor/dist
-          key: vue-build-result-${{ GITHUB_REF_NAME }}-${{ GITHUB_SHA }}
+          key: vue-build-result-$GITHUB_REF_NAME-$GITHUB_SHA
 
   upload-gh-pages:
     runs-on: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: vue-auditor/dist
-          key: vue-build-result-${{ GITHUB_REF_NAME }}-${{ GITHUB_SHA }}
+          key: vue-build-result-$GITHUB_REF_NAME-$GITHUB_SHA
       - run: pwd
       - run: ls -als vue-auditor/dist
       - run: git --work-tree vue-auditor/dist add --all
