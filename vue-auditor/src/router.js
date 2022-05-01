@@ -83,7 +83,8 @@ export const routes = [
             hidden: any(walletIsntConnected, isNode)
         }
     },
-    { path: "*", redirect: "authentication" }
+    // GdC: For some unknown reason the redirection should not be 'authentication' directly but it works with dashboard
+    { path: "*", redirect: "dashboard" }
 ]
 
 const router = new VueRouter({
