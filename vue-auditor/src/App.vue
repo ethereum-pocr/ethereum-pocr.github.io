@@ -3,7 +3,7 @@
     <v-container>
       <app-menu></app-menu>
       <v-app-bar app clipped-left flat color="teal lighten-2">
-        <v-toolbar-title> Audit UI </v-toolbar-title>
+        <v-toolbar-title> Audit UI 2</v-toolbar-title>
       </v-app-bar>
 
       <v-main>
