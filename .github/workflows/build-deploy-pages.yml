@@ -4,6 +4,7 @@ jobs:
   compile-build:
     runs-on: ubuntu-latest
     steps:
+      - run: echo displaying the cache key vue-build-result-$GITHUB_REF_NAME-$GITHUB_SHA
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
