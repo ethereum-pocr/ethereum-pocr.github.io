@@ -4,7 +4,7 @@ jobs:
   compile-build:
     runs-on: ubuntu-latest
     steps:
-      - run: echo displaying the cache key vue-build-result-$GITHUB_REF_NAME-$GITHUB_SHA
+      - run: echo displaying the cache key vue-build-result-${{ github.ref_name }}-${{ github.sha }}
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: vue-auditor/dist
-          key: vue-build-result-$GITHUB_REF_NAME-$GITHUB_SHA
+          key: vue-build-result-${{ github.ref_name }}-${{ github.sha }}
 
   upload-gh-pages:
     runs-on: ubuntu-latest
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: vue-auditor/dist
-          key: vue-build-result-$GITHUB_REF_NAME-$GITHUB_SHA
+          key: vue-build-result-${{ github.ref_name }}-${{ github.sha }}
       - run: pwd
       - run: ls -als vue-auditor/dist
       - run: |
