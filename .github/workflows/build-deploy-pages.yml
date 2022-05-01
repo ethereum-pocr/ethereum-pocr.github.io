@@ -33,15 +33,17 @@ jobs:
     #     working-directory: vue-auditor/dist
     steps:
       - uses: actions/checkout@v3
+      - run: git config user.email "actions@github.com"
+      - run: git config user.name "GitHub Actions"
+      - run: git fetch --prune --depth=1 origin gh-pages || git checkout --orphan gh-pages
+      - run: git checkout gh-pages 
+      - run: git rm -rf .
       - uses: actions/cache@v3
         with:
           path: vue-auditor/dist
           key: vue-build-result
       - run: pwd
       - run: ls -als vue-auditor/dist
-      - run: git config user.email "actions@github.com"
-      - run: git config user.name "GitHub Actions"
-      - run: git checkout --orphan gh-pages
       - run: git --work-tree vue-auditor/dist add --all
       - run: git --work-tree vue-auditor/dist commit -m "gh pages"
       - run: git push origin HEAD:gh-pages --force
