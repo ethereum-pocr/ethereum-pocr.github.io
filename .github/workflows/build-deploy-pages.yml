@@ -47,6 +47,6 @@ jobs:
       - run: ls -als vue-auditor/dist
       - run: |
           git --work-tree vue-auditor/dist add --all
-          git --work-tree vue-auditor/dist commit -m "gh pages" > ./commit.out || true
+          git --work-tree vue-auditor/dist commit -m "Updated from branch ${{ github.ref_name }} - ${{ github.sha }}" > ./commit.out || true
           grep "nothing to commit" ./commit.out || git push origin HEAD:gh-pages --force
          
