@@ -52,6 +52,7 @@ export const routes = [
         name: "auditors", path: "/auditors", component: Auditors, meta: {
             displayInSidenav: "Governance",
             restricted: isNode,
+            forceRedirectTo: "dashboard",
             hidden: any(walletIsntConnected, isAuditor)
         }
     },
@@ -59,6 +60,8 @@ export const routes = [
     {
         name: "status", path: "/status", component: Status, meta: {
             displayInSidenav: "Audit",
+            restricted: ({ store }) => !isNode({ store }),
+            forceRedirectTo: "dashboard",
             hidden: any(walletIsntConnected, isNode)
         }
     },
@@ -66,6 +69,7 @@ export const routes = [
         name: "pledge", path: "/pledge", component: Pledge, meta: {
             displayInSidenav: "Audit",
             restricted: approvedAuditor,
+            forceRedirectTo: "status",
             hidden: any(walletIsntConnected, isNode)
         }
     },
@@ -73,6 +77,7 @@ export const routes = [
         name: "audit", path: "/audit", component: Audit, meta: {
             displayInSidenav: "Audit",
             restricted: approvedAuditor,
+            forceRedirectTo: "status",
             hidden: any(walletIsntConnected, isNode)
         }
     },
@@ -80,6 +85,7 @@ export const routes = [
         name: "history", path: "/history", component: History, meta: {
             displayInSidenav: "Audit",
             restricted: approvedAuditor,
+            forceRedirectTo: "status",
             hidden: any(walletIsntConnected, isNode)
         }
     },

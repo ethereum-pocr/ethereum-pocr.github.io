@@ -59,7 +59,8 @@ const actions = {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" })
         if (accounts.length === 0) return;
         $store.set("auth/wallet", accounts[0]);
-        router.push({ name: "status" });
+        // TODO: call fetchRole here to do a selective redirect? Or, just assume it's a first connect and don't care.
+        router.push({ name: "dashboard" });
     },
 
     async fetchIsRegistered({ state }) {
