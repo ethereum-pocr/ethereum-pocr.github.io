@@ -98,19 +98,21 @@
         <v-card-title>Auditors</v-card-title>
         <v-card-text>
           <v-data-table
-              :items="auditors"
-              :headers="tableHeadersAuditors"
-              :items-per-page="-1"
-              hide-default-footer
+            :items="auditors"
+            :headers="tableHeadersAuditors"
+            :items-per-page="-1"
+            hide-default-footer
           >
             <template v-slot:item.votes="{ item }">
-              <div>{{ item.nbVotes }} / {{ item.minVotes }} avant approbation</div>
+              <div>
+                {{ item.nbVotes }} / {{ item.minVotes }} avant approbation
+              </div>
             </template>
             <template v-slot:item.actions="{ item }">
               <v-switch
-                  color="primary"
-                  :input-value="item.currentVote"
-                  @change="nodeVote(item.address, $event)"
+                color="primary"
+                :input-value="item.currentVote"
+                @change="nodeVote(item.address, $event)"
               >
                 Update footprint
               </v-switch>
@@ -119,7 +121,6 @@
         </v-card-text>
       </v-card>
     </v-col>
-
   </v-row>
 </template>
 
@@ -143,7 +144,7 @@ export default {
     newFootprintValue: 0,
   }),
   computed: {
-    ...get("audit", ["nbOfNodes", "totalFootprint", "sealers"]),
+    ...get("nodes", ["nbOfNodes", "totalFootprint", "sealers"]),
     ...get("nodeGovernance", ["nbAuditors", "auditors"]),
   },
 
@@ -152,7 +153,7 @@ export default {
     await this.fetchAllAuditorsValues();
   },
   methods: {
-    ...call("audit", ["fetchAllValues", "updateFootprint"]),
+    ...call("nodes", ["fetchAllValues", "updateFootprint"]),
     ...call("nodeGovernance", ["fetchAllAuditorsValues", "voteAuditor"]),
     openUpdateFootprintDialog(sealer) {
       this.selectedSealer = sealer;
@@ -172,8 +173,8 @@ export default {
       console.log(`address : ${address} / switch value : ${!!event}`);
       await this.voteAuditor({
         auditorAddress: address,
-      accept: !!event
-    });
+        accept: !!event,
+      });
     },
   },
 };

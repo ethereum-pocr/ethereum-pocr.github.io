@@ -4,6 +4,8 @@ import VueRouter from "vue-router";
 import InstallMetaMask from "@/pages/InstallMetaMask.page.vue";
 import Auth from "@/pages/Auth.page.vue";
 
+import Dashboard from "@/pages/Dashboard.page.vue";
+
 import Auditors from "@/pages/Auditors.page.vue";
 
 import Audit from "@/pages/Audit.page.vue";
@@ -38,7 +40,7 @@ const any = (...functions) => {
 // The order actually matter because it will determine the order in the sidenav
 export const routes = [
     //Public
-    { name: "dashboard", path: "/dashboard", component: null, meta: { displayInSidenav: "" } },
+    { name: "dashboard", path: "/dashboard", component: Dashboard, meta: { displayInSidenav: "" } },
     // Auth
     { name: "installMetaMask", path: "/installmetamask", component: InstallMetaMask },
     {
