@@ -2,19 +2,15 @@ import { getContractInstance } from "./api";
 
 export function setupAuthNavigationGuard(router, store) {
   router.beforeEach(async (to, from, next) => {
-
-    // You're going to a non-auth route, keep going.
-    // if (to.name === "installMetaMask") return next();
-    // if (to.name === "authentication") return next();
-    if (!to.meta || !to.meta.restricted) return next();
-
-    // Oh, you're trying to go somewhere where being connected to metamask is important, uh?
-    // If that's the case, we'll check you actually installed the extension.
+    // Having a provider is considered mandatory. We'll check that you installed Metamask.
     if (!store.state.auth.provider) {
       await store.dispatch("auth/detectProvider");
       console.log("Didn't find any provider in the app, trying to detect one. Provider found?", store.state.auth.provider);
       if (!store.state.auth.provider) return next({ name: "installMetaMask" });
     }
+
+    // You're going to a non-auth route, keep going.
+    if (!to.meta || !to.meta.restricted) return next();
 
     // Good, you have the extension. But have you connected a wallet?
     if (!store.state.auth.wallet) {
