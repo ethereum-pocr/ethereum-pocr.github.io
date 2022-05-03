@@ -86,41 +86,6 @@
         </v-card-text>
       </v-card>
     </v-col>
-    <v-col>
-      <v-card>
-        <v-card-title>Number of Auditors</v-card-title>
-        <v-card-text>{{ nbAuditors }}</v-card-text>
-      </v-card>
-    </v-col>
-
-    <v-col cols="12">
-      <v-card>
-        <v-card-title>Auditors</v-card-title>
-        <v-card-text>
-          <v-data-table
-            :items="auditors"
-            :headers="tableHeadersAuditors"
-            :items-per-page="-1"
-            hide-default-footer
-          >
-            <template v-slot:item.votes="{ item }">
-              <div>
-                {{ item.nbVotes }} / {{ item.minVotes }} avant approbation
-              </div>
-            </template>
-            <template v-slot:item.actions="{ item }">
-              <v-switch
-                color="primary"
-                :input-value="item.currentVote"
-                @change="nodeVote(item.address, $event)"
-              >
-                Update footprint
-              </v-switch>
-            </template>
-          </v-data-table>
-        </v-card-text>
-      </v-card>
-    </v-col>
   </v-row>
 </template>
 
@@ -145,16 +110,13 @@ export default {
   }),
   computed: {
     ...get("nodes", ["nbOfNodes", "totalFootprint", "sealers"]),
-    ...get("nodeGovernance", ["nbAuditors", "auditors"]),
   },
 
-  async mounted() {
+  mounted() {
     this.fetchAllValues();
-    await this.fetchAllAuditorsValues();
   },
   methods: {
     ...call("nodes", ["fetchAllValues", "updateFootprint"]),
-    ...call("nodeGovernance", ["fetchAllAuditorsValues", "voteAuditor"]),
     openUpdateFootprintDialog(sealer) {
       this.selectedSealer = sealer;
       this.newFootprintValue = sealer.footprint;
@@ -166,14 +128,6 @@ export default {
       await this.updateFootprint({
         sealerAddress: this.selectedSealer.address,
         footprint: this.newFootprintValue,
-      });
-    },
-
-    async nodeVote(address, event) {
-      console.log(`address : ${address} / switch value : ${!!event}`);
-      await this.voteAuditor({
-        auditorAddress: address,
-        accept: !!event,
       });
     },
   },
