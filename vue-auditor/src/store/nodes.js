@@ -67,6 +67,7 @@ const actions = {
         const intf = _intf(rootState.auth.provider);
 
         const sealers = {};
+        const seenSealers = {};
 
         // const maxBlocksToCheck = 10; // cannot use a fixed amount if they are more than 10 nodes it will not pick them all
         let i = 0;
@@ -76,14 +77,15 @@ const actions = {
             const block = await web3.eth.getBlock(index, false);
             const data = await processBlock(web3, intf, block);
             console.log("block", data.block.number, "sealer", data.sealer);
-            if (!sealers[data.sealer.address]) {
-                sealers[data.sealer.address] = data.sealer;
-                sealers[data.sealer.address].seenCounter = 1;
-            } else {
-                sealers[data.sealer.address].seenCounter++;
+
+            const address = data.sealer.address;
+            if (!sealers[address]) {
+                sealers[address] = data.sealer;
             }
+            seenSealers[address] = (seenSealers[address] ?? 0) + 1;
+
             // capture the max of the node seen
-            if (maxSealerSeenCounter < sealers[data.sealer.address].seenCounter) maxSealerSeenCounter = sealers[data.sealer.address].seenCounter;
+            maxSealerSeenCounter = Math.max(maxSealerSeenCounter, seenSealers[address]);
             i++;
         }
         const sortedSealers = Object.values(sealers).sort((a, b) => a.footprint < b.footprint);
