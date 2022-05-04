@@ -2,10 +2,12 @@
   <v-layout row wrap>
     <v-row>
       <v-col cols="4">
-        <v-card elevation="3" height="200" class="ma-6">
+        <v-card height="200" width="200" class="ma-6">
           <v-card-subtitle>Block</v-card-subtitle>
           <v-card-title class="align-center">
-            <span class="text-h3 ma-auto">{{ blockNumber }}</span>
+            <span class="text-h3 ma-auto">{{
+              lastBlock && lastBlock.block.number
+            }}</span>
           </v-card-title>
           <v-card-subtitle
             >{{ averageDelaySec.toFixed(2) }} sec</v-card-subtitle
@@ -15,32 +17,32 @@
           >
         </v-card>
       </v-col>
-      <v-col cols="3">
-        <v-card elevation="3" height="200" width="200" class="ma-6">
+      <v-col cols="4">
+        <v-card height="200" width="200" class="ma-6">
           <v-card-subtitle>Nodes</v-card-subtitle>
           <v-card-title class="align-center">
-            <span class="text-h2 ma-auto">{{ nbNodes }}</span>
+            <span class="text-h2 ma-auto">{{ nbOfNodes }}</span>
           </v-card-title>
         </v-card>
       </v-col>
-      <v-col cols="3">
-        <v-card elevation="3" height="200" width="200" class="ma-6">
+      <v-col cols="4">
+        <v-card height="200" width="200" class="ma-6">
           <v-card-subtitle>Total footprint</v-card-subtitle>
           <v-card-title class="align-center">
             <span class="text-h2 ma-auto">{{ totalFootprint }}</span>
           </v-card-title>
           <v-card-subtitle
             >Average:
-            {{ (totalFootprint / nbNodes).toFixed(2) }}</v-card-subtitle
+            {{ (totalFootprint / nbOfNodes).toFixed(2) }}</v-card-subtitle
           >
         </v-card>
       </v-col>
-      <v-col cols="12" class="pa-8">
+      <v-col cols="12" class="pa-8" v-if="lastBlock">
         <v-card-title>Footprint for each of the nodes</v-card-title>
         <v-card-subtitle>
-          Last block sealer: {{ blocks[blocks.length - 1].sealer.address }} /
-          {{ blocks[blocks.length - 1].sealer.vanity.custom }}. Footprint:
-          {{ blocks[blocks.length - 1].sealer.footprint }}
+          Last block sealer: {{ lastBlock.sealer.address }} /
+          {{ lastBlock.sealer.vanity.custom }}. Footprint:
+          {{ lastBlock.sealer.footprint }}
         </v-card-subtitle>
         <v-sparkline
           auto-draw
@@ -58,12 +60,12 @@
           </template>
         </v-sparkline>
       </v-col>
-      <v-col cols="12" class="pa-8">
+      <v-col cols="12" class="pa-8" v-if="lastBlock">
         <v-card-title>Block reward per node</v-card-title>
         <v-card-subtitle>
-          Last block sealer: {{ blocks[blocks.length - 1].sealer.address }} /
-          {{ blocks[blocks.length - 1].sealer.vanity.custom }}. Footprint:
-          {{ blocks[blocks.length - 1].sealer.footprint }}
+          Last block sealer: {{ lastBlock.sealer.address }} /
+          {{ lastBlock.sealer.vanity.custom }}. Footprint:
+          {{ lastBlock.sealer.footprint }}
         </v-card-subtitle>
         <v-sparkline
           auto-draw
@@ -77,17 +79,11 @@
         >
           <template v-slot:label="item">
             {{
-              blocks[blocks.length - 1].sealer.address ==
-              sealersAddress[item.index]
-                ? "["
-                : ""
+              lastBlock.sealer.address == sealersAddress[item.index] ? "[" : ""
             }}
             {{ sealersAddress[item.index] }}
             {{
-              blocks[blocks.length - 1].sealer.address ==
-              sealersAddress[item.index]
-                ? "]"
-                : ""
+              lastBlock.sealer.address == sealersAddress[item.index] ? "]" : ""
             }}
             -
             {{ Number.parseFloat(item.value).toFixed(2) }}
@@ -118,56 +114,53 @@
 </template>
 
 <script>
-// import { mapActions } from "vuex";
-import { call } from "vuex-pathify";
-// import { blockRange, currentBlockNumber, onNewBlock } from "@/lib/api";
-const average = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
+import { get, call } from "vuex-pathify";
+
 export default {
   data: () => {
     return {
       nbBlocksToKeep: 100,
       sealerMap: new Map(),
       blocks: [],
-      totalFootprint: 0,
-      totalCrypto: 0,
-      nbNodes: 0,
-      blockNumber: 0,
-      sealersLabels: [],
-      sealersAddress: [],
-      sealersFootprint: [],
+      //   blockNumber: 0,
+      //   sealersLabels: [],
+      //   sealersAddress: [],
+      //   sealersFootprint: [],
       sealersReward: [],
     };
   },
   async mounted() {
-    this.fetchNodeInformations();
-    // const blockNumber = await currentBlockNumber();
-    // this.blockNumber = blockNumber;
-    // await blockRange(
-    //   blockNumber - this.nbBlocksToKeep,
-    //   blockNumber,
-    //   this.processBlockData
-    // );
-    // onNewBlock(this.processBlockData);
+    this.fetchAllValues();
+    this.fetchChainInformations().then(this.subscribeToChainUpdates);
   },
   computed: {
-    rewardsByBlock() {
-      const rewards = this.blocks.map((d) => d.sealer.lastReward);
-      rewards.unshift(0);
-      return rewards;
+    ...get("nodes", [
+      "sealers",
+      "nbOfNodes",
+      "lastBlock",
+      "totalFootprint",
+      "totalCrypto",
+      "rewardsByBlock",
+      "averageReward",
+      "averageDelaySec",
+      "lastBlock",
+    ]),
+    sealersFootprint() {
+      return this.sealers.map((s) => s.footprint);
     },
-    averageReward() {
-      const rewards = this.blocks.map((d) => d.sealer.lastReward);
-      return average(rewards);
+    sealersAddress() {
+      return this.sealers.map((s) => s.address);
     },
-    averageDelaySec() {
-      if (this.blocks.length < 2) return 0;
-      const previousBlock = this.blocks[this.blocks.length - 2];
-      const lastBlock = this.blocks[this.blocks.length - 1];
-      return (lastBlock.receivedAt - previousBlock.receivedAt) / 1000;
+    sealersLabels() {
+      return this.sealers.map((s) => s.vanity.custom);
     },
   },
   methods: {
-    ...call("nodes", ["fetchNodeInformations"]),
+    ...call("nodes", [
+      "fetchAllValues",
+      "fetchChainInformations",
+      "subscribeToChainUpdates",
+    ]),
     // ...mapActions(["goToPage"]),
     processBlockData(data) {
       // console.log(data);
@@ -191,7 +184,7 @@ export default {
       this.sealerMap.set(sealerInfo.address, sealerInfo);
       this.totalFootprint = data.totalFootprint;
       this.totalCrypto = data.totalCrypto;
-      this.nbNodes = data.nbNodes;
+      this.nbOfNodes = data.nbOfNodes;
       this.blockNumber = data.block.number;
       this.updateSealersArrays();
     },

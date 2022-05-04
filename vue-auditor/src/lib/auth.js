@@ -9,6 +9,11 @@ export function setupAuthNavigationGuard(router, store) {
       if (!store.state.auth.provider) return next({ name: "installMetaMask" });
     }
 
+    // Just to make sure, if you do not have the smart contract instance yet, we instanciate it.
+    if (!store.state.auth.contract) {
+      store.commit("auth/contract", getContractInstance())
+    }
+
     // You're going to a non-auth route, keep going.
     if (!to.meta || !to.meta.restricted) return next();
 
@@ -21,11 +26,6 @@ export function setupAuthNavigationGuard(router, store) {
         return next({ name: "authentication" });
       }
       console.log("Found a connected wallet.");
-    }
-
-    // Just to make sure, if you do not have the smart contract instance yet, we instanciate it.
-    if (!store.state.auth.contract) {
-      store.commit("auth/contract", getContractInstance())
     }
 
     await store.dispatch("auth/fetchRole", null, { root: true });
