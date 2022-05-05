@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Genesis for local
 
 on:
   push:
