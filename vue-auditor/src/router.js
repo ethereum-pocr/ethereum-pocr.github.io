@@ -18,16 +18,9 @@ Vue.use(VueRouter);
 
 const approvedAuditor = ({ store }) => store.state.status.approved;
 const isNode = ({ store }) => store.state.auth.isNode;
-const isAuditor = ({ store }) => store.state.auth.isAuditor;
+const isNotNode = ({ store }) => !isNode({ store });
 const walletIsntConnected = ({ store }) => !store.state.auth.wallet;
-// const compose = (...functions) => {
-//     return (opts) => {
-//         for (const f of functions) {
-//             if (!f(opts)) return false;
-//         }
-//         return true;
-//     }
-// }
+
 const any = (...functions) => {
     return (opts) => {
         for (const f of functions) {
@@ -55,7 +48,7 @@ export const routes = [
             displayInSidenav: "Governance",
             restricted: isNode,
             forceRedirectTo: "dashboard",
-            hidden: any(walletIsntConnected, isAuditor)
+            hidden: any(walletIsntConnected, isNotNode)
         }
     },
     // Auditors views

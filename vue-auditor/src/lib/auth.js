@@ -28,7 +28,7 @@ export function setupAuthNavigationGuard(router, store) {
       console.log("Found a connected wallet.");
     }
 
-    await store.dispatch("auth/fetchRole", null, { root: true });
+    // await store.dispatch("auth/fetchRole", null, { root: true });
 
     // Alright, you have the extension, and you've connected a wallet. But do you have the right to
     // go where you're trying to go?
@@ -38,7 +38,8 @@ export function setupAuthNavigationGuard(router, store) {
       console.log("Didn't find the proper authorizations to go to this route. Checking again with the smart contract...")
       await Promise.all([
         store.dispatch("auth/fetchIsRegistered"),
-        store.dispatch("status/fetchIsApproved")
+        store.dispatch("status/fetchIsApproved"),
+        store.dispatch("auth/fetchRole")
       ]);
       // You're actually NOT approved or registered at all. Go back to Status, you shouldn't try to go
       // anywhere else.

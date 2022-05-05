@@ -11,6 +11,7 @@ const state = () => ({
     wallet: null,
     contract: null,
     registered: false,
+    // roles
     isNode: false,
     isAuditor: false,
 })
@@ -55,11 +56,12 @@ const actions = {
         return address;
     },
 
-    async openMetaMaskConnectionDialog() {
+    async openMetaMaskConnectionDialog({ dispatch }) {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" })
         if (accounts.length === 0) return;
         $store.set("auth/wallet", accounts[0]);
         // TODO: call fetchRole here to do a selective redirect? Or, just assume it's a first connect and don't care.
+        dispatch("fetchRole");
         router.push({ name: "dashboard" });
     },
 
