@@ -2,10 +2,13 @@ name: Docker Image CI
 
 on:
   push:
-  #   branches: [ main ]
-    paths:
-      - sc-carbon-footprint/**/*
-      - pocr-network/genesis/**/*
+    tags:        
+    - v*
+    # branches:
+    # - main
+    # paths:
+    #   - sc-carbon-footprint/**/*
+    #   - pocr-network/genesis/**/*
 
 jobs:
   build:
@@ -30,10 +33,11 @@ jobs:
           envsubst < ../pocr-network/genesis/kerleano.json > kerleano.final.json && \
           envsubst < ../pocr-network/genesis/genesis-local.json > genesis-local.final.json
       - name: publish Governance smartcontracts
-        uses: skx/github-action-publish-binaries@release-1.3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: svenstaro/upload-release-action@v2
         with:
-          releaseId: ${{ needs.create_release.outputs.id }}
-          args: 'sc-carbon-footprint/kerleano.final.json'
-      
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: sc-carbon-footprint/kerleano.final.json
+          asset_name: kerleano.json
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "Release kerleano.json with latest Goverance smartcontracts"      
