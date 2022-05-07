@@ -1,0 +1,17 @@
+name: Build and publish sealer docker image
+on: push
+jobs:
+  docker:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@master
+      - name: Kaniko build
+        uses: aevea/action-kaniko@master
+        with:
+            registry: ghcr.io
+            password: ${{ secrets.GITHUB_TOKEN }}
+            image: sealer
+            path: pocr-network/sealer
+            cache: true
+            cache_registry: cache
