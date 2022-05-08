@@ -2,10 +2,18 @@ import { getContractInstance } from "./api";
 
 export function setupAuthNavigationGuard(router, store) {
   router.beforeEach(async (to, from, next) => {
+    console.log("routing ", from.name, to.name, store.state.auth.providerModel);
+    // first need to control if we have not routed to the metamask missing page
+    if (to.name === "installMetaMask") {
+      return next();
+    }
+
     // Having a provider is considered mandatory. We'll check that you installed Metamask.
-    if (!store.state.auth.provider) {
+    if (!store.state.auth.providerModel) {
+      console.log("no auth provider yet");
       await store.dispatch("auth/detectProvider");
       console.log("Didn't find any provider in the app, trying to detect one. Provider found?", store.state.auth.provider);
+      if (store.state.auth.providerModel == "both") return next({ name: "authentication" });
       if (!store.state.auth.provider) return next({ name: "installMetaMask" });
     }
 

@@ -22,6 +22,7 @@ const state = {
     displaySnackbar: false,
     snackbarMessage: "",
     snackbarColor: "error",
+    config: undefined
 }
 
 const store = new Vuex.Store({
@@ -44,6 +45,17 @@ const store = new Vuex.Store({
             commit("snackbarMessage", message);
             commit("snackbarColor", "error");
             commit("displaySnackbar", true);
+        },
+        async fetchConfig({ commit }) {
+            try {
+                const res = await fetch("./config.json")
+                if( res.status === 200 ) {
+                    const config = await res.json();
+                    commit("config", config)
+                }
+            } catch (error) {
+                commit("config", undefined)
+            }
         }
     }
 });

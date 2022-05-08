@@ -15,6 +15,7 @@
         "@metamask/detect-provider": "^1.2.0",
         "@saturn-chain/dlt-rest-api": "^1.0.7",
         "@saturn-chain/smart-contract": "^1.0.3",
+        "@saturn-chain/wallet-custody-rest-api": "^1.0.4",
         "@saturn-chain/web3-custody-functions": "^0.0.7",
         "@saturn-chain/web3-functions": "^1.0.9",
         "axios": "^0.26.1",

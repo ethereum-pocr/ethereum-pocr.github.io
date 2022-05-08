@@ -1,7 +1,14 @@
 import Web3 from "web3";
 import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
+import { Web3CustodyFunctionProvider } from "@saturn-chain/web3-custody-functions";
+import { WalletCustodyApiImpl } from "@saturn-chain/wallet-custody-rest-api";
 import allContracts from "sc-carbon-footprint";
 import $store from "@/store/index";
+
+export function getWeb3ProviderFromUrl(url) {
+    const web3 = new Web3(url)
+    return web3.currentProvider;
+}
 
 export async function getWalletBalance(walletAddress) {
     return await new Web3($store.get("auth/provider")).eth.getBalance(walletAddress);
@@ -25,7 +32,24 @@ export function getContractInstance() {
 export function intf(provider) {
     // TODO (suggestion): This approach work, but why not storing in the "store" the intf result instead of the web3 provider ?
     //      you would save writing the intf(provider)
-    return new Web3FunctionProvider(provider, (list) => Promise.resolve(list[0]))
+    if (!provider) provider = $store.get("auth/provider");
+    if (!provider) throw new Error("Should not be calling the api functions without a provider connected")
+    const model = $store.get("auth/providerModel");
+    if (model == "metamask") {
+        return new Web3FunctionProvider(provider, (list) => Promise.resolve(list[0]))
+    }
+    if (model == "direct") {
+        const custodyUrl = $store.get("config").walletCustodyAPIBaseUrl;
+        const custody = new WalletCustodyApiImpl(custodyUrl, "eth");
+        const wallet = $store.get("auth/wallet");
+        const i = new Web3CustodyFunctionProvider(provider, custody, wallet, async (address, api)=>{
+            console.log("Authenticating", address);
+            const password = prompt("Authenticate wallet "+address)
+            return await api.authenticate(address, password) // TODO: Replace with a real user interface
+        } );
+        return i;
+    }
+    throw new Error("should not be calling the api functions without deciding the provider (metamask or direct)")
 }
 
 export async function readOnlyCall(methodName, ...args) {
