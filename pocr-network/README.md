@@ -144,7 +144,8 @@ geth version # to test install is ok
 
 - download the `geth` customized version with PoCR consensus
 ```sh
-curl --user "download:xfcAusGvj11o1v_dVAgy" -o "geth-pocr" "https://gitlab.com/api/v4/projects/31761764/packages/generic/geth/latest/geth"
+curl -f -L -o "geth-pocr" \
+    https://github.com/ethereum-pocr/go-ethereum/releases/download/master/geth
 ``` 
 
 - make it executable and place it in a bin folder
