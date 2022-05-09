@@ -1,6 +1,6 @@
 
 {
   "walletCustodyAPIBaseUrl": "http://localhost:8081",
-  "nodeUrl": "ws://kerleano-client.francecentral.cloudapp.azure.com:8546"
+  "nodeUrl": "wss://kerleano-ws.awnen.com"
 }
 
