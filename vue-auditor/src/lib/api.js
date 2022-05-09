@@ -4,6 +4,25 @@ import { Web3CustodyFunctionProvider } from "@saturn-chain/web3-custody-function
 import { WalletCustodyApiImpl } from "@saturn-chain/wallet-custody-rest-api";
 import allContracts from "sc-carbon-footprint";
 import $store from "@/store/index";
+import { AsyncLocalStorage } from "./async-local-storage";
+
+const LocalStorage = new AsyncLocalStorage();
+
+export function parseUrl(url, acceptedProtocols) {
+    if (acceptedProtocols && !Array.isArray(acceptedProtocols)) acceptedProtocols = [acceptedProtocols];
+    if (acceptedProtocols) acceptedProtocols = acceptedProtocols.map(p=>(p.endsWith(":")? p : p+':').toLowerCase());
+    
+    if (!url) return undefined;
+    try {
+        const u = new URL(url)
+        if (acceptedProtocols) {
+            if (!acceptedProtocols.includes(u.protocol)) return undefined
+        }
+        return u;
+    } catch (error) {
+        return undefined;
+    }
+}
 
 export function getWeb3ProviderFromUrl(url) {
     const web3 = new Web3(url)
@@ -29,6 +48,25 @@ export function getContractInstance() {
     return getContractInstanceByName("Governance");
 }
 
+export function getCustodyApi() {
+    const custodyUrl = $store.get("config").walletCustodyAPIBaseUrl;
+    const custody = new WalletCustodyApiImpl(custodyUrl, "eth");
+    return custody;    
+}
+
+export async function verifyCustodyAuthentication(wallet, password) {
+    const savedWallets = (await LocalStorage.getItem("custody.wallets")) || [];
+    savedWallets.unshift(wallet);
+    LocalStorage.setItem("custody.wallets", savedWallets)
+    const api = getCustodyApi();
+    const token = await handleMMResponse(api.authenticate(wallet, password));
+    return token
+}
+
+export async function getCustodyLastWallets() {
+    return (await LocalStorage.getItem("custody.wallets")) || [];
+}
+
 export function intf(provider) {
     // TODO (suggestion): This approach work, but why not storing in the "store" the intf result instead of the web3 provider ?
     //      you would save writing the intf(provider)
@@ -39,8 +77,7 @@ export function intf(provider) {
         return new Web3FunctionProvider(provider, (list) => Promise.resolve(list[0]))
     }
     if (model == "direct") {
-        const custodyUrl = $store.get("config").walletCustodyAPIBaseUrl;
-        const custody = new WalletCustodyApiImpl(custodyUrl, "eth");
+        const custody = getCustodyApi();
         const wallet = $store.get("auth/wallet");
         const i = new Web3CustodyFunctionProvider(provider, custody, wallet, async (address, api)=>{
             console.log("Authenticating", address);

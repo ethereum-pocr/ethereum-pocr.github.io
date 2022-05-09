@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 import pathify from '@/plugins/pathify'
+import {parseUrl} from "@/lib/api"
 import { make } from "vuex-pathify";
 // import createPersistedState from "vuex-persistedstate";
 
@@ -51,6 +52,14 @@ const store = new Vuex.Store({
                 const res = await fetch("./config.json")
                 if( res.status === 200 ) {
                     const config = await res.json();
+
+                    if (!parseUrl(config.nodeUrl, ["http", "https", "ws", "wss"])) {
+                        delete config.nodeUrl
+                    }
+                    if (!parseUrl(config.walletCustodyAPIBaseUrl, ["http", "https"])) {
+                        delete config.walletCustodyAPIBaseUrl
+                    }
+
                     commit("config", config)
                 }
             } catch (error) {

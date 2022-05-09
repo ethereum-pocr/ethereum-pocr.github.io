@@ -1,7 +1,7 @@
 // import ready from "document-ready-promise";
 import detectEthereumProvider from '@metamask/detect-provider';
 import { make } from "vuex-pathify";
-import { readOnlyCall, writeCall, handleMMResponse, getWeb3ProviderFromUrl } from "@/lib/api";
+import { readOnlyCall, writeCall, handleMMResponse, getWeb3ProviderFromUrl, verifyCustodyAuthentication, getCustodyLastWallets } from "@/lib/api";
 
 import $store from "@/store/index";
 import router from "../router.js";
@@ -52,9 +52,11 @@ const actions = {
             const config = $store.get("config");
  
             let providerDirect = undefined;
-            if (config.nodeUrl) {
+            if (config.nodeUrl && config.walletCustodyAPIBaseUrl) {
                 providerDirect = getWeb3ProviderFromUrl(config.nodeUrl);
                 nbProviders ++;
+            } else {
+                console.log("Note: No company's wallet custody configured");
             }
             if (nbProviders == 0) {
                 // router.push({ name: "installMetaMask" }); 
@@ -80,7 +82,12 @@ const actions = {
     },
 
     async attemptToConnectWallet() {
-        const addresses = await window.ethereum.request({ method: "eth_accounts" })
+        let addresses = [];
+        const providerMetamask = $store.get("auth/providerMetamask");
+        const providerDirect = $store.get("auth/providerDirect");
+        if (providerMetamask) addresses = await window.ethereum.request({ method: "eth_accounts" });
+        if (providerDirect && addresses.length == 0) addresses = await getCustodyLastWallets();
+        console.log("attemptToConnectWallet", addresses);
         const address = addresses.length > 0 ? addresses[0] : null;
         if (!address) return;
         $store.set("auth/wallet", address);
@@ -101,15 +108,21 @@ const actions = {
         router.push({ name: "dashboard" });
     },
 
-    async openWeb3DirectConnectionDialog({ dispatch }, wallet) {
-        $store.set("auth/wallet", wallet);
-        // it's decided, the provider is metamask
-        const provider = $store.get("auth/providerDirect");
-        $store.set("auth/provider", provider);
-        $store.set("auth/providerModel", "direct");
-        // TODO: call fetchRole here to do a selective redirect? Or, just assume it's a first connect and don't care.
-        dispatch("fetchRole");
-        router.push({ name: "dashboard" });
+    async openWeb3DirectConnectionDialog({ dispatch }, {wallet, password}) {
+        const token = await verifyCustodyAuthentication(wallet, password)
+        // console.log("openWeb3DirectConnectionDialog", wallet, password, token);
+        if (token) {
+            $store.set("auth/wallet", wallet);
+            // it's decided, the provider is metamask
+            const provider = $store.get("auth/providerDirect");
+            $store.set("auth/provider", provider);
+            $store.set("auth/providerModel", "direct");
+            // TODO: call fetchRole here to do a selective redirect? Or, just assume it's a first connect and don't care.
+            dispatch("fetchRole");
+            router.push({ name: "dashboard" });
+        } else {
+            this.password = undefined
+        }
     },
 
     async fetchIsRegistered({ state }) {

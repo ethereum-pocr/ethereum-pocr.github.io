@@ -8,7 +8,7 @@ export function setupAuthNavigationGuard(router, store) {
       return next();
     }
 
-    // Having a provider is considered mandatory. We'll check that you installed Metamask.
+    // Having a provider is considered mandatory. We'll check that you installed Metamask or have a wallet custody configured.
     if (!store.state.auth.providerModel) {
       console.log("no auth provider yet");
       await store.dispatch("auth/detectProvider");
@@ -25,14 +25,14 @@ export function setupAuthNavigationGuard(router, store) {
     // You're going to a non-auth route, keep going.
     if (!to.meta || !to.meta.restricted) return next();
 
-    // Good, you have the extension. But have you connected a wallet?
+    // Good, you have the provider. But have you connected a wallet?
     if (!store.state.auth.wallet) {
       console.log("Didn't find the wallet in the app. Trying to fetch it...");
       const address = await store.dispatch("auth/attemptToConnectWallet");
       if (!address) {
         console.log("Didn't find it. Redirecting to auth.");
         return next({ name: "authentication" });
-      }
+      } 
       console.log("Found a connected wallet.");
     }
 
