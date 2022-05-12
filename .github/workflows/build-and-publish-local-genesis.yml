@@ -1,0 +1,41 @@
+name: Genesis for local
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+      - sc-carbon-footprint/**/*
+      - pocr-network/genesis/**/*
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+
+    container:
+      image: node:16.8
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: install solc
+        run: |
+          apt-get update && apt-get install gettext jq -y && \
+          curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-latest && \
+          curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(cat solc-file) && \
+          chmod +x solc && mv solc /bin/solc
+      - name: build Governance smartcontracts
+        run: |
+          cd sc-carbon-footprint/ && npm install -g solc &&  npm ci && ./build.sh && \
+          export SMART_CONTRACT_BYTECODE=$(node extract-bytecode.js) && echo $SMART_CONTRACT_BYTECODE && \
+          envsubst < ../pocr-network/genesis/kerleano.json > kerleano.final.json && \
+          envsubst < ../pocr-network/genesis/genesis-local.json > genesis-local.final.json
+      - name: publish local.json genesis with Governance smartcontracts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: sc-carbon-footprint/genesis-local.final.json
+          asset_name: genesis-local.json
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "publish genesis-local.json with latest Goverance smartcontracts"      

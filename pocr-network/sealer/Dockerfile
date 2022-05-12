@@ -9,9 +9,6 @@ RUN useradd -r -u 1000 -g geth_group geth_user
 RUN mkdir /home/geth_user && chown -R geth_user:geth_group /home/geth_user
 WORKDIR /home/geth_user
 
-ARG GITLAB_USER
-ARG GITLAB_ACCESS_TOKEN
-
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
@@ -27,19 +24,16 @@ RUN chmod +x /usr/bin/geth
 
 FROM base as runtime 
 
-ARG GITLAB_USER
-ARG GITLAB_ACCESS_TOKEN
-ARG kerleano_version=latest
-ARG geth_version=latest
+ARG kerleano_version=v1.0
 
-RUN curl -f -u "${GITLAB_USER}:${GITLAB_ACCESS_TOKEN}" -o /home/geth_user/kerleano.json \
-    https://gitlab.com/api/v4/projects/34381428/packages/generic/genesis/${kerleano_version}/kerleano.json
+RUN curl -f -L -o /home/geth_user/kerleano.json \
+    https://github.com/ethereum-pocr/ethereum-pocr.github.io/releases/download/${kerleano_version}/kerleano.json
 
-RUN curl -f -u "${GITLAB_USER}:${GITLAB_ACCESS_TOKEN}" -o /home/geth_user/local.json \
-    https://gitlab.com/api/v4/projects/34381428/packages/generic/genesis/${kerleano_version}/local.json
+RUN curl -f -L -o /home/geth_user/local.json \
+    https://github.com/ethereum-pocr/ethereum-pocr.github.io/releases/download/main/genesis-local.json
 
-RUN curl -f -u "${GITLAB_USER}:${GITLAB_ACCESS_TOKEN}" -o "geth-pocr" \
-    https://gitlab.com/api/v4/projects/34464473/packages/generic/geth/${geth_version}/geth && \
+RUN curl -f -L -o "geth-pocr" \
+    https://github.com/ethereum-pocr/go-ethereum/releases/download/master/geth && \
     chmod +x geth-pocr && mv geth-pocr /usr/bin/geth
 
 USER geth_user
