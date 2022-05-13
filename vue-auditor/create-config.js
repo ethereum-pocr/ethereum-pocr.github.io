@@ -1,9 +1,9 @@
-
 const fs = require('fs');
 
-const configFilePath = "./dist/config.js"
+const configFilePath = "./dist/config.json"
 const replacementMap = {
-  "CUSTODY_SVR_URL": "http://localhost:8081"
+  "CUSTODY_SVR_URL": "http://localhost:8081",
+  "NODE_URL": "ws://kerleano-client.francecentral.cloudapp.azure.com:8546"
 }
 
 console.log(`Updating the ${configFilePath} file with the environment vars`)
