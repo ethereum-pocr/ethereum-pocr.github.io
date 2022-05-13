@@ -8,21 +8,6 @@ import { AsyncLocalStorage } from "./async-local-storage";
 
 const LocalStorage = new AsyncLocalStorage();
 
-export function parseUrl(url, acceptedProtocols) {
-    if (acceptedProtocols && !Array.isArray(acceptedProtocols)) acceptedProtocols = [acceptedProtocols];
-    if (acceptedProtocols) acceptedProtocols = acceptedProtocols.map(p=>(p.endsWith(":")? p : p+':').toLowerCase());
-    
-    if (!url) return undefined;
-    try {
-        const u = new URL(url)
-        if (acceptedProtocols) {
-            if (!acceptedProtocols.includes(u.protocol)) return undefined
-        }
-        return u;
-    } catch (error) {
-        return undefined;
-    }
-}
 
 export function getWeb3ProviderFromUrl(url) {
     const web3 = new Web3(url)
@@ -49,7 +34,7 @@ export function getContractInstance() {
 }
 
 export function getCustodyApi() {
-    const custodyUrl = $store.get("config").walletCustodyAPIBaseUrl;
+    const custodyUrl = $store.get("auth/providerDirect").custodyApiUrl;
     const custody = new WalletCustodyApiImpl(custodyUrl, "eth");
     return custody;    
 }
@@ -77,14 +62,19 @@ export function intf(provider) {
         return new Web3FunctionProvider(provider, (list) => Promise.resolve(list[0]))
     }
     if (model == "direct") {
-        const custody = getCustodyApi();
         const wallet = $store.get("auth/wallet");
-        const i = new Web3CustodyFunctionProvider(provider, custody, wallet, async (address, api)=>{
-            console.log("Authenticating", address);
-            const password = prompt("Authenticate wallet "+address)
-            return await api.authenticate(address, password) // TODO: Replace with a real user interface
-        } );
-        return i;
+        if (wallet) {
+            const custody = getCustodyApi();
+            const i = new Web3CustodyFunctionProvider(provider, custody, wallet, async (address, api)=>{
+                console.log("Authenticating", address);
+                const password = prompt("Authenticate wallet "+address)
+                return await api.authenticate(address, password) // TODO: Replace with a real user interface
+            } );
+            return i;
+        } else {
+            // returns a fake identity using any address. Only read function will be available
+            return new Web3FunctionProvider(provider, ()=>Promise.resolve(governanceAddress))
+        }
     }
     throw new Error("should not be calling the api functions without deciding the provider (metamask or direct)")
 }
@@ -118,6 +108,10 @@ function convertMMErrorMessage(message) {
 }
 
 export function writeCallWithOptions(methodName, options, ...args) {
+    const wallet = $store.get("auth/wallet");
+    if (!wallet) {
+        return Promise.reject(new Error("You are not authenticated with a wallet, you cannot update the blockchain"));
+    }
     const provider = $store.get("auth/provider");
     const contract = $store.get("auth/contract");
     if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
