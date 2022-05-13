@@ -11,7 +11,7 @@
       > <br><br>
       <v-select
           v-model="selectedNetwork"
-          :hint="`url: ${selectedNetwork.nodeUrl}`"
+          :hint="`node: ${selectedNetwork.nodeUrl}; custody: ${selectedNetwork.walletCustodyAPIBaseUrl}`"
           :items="networks"
           item-text="name"
           item-value="nodeUrl"
