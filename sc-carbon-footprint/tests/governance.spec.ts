@@ -29,19 +29,20 @@ describe("Run tests on POCR Governance contract", function () {
   let instance: SmartContractInstance;
   let auditor: EthProviderInterface;
   let node1: EthProviderInterface;
+  let delegate1: EthProviderInterface;
 
   async function init() {
     web3 = new Web3(Ganache.provider({default_balance_ether:10000}) as any);
-    auditor = new Web3FunctionProvider(web3.currentProvider, (list) =>
-      Promise.resolve(list[0])
-    );
+    auditor = new Web3FunctionProvider(web3.currentProvider, (list) => Promise.resolve(list[0]));
     auditorWallet = await auditor.account();
     node1 = new Web3FunctionProvider(web3.currentProvider, (list) =>
-      Promise.resolve(list[1])
+    Promise.resolve(list[1])
     );
+    delegate1 = new Web3FunctionProvider(web3.currentProvider, (list) => Promise.resolve(list[2]));
     if (allContracts.get(POCRContractName)) {
       CarbonFootprint = allContracts.get(POCRContractName)!;
       instance = await CarbonFootprint.deploy(auditor.newi({ maxGas: 3000000 }));
+      
     } else {
       throw new Error(POCRContractName+" contract not defined in the compilation result");
     }
@@ -61,7 +62,7 @@ describe("Run tests on POCR Governance contract", function () {
     });
 
     it('should enable an initial registration', async () => {
-      const tx = await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+      const tx = await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       console.log("Tx", await web3.eth.getTransactionReceipt(tx));
       let log = logs.pop();
       expect(log).to.be.ok;
@@ -91,7 +92,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
       // Given the pledge amount is present
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -122,7 +123,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
 
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -150,7 +151,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
 
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -178,7 +179,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
 
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -208,7 +209,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
 
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -235,7 +236,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
 
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -265,7 +266,7 @@ describe("Run tests on POCR Governance contract", function () {
         const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
         if (!registered) {
           // first register
-          await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+          await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
         }
 
         let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -295,7 +296,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
 
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -325,7 +326,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
       const minPledge = BigInt(await instance.minPledgeAmountToAuditNode(auditor.call(), auditorWallet))
@@ -340,7 +341,7 @@ describe("Run tests on POCR Governance contract", function () {
       // Given that the new auditor self registers
       const auditor2Wallet = wallets[wallets.length-1];
       const auditor2 = new Web3FunctionProvider(web3.currentProvider, () => Promise.resolve(auditor2Wallet));
-      await instance.selfRegisterAuditor(auditor2.send({maxGas: 130000}));
+      await instance.selfRegisterAuditor(auditor2.send({maxGas: 180000}));
       await instance.pledge(auditor2.send({maxGas:50000, amount: minPledge}));
       
       // When the first node accepts the auditor
@@ -385,7 +386,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
       // Given the pledge amount is present
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -406,7 +407,7 @@ describe("Run tests on POCR Governance contract", function () {
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
         // first register
-        await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       }
       // Given the pledge amount is present
       let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
@@ -518,7 +519,7 @@ describe("Run tests on POCR Governance contract", function () {
         logs.push(log);
         console.log(`Log: ${log.event}(${JSON.stringify(log.returnValues)})`)
       })
-      await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+      await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       const minPledge = BigInt(web3.utils.toWei('2000', "ether"));
       await instance.pledge(auditor.send({maxGas:50000, amount: minPledge})); 
       const wallets = await web3.eth.getAccounts();
@@ -673,7 +674,7 @@ describe("Run tests on POCR Governance contract", function () {
         console.log(`Log: ${log.event}(${JSON.stringify(log.returnValues)})`)
       });
       const wallets = await web3.eth.getAccounts();
-      await instance.selfRegisterAuditor(auditor.send({maxGas: 130000}));
+      await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       const pledge = BigInt(Web3.utils.toWei('3000', 'ether'));
       await instance.pledge(auditor.send({maxGas: 300000, amount:pledge}));
       node1Wallet = wallets[1];
@@ -686,7 +687,7 @@ describe("Run tests on POCR Governance contract", function () {
       
       auditor2Wallet = wallets[wallets.length-1];
       auditor2 = new Web3FunctionProvider(web3.currentProvider, ()=>Promise.resolve(auditor2Wallet));
-      await instance.selfRegisterAuditor(auditor2.send({maxGas: 130000}));
+      await instance.selfRegisterAuditor(auditor2.send({maxGas: 180000}));
       
       await instance.voteAuditor(node1.send({maxGas:200000}), auditor2Wallet, true);
       await instance.voteAuditor(node2.send({maxGas:200000}), auditor2Wallet, true);
@@ -852,4 +853,105 @@ describe("Run tests on POCR Governance contract", function () {
     });
   });
   
+  describe('Test the Node Delegation scheme', () => {
+    beforeEach(async () => {
+      await init();
+
+    });
+    it('should record a delegate, check and remove', async () => {
+      // Given the governance instance
+      // Given the node is knwon but not necessarilly audited with a footprint
+      // When the node adds a delegate
+      await instance.allowDelegate(node1.send({maxGas: 100000}), await delegate1.account());
+      // Then delegate to be added
+      let nodeAddress = await instance.delegateOf(delegate1.call(), await delegate1.account());
+      let isDelegated = await instance.isDelegateOf(delegate1.call(), await node1.account(), await delegate1.account());
+      expect(nodeAddress).to.equal(await node1.account());
+      expect(isDelegated).to.be.true;
+      
+      // When the delegate is removed
+      await instance.removeDelegate(node1.send({maxGas:100000}), await delegate1.account());
+      // Then the delegation should be removed
+      nodeAddress = await instance.delegateOf(delegate1.call(), await delegate1.account());
+      isDelegated = await instance.isDelegateOf(delegate1.call(), await node1.account(), await delegate1.account());
+      expect(nodeAddress).to.equal("0x0000000000000000000000000000000000000000");
+      expect(isDelegated).to.be.false;
+    });
+    it('should not be able to map a delegate to 2 different addresses', async () => {
+      // Given the governance instance
+      // Given the node is knwon but not necessarilly audited with a footprint
+      // Given the node delegate to an address already
+      await instance.allowDelegate(node1.send({maxGas: 100000}), await delegate1.account());
+      // When another node tries to add the same delegate
+      const p = instance.allowDelegate(auditor.send({maxGas: 100000}), await delegate1.account());
+      // Then it should fail with error
+      return expect(p).to.be.rejectedWith(/already mapped/)
+    });
+    it('should not be able to remove a delegate from another owner', async () => {
+      // Given the governance instance
+      // Given the node is knwon but not necessarilly audited with a footprint
+      // Given the node delegate to an address already
+      await instance.allowDelegate(node1.send({maxGas: 100000}), await delegate1.account());
+      // When another node tries to add the same delegate
+      const p = instance.removeDelegate(auditor.send({maxGas: 100000}), await delegate1.account());
+      // Then it should fail with error
+      return expect(p).to.be.rejectedWith(/not mapped to the caller/)
+    });
+    async function prepareAuditor() {
+      // Given the auditor is registered
+      const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
+      if (!registered) {
+        // first register
+        await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
+      }
+      // Given the pledge amount is present
+      let pledged = BigInt(await instance.pledgedAmount(auditor.call(), auditorWallet));
+      const minPledge = BigInt(web3.utils.toWei('1000', "ether"));
+      if (pledged < minPledge) {
+        // then pledge enough crypto
+        await instance.pledge(auditor.send({maxGas:50000, amount: minPledge - pledged}));  
+      }
+      
+    } 
+    it('should be able to vote an auditor from a delegate account', async () => {
+      // Given the auditor is setup
+      await prepareAuditor();
+      // Given the node has been audited
+      await instance.setFootprint(auditor.send({maxGas:200000}), await node1.account(), 1000);
+      // Given the node has added a delegate
+      await instance.allowDelegate(node1.send({maxGas: 100000}), await delegate1.account());
+     
+      // When the delegate tries to down vote the auditor
+      await instance.voteAuditor(delegate1.send({maxGas:200000}), auditorWallet, false);
+      // Then the auditor must be removed
+      const approved = await instance.auditorApproved(auditor.call(), auditorWallet);
+      expect(approved).to.be.false;
+    });
+
+    it('should fail voting an auditor out from a delegate account of a zero footprint node', async () => {
+      // Given the auditor is setup
+      await prepareAuditor();
+      // Given the node has been audited
+      await instance.setFootprint(auditor.send({maxGas:200000}), await node1.account(), 0);
+      // Given the node has added a delegate
+      await instance.allowDelegate(node1.send({maxGas: 100000}), await delegate1.account());
+     
+      // When the delegate tries to down vote the auditor
+      const p = instance.voteAuditor(delegate1.send({maxGas:200000}), auditorWallet, false);
+      // Then the auditor must be removed
+      return expect(p).to.be.rejectedWith(/only audited nodes which have footprint/)
+    });
+
+    it('should fail voting an auditor out from a non delegate account of a node', async () => {
+      // Given the auditor is setup
+      await prepareAuditor();
+      // Given the node has been audited
+      await instance.setFootprint(auditor.send({maxGas:200000}), await node1.account(), 1000);
+      // When the delegate tries to down vote the auditor
+      const p = instance.voteAuditor(delegate1.send({maxGas:200000}), auditorWallet, false);
+      // Then the auditor must be removed
+      return expect(p).to.be.rejectedWith(/only audited nodes which have footprint/)
+    });
+  });
+
 });

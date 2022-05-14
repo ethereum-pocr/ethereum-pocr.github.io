@@ -6,13 +6,35 @@ import "./CarbonFootprint.sol";
 import "./AuditorGovernance.sol";
 import "./PledgeContract.sol";
 import "./ImprovementProposal.sol";
+import "./NodeDelegation.sol";
 
 contract Governance is
     CarbonFootprint,
     AuditorGovernance,
     PledgeContract,
-    ImprovementProposal
+    ImprovementProposal,
+    NodeDelegation
 {
+
+    function isSealerNode(address node) public view returns(bool) {
+        return this.footprint(node) > 0;
+    }
+
+    function canActAsSealerNode(address sender) public view returns(bool) {
+        // first check if actual sealer
+        bool ok = isSealerNode(sender);
+        if (ok) {
+            return true;
+        } else {
+            address node = delegateOf(sender);
+            if (node != address(0)) {
+                return isSealerNode(node);
+            } else {
+                return false;
+            }
+        }
+    }
+
     /** Auditor can transfer his pledge out if his last audit is more that 30 days ago */
     function canTransferPledge(address payable _auditor, uint256)
         public
@@ -37,11 +59,9 @@ contract Governance is
         return (isBlockOK, redeemAtBlock);
     }
 
-    /** the caller must be a node with a footprint superior to zero (means the node exists)*/
+    /** the caller must be a sealer node with a footprint superior to zero (means the node exists)*/
     function canSenderOperateTransfer() internal view override returns (bool) {
-        uint256 footprint = this.footprint(msg.sender);
-
-        return footprint > 0;
+        return canActAsSealerNode(msg.sender);
     }
 
     /** called when an auditor is rejected and is implemented by confiscating the pledge */
@@ -66,12 +86,14 @@ contract Governance is
             return SenderType.Auditor;
         }
 
-        uint256 footprint = this.footprint(msg.sender);
-
-        if (footprint > 0) {
+        if (canActAsSealerNode(msg.sender)) {
             return SenderType.Node;
         }
 
         return SenderType.Invalid;
+    }
+
+    function canVoteAuditor() internal view override returns(bool) {
+        return canActAsSealerNode(msg.sender);
     }
 }

@@ -78,6 +78,12 @@ contract AuditorGovernance is IAuditorGovernance {
             emit AuditorApproved(_auditor, false);
         }
     }
+    /**
+     * Virtual function overriden in the Governance.sol to tell if the msg.sender can vote an auditor with its address
+     */
+    function canVoteAuditor() virtual internal view returns(bool) {
+        return true;
+    }
 
     /**
      * Only a node with a footprint can vote on an auditor
@@ -92,7 +98,7 @@ contract AuditorGovernance is IAuditorGovernance {
         AuditorStatus storage s = auditorsStatus[_auditor];
 
         require(
-            me.footprint(msg.sender) > 0,
+            canVoteAuditor(),
             "only audited nodes which have footprint can vote for auditors"
         );
         require(s.registered, "the proposed _auditor is not registered");
