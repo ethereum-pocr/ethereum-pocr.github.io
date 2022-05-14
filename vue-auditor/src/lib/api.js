@@ -65,11 +65,9 @@ export function intf(provider) {
         const wallet = $store.get("auth/wallet");
         if (wallet) {
             const custody = getCustodyApi();
-            const i = new Web3CustodyFunctionProvider(provider, custody, wallet, async (address, api)=>{
-                console.log("Authenticating", address);
-                const password = prompt("Authenticate wallet "+address)
-                return await api.authenticate(address, password) // TODO: Replace with a real user interface
-            } );
+            const authFunction = $store.state.auth.walletAuthenticationFunction;
+            const i = new Web3CustodyFunctionProvider(provider, custody, wallet, authFunction );
+            
             return i;
         } else {
             // returns a fake identity using any address. Only read function will be available
@@ -80,11 +78,15 @@ export function intf(provider) {
 }
 
 export async function readOnlyCall(methodName, ...args) {
+    return readOnlyCallWithOptions(methodName, { maxGas: 10000000 }, ...args)
+}
+
+export async function readOnlyCallWithOptions(methodName, options, ...args) {
     const provider = $store.get("auth/provider");
     const contract = $store.get("auth/contract");
     if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
     return contract[methodName](
-        intf(provider).call({ maxGas: 10000000 }),
+        intf(provider).call(options),
         ...args
     );
 }
@@ -118,9 +120,9 @@ export function writeCallWithOptions(methodName, options, ...args) {
 
     return new Promise( (resolve, reject)=>{
         // First test the execution with the node using the call approach
-        readOnlyCall(methodName, ...args)
+        readOnlyCallWithOptions(methodName, options, ...args)
         .then(async v=>{
-            console.log("Tested call", v)
+            console.log("Tested call", options, v)
             resolve(
                 // as it succeeded, try executing it as a transaction
                 await contract[methodName](
@@ -143,7 +145,7 @@ export async function handleMMResponse(promise, errorCallback) {
         response = await promise;
     }
     catch (err) {
-        console.log(err);
+        console.warn("Submitted transaction failed with error:", err);
         $store.dispatch("errorFlash", err.message);
         errorCallback && errorCallback(err);
     }

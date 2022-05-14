@@ -1,7 +1,7 @@
 // import ready from "document-ready-promise";
 import detectEthereumProvider from '@metamask/detect-provider';
 import { make } from "vuex-pathify";
-import { readOnlyCall, writeCall, handleMMResponse, getWeb3ProviderFromUrl, verifyCustodyAuthentication, getCustodyLastWallets } from "@/lib/api";
+import { readOnlyCall, writeCallWithOptions, handleMMResponse, getWeb3ProviderFromUrl, verifyCustodyAuthentication, getCustodyLastWallets } from "@/lib/api";
 import { getDefaultNetwork, changeDefaultNetwork } from "@/lib/config-file";
 
 import $store from "@/store/index";
@@ -20,6 +20,7 @@ const state = () => ({
     // roles
     isNode: false,
     isAuditor: false,
+    walletAuthenticationFunction: null
 })
 
 const getters = {}
@@ -181,7 +182,7 @@ const actions = {
     },
 
     async selfRegister({ dispatch }) {
-        await handleMMResponse(writeCall("selfRegisterAuditor"));
+        await handleMMResponse(writeCallWithOptions("selfRegisterAuditor", {maxGas:100000}));
         dispatch("fetchIsRegistered");
         dispatch("status/fetchIsApproved", null, { root: true });
         dispatch("fetchRole");

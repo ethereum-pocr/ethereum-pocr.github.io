@@ -2,12 +2,19 @@
 {
   "networks": [
     {
-      "name": "Kerleano (GdC Node)",
-      "nodeUrl": "ws://kerleano-client.francecentral.cloudapp.azure.com:8546",
+      "name": "Kerleano (Khaled node)",
+      "nodeUrl": "wss://kerleano-ws.awnen.com",
       "walletCustodyAPIBaseUrl": "http://localhost:8081",
       "token": "CRC",
       "chainID": "1804",
       "default": true
+    },
+    {
+      "name": "Kerleano (GdC Node)",
+      "nodeUrl": "ws://kerleano-client.francecentral.cloudapp.azure.com:8546",
+      "walletCustodyAPIBaseUrl": "http://localhost:8081",
+      "token": "CRC",
+      "chainID": "1804"
     },
     {
       "name": "Kerleano (CACIB node)",
