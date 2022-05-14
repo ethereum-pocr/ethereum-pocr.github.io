@@ -1,7 +1,18 @@
 import Web3 from "web3";
 import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
+import { Web3CustodyFunctionProvider } from "@saturn-chain/web3-custody-functions";
+import { WalletCustodyApiImpl } from "@saturn-chain/wallet-custody-rest-api";
 import allContracts from "sc-carbon-footprint";
 import $store from "@/store/index";
+import { AsyncLocalStorage } from "./async-local-storage";
+
+const LocalStorage = new AsyncLocalStorage();
+
+
+export function getWeb3ProviderFromUrl(url) {
+    const web3 = new Web3(url)
+    return web3.currentProvider;
+}
 
 export async function getWalletBalance(walletAddress) {
     return await new Web3($store.get("auth/provider")).eth.getBalance(walletAddress);
@@ -22,18 +33,60 @@ export function getContractInstance() {
     return getContractInstanceByName("Governance");
 }
 
+export function getCustodyApi() {
+    const custodyUrl = $store.get("auth/providerDirect").custodyApiUrl;
+    const custody = new WalletCustodyApiImpl(custodyUrl, "eth");
+    return custody;    
+}
+
+export async function verifyCustodyAuthentication(wallet, password) {
+    const savedWallets = (await LocalStorage.getItem("custody.wallets")) || [];
+    savedWallets.unshift(wallet);
+    LocalStorage.setItem("custody.wallets", savedWallets)
+    const api = getCustodyApi();
+    const token = await handleMMResponse(api.authenticate(wallet, password));
+    return token
+}
+
+export async function getCustodyLastWallets() {
+    return (await LocalStorage.getItem("custody.wallets")) || [];
+}
+
 export function intf(provider) {
     // TODO (suggestion): This approach work, but why not storing in the "store" the intf result instead of the web3 provider ?
     //      you would save writing the intf(provider)
-    return new Web3FunctionProvider(provider, (list) => Promise.resolve(list[0]))
+    if (!provider) provider = $store.get("auth/provider");
+    if (!provider) throw new Error("Should not be calling the api functions without a provider connected")
+    const model = $store.get("auth/providerModel");
+    if (model == "metamask") {
+        return new Web3FunctionProvider(provider, (list) => Promise.resolve(list[0]))
+    }
+    if (model == "direct") {
+        const wallet = $store.get("auth/wallet");
+        if (wallet) {
+            const custody = getCustodyApi();
+            const authFunction = $store.state.auth.walletAuthenticationFunction;
+            const i = new Web3CustodyFunctionProvider(provider, custody, wallet, authFunction );
+            
+            return i;
+        } else {
+            // returns a fake identity using any address. Only read function will be available
+            return new Web3FunctionProvider(provider, ()=>Promise.resolve(governanceAddress))
+        }
+    }
+    throw new Error("should not be calling the api functions without deciding the provider (metamask or direct)")
 }
 
 export async function readOnlyCall(methodName, ...args) {
+    return readOnlyCallWithOptions(methodName, { maxGas: 10000000 }, ...args)
+}
+
+export async function readOnlyCallWithOptions(methodName, options, ...args) {
     const provider = $store.get("auth/provider");
     const contract = $store.get("auth/contract");
     if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
     return contract[methodName](
-        intf(provider).call({ maxGas: 10000000 }),
+        intf(provider).call(options),
         ...args
     );
 }
@@ -57,15 +110,19 @@ function convertMMErrorMessage(message) {
 }
 
 export function writeCallWithOptions(methodName, options, ...args) {
+    const wallet = $store.get("auth/wallet");
+    if (!wallet) {
+        return Promise.reject(new Error("You are not authenticated with a wallet, you cannot update the blockchain"));
+    }
     const provider = $store.get("auth/provider");
     const contract = $store.get("auth/contract");
     if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
 
     return new Promise( (resolve, reject)=>{
         // First test the execution with the node using the call approach
-        readOnlyCall(methodName, ...args)
+        readOnlyCallWithOptions(methodName, options, ...args)
         .then(async v=>{
-            console.log("Tested call", v)
+            console.log("Tested call", options, v)
             resolve(
                 // as it succeeded, try executing it as a transaction
                 await contract[methodName](
@@ -88,7 +145,7 @@ export async function handleMMResponse(promise, errorCallback) {
         response = await promise;
     }
     catch (err) {
-        console.log(err);
+        console.warn("Submitted transaction failed with error:", err);
         $store.dispatch("errorFlash", err.message);
         errorCallback && errorCallback(err);
     }

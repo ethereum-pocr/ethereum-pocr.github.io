@@ -1,20 +1,6 @@
 
 # Docker build
 
-**requirements**
-generate access token with api read rights (`read_api` scopde) and export into env variables `GITLAB_USER` and `GITLAB_ACCESS_TOKEN`.    
-Use gitlab personal page to create the token: https://gitlab.com/-/profile/personal_access_tokens.   
-Your `GITLAB_USER` is the user without the `@` or alternatively the name of the token you created.
-
----
-Note: when put in the `.bashrc` file the var must be exported to be available in the `start.sh` script
-```sh
-echo export GITLAB_USER=your_gitlab_user >> $HOME/.bashrc 
-echo export GITLAB_ACCESS_TOKEN=your_gitlab_password >> $HOME/.bashrc
-source $HOME/.bashrc
-```
----
-
 ** Build monitoring.dockerfile
 ---
 ```sh

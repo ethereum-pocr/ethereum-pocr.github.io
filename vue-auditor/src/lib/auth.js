@@ -2,10 +2,19 @@ import { getContractInstance } from "./api";
 
 export function setupAuthNavigationGuard(router, store) {
   router.beforeEach(async (to, from, next) => {
-    // Having a provider is considered mandatory. We'll check that you installed Metamask.
-    if (!store.state.auth.provider) {
+    console.log("routing ", from.name, to.name);
+    // first need to control if we have not routed to the metamask missing page
+    if (to.name === "installMetaMask") {
+      return next();
+    }
+
+    // Having a provider is considered mandatory. We'll check that you installed Metamask or have a wallet custody configured.
+    if (!store.state.auth.providerModel) {
+      console.log("no auth provider yet");
       await store.dispatch("auth/detectProvider");
-      console.log("Didn't find any provider in the app, trying to detect one. Provider found?", store.state.auth.provider);
+      console.log("Didn't find any provider in the app, trying to detect one. Provider found?", store.state.auth.providerModel, store.state.auth.provider);
+      if (store.state.auth.providerModel == "both") return next({ name: "authentication" });
+      // if no provider was available, assume that no direct provider was possible hence we need at least to have metamask
       if (!store.state.auth.provider) return next({ name: "installMetaMask" });
     }
 
@@ -17,15 +26,12 @@ export function setupAuthNavigationGuard(router, store) {
     // You're going to a non-auth route, keep going.
     if (!to.meta || !to.meta.restricted) return next();
 
-    // Good, you have the extension. But have you connected a wallet?
+    // Good, you have the provider. But have you connected a wallet?
     if (!store.state.auth.wallet) {
       console.log("Didn't find the wallet in the app. Trying to fetch it...");
       const address = await store.dispatch("auth/attemptToConnectWallet");
-      if (!address) {
-        console.log("Didn't find it. Redirecting to auth.");
-        return next({ name: "authentication" });
-      }
-      console.log("Found a connected wallet.");
+    
+      console.log("Found a connected wallet.", address);
     }
 
     // await store.dispatch("auth/fetchRole", null, { root: true });
