@@ -14,8 +14,7 @@
       "nodeUrl": "ws://kerleano-client.francecentral.cloudapp.azure.com:8546",
       "walletCustodyAPIBaseUrl": "http://localhost:8081",
       "token": "CRC",
-      "chainID": "1804",
-      "default": false
+      "chainID": "1804"
     },
     {
       "name": "Kerleano (CACIB node)",
