@@ -80,10 +80,10 @@ const actions = {
             // check if it's Auditor
             const isAuditor = await readOnlyCall("auditorRegistered", wallet);
             // get the value of the footprint
-            const Node = await readOnlyCall("footprint", wallet);
-            let isNode = false;
+            const isNode = await readOnlyCall("canActAsSealerNode", wallet);
+            // let isNode = false;
             // if value different to 0 then it's a node
-            if (Node != 0) isNode = true;
+            // if (Node != 0) isNode = true;
             // set the values to the store
             $store.set("auth/isAuditor", isAuditor);
             $store.set("auth/isNode", isNode);
@@ -182,7 +182,7 @@ const actions = {
     },
 
     async selfRegister({ dispatch }) {
-        await handleMMResponse(writeCallWithOptions("selfRegisterAuditor", {maxGas:100000}));
+        await handleMMResponse(writeCallWithOptions("selfRegisterAuditor", {maxGas:180000}));
         dispatch("fetchIsRegistered");
         dispatch("status/fetchIsApproved", null, { root: true });
         dispatch("fetchRole");

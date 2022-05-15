@@ -75,7 +75,7 @@ export default {
       }
       // auditor is not approved, vote for approved
       if (item.currentVote) {
-        return "Retirer mon vote de d'approbation";
+        return "Retirer mon vote d'approbation";
       }
       return "Voter pour approuver";
     },

@@ -9,7 +9,7 @@
     </v-card-subtitle>
     <v-card-text v-if="!registered">
       <p>
-        You are not registered, please make sure to register
+        If you wish to become an auditor you must register here
         <v-btn small class="mx-2" @click="selfRegister" :disabled="mmIsOpen">
           Self register
         </v-btn>

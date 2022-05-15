@@ -2,7 +2,7 @@ import { make } from "vuex-pathify";
 import {
     handleMMResponse,
     readOnlyCall,
-    writeCall,
+    writeCallWithOptions,
 } from "@/lib/api";
 import $store from "@/store/index";
 
@@ -48,7 +48,7 @@ const actions = {
     },
 
     async voteAuditor(context, {auditorAddress, accept}) {
-        return handleMMResponse(writeCall("voteAuditor", auditorAddress, accept));
+        return handleMMResponse(writeCallWithOptions("voteAuditor", {maxGas:120000}, auditorAddress, accept));
     }
 
 }
