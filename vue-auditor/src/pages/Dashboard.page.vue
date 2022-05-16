@@ -130,8 +130,9 @@ export default {
     };
   },
   async mounted() {
-    this.fetchAllValues();
-    this.fetchChainInformations().then(this.subscribeToChainUpdates);
+    await this.fetchChainInformations()
+    await this.fetchAllValues();
+    await this.subscribeToChainUpdates();
   },
   computed: {
     ...get("nodes", [

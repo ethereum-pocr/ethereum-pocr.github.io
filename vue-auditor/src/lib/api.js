@@ -145,8 +145,13 @@ export async function handleMMResponse(promise, errorCallback) {
         response = await promise;
     }
     catch (err) {
-        console.warn("Submitted transaction failed with error:", err);
-        $store.dispatch("errorFlash", err.message);
+        let message = err.message;
+        // In some cases of lack of gas in the transaction, the err contains a tx info
+        if (err.blockHash && err.gasUsed && err.status==false) {
+            message = `Not enough gas to complete the transaction: ${err.gasUsed} provided`
+        }
+        console.warn("Submitted transaction failed with error:", message);
+        $store.dispatch("errorFlash", message);
         errorCallback && errorCallback(err);
     }
     finally {

@@ -12,14 +12,26 @@ import Audit from "@/pages/Audit.page.vue";
 import History from "@/pages/History.page.vue";
 import Pledge from "@/pages/Pledge.page.vue";
 import Status from "@/pages/Status.page.vue";
+import ConfiscatedPledge from "@/pages/ConfiscatedPledge.page.vue";
+import Improvements from "@/pages/Improvements.page.vue";
+
+import { ROLES } from "./lib/const";
 
 Vue.use(VueRouter);
 
 
-const approvedAuditor = ({ store }) => store.state.status.approved;
-const isNode = ({ store }) => store.state.auth.isNode;
-const isNotNode = ({ store }) => !isNode({ store });
+// const approvedAuditor = ({ store }) => store.state.status.approved;
+// const isNode = ({ store }) => store.state.auth.isNode;
+// const isNotNode = ({ store }) => !isNode({ store });
 const walletIsntConnected = ({ store }) => !store.state.auth.wallet;
+const hasRole = (role)=>{
+    return ({store}) => (store.get("auth/walletRole") == role)
+} 
+const not = (f)=>{
+    return (opts)=>{
+        return !f(opts);
+    }
+}
 
 const any = (...functions) => {
     return (opts) => {
@@ -34,7 +46,22 @@ const any = (...functions) => {
 export const routes = [
     //Public
     { name: "dashboard", path: "/dashboard", component: Dashboard, meta: { displayInSidenav: "" } },
-    // Auth
+    {
+        name: "status", path: "/status", component: Status, meta: {
+            displayInSidenav: "",
+            restricted: not(hasRole(ROLES.VISITOR)),
+            forceRedirectTo: "dashboard",
+            hidden: hasRole(ROLES.VISITOR)
+        }
+    }, 
+    {
+        name: "improvements", path: "/improvements", component: Improvements, meta: {
+            displayInSidenav: "",
+            forceRedirectTo: "dashboard",
+        }
+    },
+
+       // Auth
     { name: "installMetaMask", path: "/installmetamask", component: InstallMetaMask },
     {
         name: "authentication", path: "/auth", component: Auth, meta: {
@@ -42,46 +69,47 @@ export const routes = [
             hidden: ({ store }) => !walletIsntConnected({ store })
         }
     },
-    // Governance views
+
+    // Node views
     {
         name: "auditors", path: "/auditors", component: Auditors, meta: {
             displayInSidenav: "Governance",
-            restricted: isNode,
+            restricted: any(hasRole(ROLES.AUDITED_NODE), hasRole(ROLES.NEW_NODE)),
             forceRedirectTo: "dashboard",
-            hidden: any(walletIsntConnected, isNotNode)
+            hidden: not(any(hasRole(ROLES.AUDITED_NODE), hasRole(ROLES.NEW_NODE)))
+        }
+    },
+    {
+        name: "confiscated-pledge", path: "/confiscated", component: ConfiscatedPledge, meta: {
+            displayInSidenav: "Governance",
+            restricted: any(hasRole(ROLES.AUDITED_NODE), hasRole(ROLES.NEW_NODE)),
+            forceRedirectTo: "dashboard",
+            hidden: not(any(hasRole(ROLES.AUDITED_NODE), hasRole(ROLES.NEW_NODE)))
         }
     },
     // Auditors views
     {
-        name: "status", path: "/status", component: Status, meta: {
-            displayInSidenav: "Audit",
-            restricted: ({ store }) => !isNode({ store }),
-            forceRedirectTo: "dashboard",
-            hidden: any(walletIsntConnected, isNode)
-        }
-    },
-    {
         name: "pledge", path: "/pledge", component: Pledge, meta: {
             displayInSidenav: "Audit",
-            restricted: approvedAuditor,
+            restricted: hasRole(ROLES.APPROVED_AUDITOR),
             forceRedirectTo: "status",
-            hidden: any(walletIsntConnected, isNode)
+            hidden: not(any(hasRole(ROLES.PENDING_AUDITOR), hasRole(ROLES.APPROVED_AUDITOR)))
         }
     },
     {
         name: "audit", path: "/audit", component: Audit, meta: {
             displayInSidenav: "Audit",
-            restricted: approvedAuditor,
+            restricted: hasRole(ROLES.APPROVED_AUDITOR),
             forceRedirectTo: "status",
-            hidden: any(walletIsntConnected, isNode)
+            hidden: not(any(hasRole(ROLES.PENDING_AUDITOR), hasRole(ROLES.APPROVED_AUDITOR)))
         }
     },
     {
         name: "history", path: "/history", component: History, meta: {
             displayInSidenav: "Audit",
-            restricted: approvedAuditor,
+            restricted: hasRole(ROLES.APPROVED_AUDITOR),
             forceRedirectTo: "status",
-            hidden: any(walletIsntConnected, isNode)
+            hidden: not(any(hasRole(ROLES.PENDING_AUDITOR), hasRole(ROLES.APPROVED_AUDITOR)))
         }
     },
     // GdC: For some unknown reason the redirection should not be 'authentication' directly but it works with dashboard

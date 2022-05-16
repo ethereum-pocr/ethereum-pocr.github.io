@@ -1,4 +1,5 @@
 import { make } from "vuex-pathify";
+import { toEther } from "@/lib/numbers";
 import {
     handleMMResponse,
     readOnlyCall,
@@ -45,6 +46,12 @@ const actions = {
             };
         }
         $store.set("nodeGovernance/auditors", auditors);
+    },
+
+    async fetchConfiscatedPledge() {
+        const confiscated = await readOnlyCall("confiscatedAmount");
+        console.log("confiscated pledge", confiscated, typeof confiscated);
+        return toEther(confiscated)
     },
 
     async voteAuditor(context, {auditorAddress, accept}) {

@@ -6,6 +6,7 @@ import { getDefaultNetwork, changeDefaultNetwork } from "@/lib/config-file";
 
 import $store from "@/store/index";
 import router from "../router.js";
+import {ROLES} from "../lib/const"
 
 const state = () => ({
     provider: null,
@@ -19,11 +20,23 @@ const state = () => ({
     registered: false,
     // roles
     isNode: false,
+    isVoterNode: false,
     isAuditor: false,
+    isAuditorApproved: false,
     walletAuthenticationFunction: null
 })
 
-const getters = {}
+const getters = {
+    walletRole(state) {
+        if (!state.wallet) return ROLES.VISITOR;
+        if (state.isVoterNode) return ROLES.AUDITED_NODE;
+        if (state.isNode) return ROLES.NEW_NODE;
+        if (state.isAuditorApproved) return ROLES.APPROVED_AUDITOR;
+        if (state.isAuditor) return ROLES.PENDING_AUDITOR;
+
+        return ROLES.USER_CONNECTED;
+    }
+}
 
 const mutations = make.mutations(state);
 
@@ -70,23 +83,36 @@ async function detectDirectAccess() {
 const actions = {
 
     async fetchRole() {
+        console.log("fetchRole called");
         // Possibles roles are simple visitor (no wallet), authenticated visitor, auditor, node operator
         // Reset the states
         $store.set("auth/isAuditor", false);
         $store.set("auth/isNode", false);
+        $store.set("auth/isVoterNode", false);
+
         // get the current address
         const wallet = $store.get("auth/wallet");
+        let sealerNode = await $store.dispatch("nodes/fetchOneNodeInfo", wallet);
+        if (!sealerNode) { // wallet is not a node, is the wallet a delegate of a node
+            const delegateOf = await readOnlyCall("delegateOf", wallet);
+            sealerNode = await $store.dispatch("nodes/fetchOneNodeInfo", delegateOf);
+        }
         if (wallet) {
             // check if it's Auditor
             const isAuditor = await readOnlyCall("auditorRegistered", wallet);
+            const isAuditorApproved = await readOnlyCall("auditorApproved", wallet);
             // get the value of the footprint
-            const isNode = await readOnlyCall("canActAsSealerNode", wallet);
-            // let isNode = false;
-            // if value different to 0 then it's a node
-            // if (Node != 0) isNode = true;
+            console.log("sealerNode", sealerNode);
+            if (sealerNode) { // wallet found as sealer or delegate of a sealer
+                $store.set("auth/isNode", true);
+                const isVoterNode = await readOnlyCall("canActAsSealerNode", wallet);
+                $store.set("auth/isVoterNode", isVoterNode);
+                
+            } 
             // set the values to the store
             $store.set("auth/isAuditor", isAuditor);
-            $store.set("auth/isNode", isNode);
+            $store.set("auth/isAuditorApproved", isAuditorApproved);
+
         }
     },
 
@@ -149,7 +175,7 @@ const actions = {
         $store.set("auth/provider", provider.provider);
         $store.set("auth/providerModel", provider.providerModel);
         // TODO: call fetchRole here to do a selective redirect? Or, just assume it's a first connect and don't care.
-        dispatch("fetchRole");
+        await dispatch("fetchRole");
         router.push({ name: "dashboard" });
     },
 
@@ -172,8 +198,13 @@ const actions = {
                 $store.set("auth/wallet", wallet);
             }
         }
-        dispatch("fetchRole");
+        await dispatch("fetchRole");
         router.push({ name: "dashboard" });
+    },
+
+    async disconnect() {
+        $store.set("auth/wallet", null);
+        router.push({ name: "authentication" });
     },
 
     async fetchIsRegistered({ state }) {

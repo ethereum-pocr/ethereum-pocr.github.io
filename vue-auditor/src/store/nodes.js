@@ -46,6 +46,7 @@ const getters = {
 const mutations = make.mutations(state);
 
 async function processBlock(web3, block) {
+    console.log("ProcessBloc", block.number);
     const intf = _intf($store.get("auth/provider"));
     const carbonFootprint = $store.get("auth/contract");
 
@@ -54,6 +55,7 @@ async function processBlock(web3, block) {
         if (typeof block.difficulty === "string" && !block.difficulty.startsWith('0x')) block.difficulty = Number.parseInt(block.difficulty);
         data.sealer = poaBlockHashToSealerInfo(block);
         const blockNumber = typeof block.number === "string" ? Number.parseInt(block.number) : block.number;
+        data.block.number = blockNumber;
         const balance = web3.utils.toBN(await web3.eth.getBalance(data.sealer.address, blockNumber))
         // Total and delta
         const totalCrypto = web3.utils.toBN(await web3.eth.getBalance(carbonFootprint.deployedAt, blockNumber))
@@ -79,10 +81,10 @@ async function processBlock(web3, block) {
 }
 
 const actions = {
-    fetchAllValues({ dispatch }) {
-        dispatch("fetchNumberOfNodes");
-        dispatch("fetchTotalFootprint");
-        dispatch("fetchNodeInformations");
+    async fetchAllValues({ dispatch }) {
+        await dispatch("fetchNumberOfNodes");
+        await dispatch("fetchTotalFootprint");
+        await dispatch("fetchNodeInformations");
     },
 
     async fetchNumberOfNodes() {
@@ -122,13 +124,15 @@ const actions = {
     },
 
     async fetchChainInformations({ rootState }) {
+        console.log("fetchChainInformations called");
         const web3 = new Web3(rootState.auth.provider);
-        const blocks = [];
-
+        // gets the eventually already available blocks to only request the new ones
+        const blocks = [...(rootState.nodes.blocks||[])];
+        const lastBlockInMemory = blocks.length>0 ? blocks[blocks.length-1].block.number : 0;
         const blockNumber = await web3.eth.getBlockNumber();
         this.blockNumber = blockNumber;
 
-        let index = Math.max(0, blockNumber - MAX_BLOCKS_TO_KEEP);
+        let index = Math.max(lastBlockInMemory, blockNumber - MAX_BLOCKS_TO_KEEP);
         console.log("From block", index, "to", blockNumber);
 
         for (; index < blockNumber; index++) {
@@ -137,20 +141,29 @@ const actions = {
         }
         $store.set("nodes/blocks", blocks);
     },
-
-    async fetchNodeInformations({ rootState }) {
-        const web3 = new Web3(rootState.auth.provider);
-        const blockNumber = await web3.eth.getBlockNumber();
-
+    async fetchOneNodeInfo({rootState, dispatch}, address) {
+        // ensure blocks are loaded, because it needs the blocks to find the node
+        await dispatch("fetchNodeInformations");
+        const sealers = rootState.nodes.sealers;
+        let found = sealers.find(s=>s.address == address.toLowerCase());
+        return found? {...found}: found;
+    },
+    async fetchNodeInformations({ rootState, dispatch }) {
+        console.log("fetchNodeInformations called");
+        await dispatch("fetchChainInformations");
+        // const web3 = new Web3(rootState.auth.provider);
+        // const blockNumber = await web3.eth.getBlockNumber();
+        const blocks = [...rootState.nodes.blocks];
         const sealers = {};
         const seenSealers = {};
 
         let i = 0;
         let maxSealerSeenCounter = 0;
         while (maxSealerSeenCounter <= 2) { // makes at least 2 full loops of PoA signature
-            const index = blockNumber - i;
-            const block = await web3.eth.getBlock(index, false);
-            const data = await processBlock(web3, block);
+            // const index = blockNumber - i;
+            // const block = await web3.eth.getBlock(index, false);
+            const data = blocks.pop(); // await processBlock(web3, block);
+            if (!data) return;
             console.log("block", data.block.number, "sealer", data.sealer);
 
             if (i === 0) {

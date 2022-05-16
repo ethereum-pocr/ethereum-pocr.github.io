@@ -4,6 +4,25 @@
       <app-menu></app-menu>
       <v-app-bar app clipped-left flat color="teal lighten-2">
         <v-toolbar-title>Proof of Carbon Reduction</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-chip
+          class="ma-2"
+          color="blue"
+          text-color="white"
+        >
+          {{walletRole}}
+        </v-chip> 
+        <v-chip
+          v-if="wallet"
+          class="ma-2"
+          close
+          color="blue"
+          text-color="white"
+          @click:close="disconnect"
+        >
+          {{wallet}}
+        </v-chip>
+
       </v-app-bar>
 
       <v-main>
@@ -42,10 +61,11 @@ export default {
   computed: {
     ...sync(["displaySnackbar", "snackbarMessage", "snackbarColor"]),
     ...get(["mmIsOpen"]),
+    ...get("auth", ["wallet", "walletRole"])
   },
 
   methods: {
-    ...call("auth", ["detectProvider"]),
+    ...call("auth", ["detectProvider", "disconnect"]),
   },
 
   mounted() {
