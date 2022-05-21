@@ -1,10 +1,14 @@
 
 {
+  "explorers": {
+    "1804": "https://ethereum-pocr.github.io/explorer"
+  },
   "networks": [
     {
       "name": "Kerleano (Khaled node)",
       "nodeUrl": "wss://kerleano-ws.awnen.com",
       "walletCustodyAPIBaseUrl": "http://localhost:8081",
+      "explorerUrl": "https://ethereum-pocr.github.io/explorer",
       "token": "CRC",
       "chainID": "1804",
       "default": true
