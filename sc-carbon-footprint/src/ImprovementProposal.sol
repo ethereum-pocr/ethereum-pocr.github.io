@@ -102,11 +102,12 @@ contract ImprovementProposal is IImprovementProposal {
     status = evaluateStatus(ip);
   }
 
-  function senderType() virtual internal view returns(SenderType) {
-    return SenderType.Node;
+  function senderType() virtual internal view returns(SenderType sType, address actual) {
+    return (SenderType.Node, msg.sender);
   }
   function newProposal() public {
-    require(senderType() != SenderType.Invalid, "not allowed to create a proposal");
+    (SenderType s,) = senderType();
+    require(s != SenderType.Invalid, "not allowed to create a proposal");
     IP storage ip = ips[nbIPs];
     ip.index = nbIPs ++;
     ip.createdAtBlock = block.number;
@@ -118,7 +119,7 @@ contract ImprovementProposal is IImprovementProposal {
     require(_index < nbIPs, "invalid index");
     IP storage ip = ips[_index];
     require(voteAllowed(ip), "vote is closed");
-    SenderType s = senderType();
+    (SenderType s, address actualVoter) = senderType();
     require(s != SenderType.Invalid, "not allowed to vote");
 
     if ( ip.firstVoteAtBlock == 0 ) {
@@ -128,7 +129,7 @@ contract ImprovementProposal is IImprovementProposal {
     }
 
     if (s == SenderType.Auditor) {
-      int8 currentVote = ip.auditorVotes[msg.sender];
+      int8 currentVote = ip.auditorVotes[actualVoter];
       if (currentVote == 1) {
         // already the same vote, do nothing
         return;
@@ -137,16 +138,16 @@ contract ImprovementProposal is IImprovementProposal {
         // invert the vote 
         ip.auditorsVoteAgainst --;
         ip.auditorsVoteFor ++;
-        ip.auditorVotes[msg.sender] = 1;
+        ip.auditorVotes[actualVoter] = 1;
       }
       if (currentVote == 0) {
         // no previous vote
         ip.auditorsVoteFor ++;
-        ip.auditorVotes[msg.sender] = 1;
+        ip.auditorVotes[actualVoter] = 1;
       }
     } 
     if (s == SenderType.Node) {
-      int8 currentVote = ip.nodeVotes[msg.sender];
+      int8 currentVote = ip.nodeVotes[actualVoter];
       if (currentVote == 1) {
         // already the same vote, do nothing
         return;
@@ -155,22 +156,22 @@ contract ImprovementProposal is IImprovementProposal {
         // invert the vote 
         ip.nodesVoteAgainst --;
         ip.nodesVoteFor ++;
-        ip.nodeVotes[msg.sender] = 1;
+        ip.nodeVotes[actualVoter] = 1;
       }
       if (currentVote == 0) {
         // no previous vote
         ip.nodesVoteFor ++;
-        ip.nodeVotes[msg.sender] = 1;
+        ip.nodeVotes[actualVoter] = 1;
       }
     }
-    emit IPVote(_index, msg.sender, s, 1);
+    emit IPVote(_index, actualVoter, s, 1);
   }
 
   function voteAgainstProposal(uint _index) public {
     require(_index < nbIPs, "invalid index");
     IP storage ip = ips[_index];
     require(voteAllowed(ip), "vote is closed");
-    SenderType s = senderType();
+    (SenderType s, address actualVoter) = senderType();
     require(s != SenderType.Invalid, "not allowed to vote");
 
     if ( ip.firstVoteAtBlock == 0 ) {
@@ -180,7 +181,7 @@ contract ImprovementProposal is IImprovementProposal {
     }
 
     if (s == SenderType.Auditor) {
-      int8 currentVote = ip.auditorVotes[msg.sender];
+      int8 currentVote = ip.auditorVotes[actualVoter];
       if (currentVote == -1) {
         // already the same vote, do nothing
         return;
@@ -189,16 +190,16 @@ contract ImprovementProposal is IImprovementProposal {
         // invert the vote 
         ip.auditorsVoteFor --;
         ip.auditorsVoteAgainst ++;
-        ip.auditorVotes[msg.sender] = -1;
+        ip.auditorVotes[actualVoter] = -1;
       }
       if (currentVote == 0) {
         // no previous vote
         ip.auditorsVoteAgainst ++;
-        ip.auditorVotes[msg.sender] = -1;
+        ip.auditorVotes[actualVoter] = -1;
       }
     } 
     if (s == SenderType.Node) {
-      int8 currentVote = ip.nodeVotes[msg.sender];
+      int8 currentVote = ip.nodeVotes[actualVoter];
       if (currentVote == -1) {
         // already the same vote, do nothing
         return;
@@ -207,16 +208,16 @@ contract ImprovementProposal is IImprovementProposal {
         // invert the vote 
         ip.nodesVoteFor --;
         ip.nodesVoteAgainst ++;
-        ip.nodeVotes[msg.sender] = -1;
+        ip.nodeVotes[actualVoter] = -1;
       }
       if (currentVote == 0) {
         // no previous vote
         ip.nodesVoteAgainst ++;
-        ip.nodeVotes[msg.sender] = -1;
+        ip.nodeVotes[actualVoter] = -1;
       }
     }
 
-    emit IPVote(_index, msg.sender, s, -1);
+    emit IPVote(_index, actualVoter, s, -1);
 
   }
 }

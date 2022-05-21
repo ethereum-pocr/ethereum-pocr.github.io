@@ -6,7 +6,7 @@ const Ganache = require("ganache-core");
 
 const allContracts = require("./contracts");
 
-const POCRContractNameActual = "Governance"; 
+const POCRContractNameActual = process.env.POCR_CONTRACT_NAME || "Governance"; 
 
 
 
@@ -17,6 +17,7 @@ async function bytecode() {
     Promise.resolve(list[0])
   );
   if (allContracts.get(POCRContractNameActual)) {
+    console.error("Processing contract", POCRContractNameActual);
     const POCR = allContracts.get(POCRContractNameActual);
     const instance = await POCR.deploy(intf.newi({ maxGas: 3000000 }));
     const code = await web3.eth.getCode(instance.deployedAt)

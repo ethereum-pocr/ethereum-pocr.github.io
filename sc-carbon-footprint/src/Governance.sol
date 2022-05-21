@@ -85,17 +85,23 @@ contract Governance is
         return _votes >= (nbNodes / 2 + 1);
     }
 
-    /** called to decide is the sender is a node or an auditor, used by improvement proposal */
-    function senderType() internal view override returns (SenderType) {
+    /** called to decide is the sender is a node or an auditor, used by improvement proposal 
+     * It returns the type and the actual address of the type, ie the sender or the delegated node address
+    */
+    function senderType() internal view override returns (SenderType sType, address actual) {
         if (auditorApproved(msg.sender)) {
-            return SenderType.Auditor;
+            return (SenderType.Auditor, msg.sender);
         }
 
         if (canActAsSealerNode(msg.sender)) {
-            return SenderType.Node;
+            address node = delegateOf(msg.sender);
+            if (node == address(0)) {
+                node = msg.sender;
+            }
+            return (SenderType.Node, node);
         }
 
-        return SenderType.Invalid;
+        return (SenderType.Invalid, msg.sender);
     }
 
     function canVoteAuditor() internal view override returns(bool) {
