@@ -9,6 +9,9 @@ export const ROLES = {
   USER_CONNECTED : "User",
 }
 
+export const CRIPBaseUrl = "https://github.com/ethereum-pocr/CRIPs/blob/main/CRIPS"
+
+
 export const governanceAddress = "0x0000000000000000000000000000000000000100";
 export const totalCRCAddress = "0x0000000000000000000000000000000000000101";
 const sessionVariableTotalPocRCoins = "GeneratedPocRTotal";

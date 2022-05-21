@@ -1,8 +1,9 @@
 // import ready from "document-ready-promise";
 import detectEthereumProvider from '@metamask/detect-provider';
+import Web3 from "web3";
 import { make } from "vuex-pathify";
 import { readOnlyCall, writeCallWithOptions, handleMMResponse, getWeb3ProviderFromUrl, verifyCustodyAuthentication, getCustodyLastWallets } from "@/lib/api";
-import { getDefaultNetwork, changeDefaultNetwork } from "@/lib/config-file";
+import { getDefaultNetwork, changeDefaultNetwork, getExplorerUrl } from "@/lib/config-file";
 
 import $store from "@/store/index";
 import router from "../router.js";
@@ -36,6 +37,15 @@ const getters = {
         if (state.isAuditor) return ROLES.PENDING_AUDITOR;
 
         return ROLES.USER_CONNECTED;
+    },
+    explorerUrl(state) {
+        if (state.providerModel == "metamask") {
+            return state.providerMetamask.explorerUrl;
+        }
+        if (state.providerModel == "direct") {
+            return state.providerDirect.explorerUrl;
+        }
+        return undefined;
     }
 }
 
@@ -43,14 +53,23 @@ const mutations = make.mutations(state);
 
 // function to generalize the web3 provider and signature api options
 async function detectMetamask() {
+    const config = $store.get("config");
     const providerMetamask = await detectEthereumProvider();
     if (providerMetamask) {
+        providerMetamask.on("connect", chaininfo=>{
+            console.log("Metamask chain info", chaininfo);
+        })
         providerMetamask.on('accountsChanged', () => window.location.reload())
+        const web3 = new Web3(providerMetamask);
+        const chainID = await web3.eth.getChainId();
+
         return {
             providerModel: "metamask",
             provider: providerMetamask,
             custodyModel: "metamask",
-            custodyApiUrl: null
+            custodyApiUrl: null,
+            chainID,
+            explorerUrl: getExplorerUrl(config, chainID)
         }
     } else return undefined;
 }
@@ -65,7 +84,9 @@ async function detectDirectAccess() {
             providerModel: "direct",
             provider: getWeb3ProviderFromUrl(defaultNetwork.nodeUrl),
             custodyModel: null,
-            custodyApiUrl: null
+            custodyApiUrl: null,
+            chainID: Number.parseInt(defaultNetwork.chainID),
+            explorerUrl: getExplorerUrl(config) // will use the default network
         }
         // if we also have the wallet custody, then add it in the result
         if (defaultNetwork.walletCustodyAPIBaseUrl) {

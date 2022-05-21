@@ -2,7 +2,7 @@
   <div>
 
   <v-card class="pa-md-4 mx-lg-auto">
-    <v-card-title v-if="walletRole != ROLES.VISITOR"> {{walletRole}} {{wallet}}</v-card-title>
+    <v-card-title v-if="walletRole != ROLES.VISITOR"> {{walletRole}} {{wallet}} <explorer type="account" :id="wallet"></explorer></v-card-title>
     <v-card-title v-else> Visitor</v-card-title>
     <v-card-subtitle >
       {{currentWalletBalanceEth}} CRC
@@ -48,8 +48,10 @@ import { get, call } from "vuex-pathify";
 import { toEther } from "../lib/numbers";
 import { ROLES } from "../lib/const";
 import { getCallData } from "../lib/api"
+import Explorer from "../components/ExplorerRedirect.vue";
 
 export default {
+  components: {Explorer},
   data: ()=>({
     registerDelegateCommandLine: ""
   }),

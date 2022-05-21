@@ -6,7 +6,7 @@ import { readOnlyCall, intf as _intf, writeCall, handleMMResponse, getWalletBala
 import { totalCRCAddress, GeneratedCRCTotalHash } from "@/lib/const";
 import $store from "@/store/index";
 
-const MAX_BLOCKS_TO_KEEP = 40;
+const MAX_BLOCKS_TO_KEEP = 10;
 
 const state = () => ({
     nbOfNodes: 0,

@@ -55,7 +55,8 @@ const actions = {
                 blockNumber: log.blockNumber,
                 auditor: tx?tx.from.toLowerCase():'no sealer!',
                 node: log.returnValues.node.toLowerCase(),
-                footprint: log.returnValues.footprint
+                footprint: log.returnValues.footprint,
+                txHash: log.transactionHash
             };
             const foundSealer = sealers.find(s=>s.address == footprint.node);
             if (foundSealer) {
@@ -84,12 +85,13 @@ const actions = {
         // get the logs of the current auditor only
         contract.events.AmountPledged(prov.get({fromBlock: 1}), {from: wallet})
         .on("log", async log=>{
-            console.log("get logs ", log, "filter", {from: wallet});
+            // console.log("get logs ", log, "filter", {from: wallet});
             const pledge = {
                 blockNumber: log.blockNumber,
                 auditor: log.returnValues.from,
                 pledge: toEther(log.returnValues.amount),
-                total: toEther(log.returnValues.total)
+                total: toEther(log.returnValues.total),
+                txHash: log.transactionHash
             };
             commit("appendPledge", pledge)
         })

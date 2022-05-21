@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="4">
         <v-card height="200" width="200" class="ma-6">
-          <v-card-subtitle>Block</v-card-subtitle>
+          <v-card-subtitle>Block <explorer type="block" :id="lastBlock?lastBlock.block.number:0"></explorer></v-card-subtitle>
           <v-card-title class="align-center">
             <span class="text-h3 ma-auto" :style="lastBlockNoTurnSealing?'color:red':''">{{
               lastBlock && lastBlock.block.number
@@ -149,8 +149,10 @@
 <script>
 import { get, call } from "vuex-pathify";
 import { handleMM } from '../lib/api';
+import Explorer from "../components/ExplorerRedirect.vue";
 
 export default {
+  components: {Explorer},
   data: () => {
     return {
       nbBlocksToKeep: 100,

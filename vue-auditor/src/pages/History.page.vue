@@ -19,6 +19,9 @@
                   <div>{{ item.node }}</div>
                   <div>{{ item.nodeName }}</div>
               </template>
+              <template v-slot:item.explorer="{ item }">
+                  <explorer type="tx" :id="item.txHash"></explorer>
+              </template>
             </v-data-table>
           </v-card-text>
         </v-card>
@@ -33,6 +36,9 @@
               :items-per-page="-1"
               hide-default-footer
             >
+              <template v-slot:item.explorer="{ item }">
+                    <explorer type="tx" :id="item.txHash"></explorer>
+              </template>
             </v-data-table>
           </v-card-text>
         </v-card>
@@ -43,8 +49,10 @@
 
 <script>
 import { get, call } from "vuex-pathify";
+import Explorer from "../components/ExplorerRedirect.vue";
 
 export default {
+  components: {Explorer},
   data: () => ({
     currentTab: "footprints",
     footprintTableHeaders: [
@@ -52,12 +60,14 @@ export default {
       { text: "Auditor", value: "auditorName" },
       { text: "Node", value: "node" },
       { text: "Assigned", value: "footprint" },
+      { text: "", value: "explorer" },
     ],
     pledgeTableHeaders: [
       { text: "Block N°", value: "blockNumber" },
       // { text: "Auditor address", value: "auditor" },
       { text: "Pledge", value: "pledge" },
       { text: "Total", value: "total" },
+      { text: "", value: "explorer" },
     ],
   }),
 

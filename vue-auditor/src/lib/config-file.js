@@ -21,12 +21,29 @@ export async function cleanUpConfig(config) {
 
   // check the url of the server handling the private keys if not metamask
   if ( !Array.isArray(config.networks)) config.networks = [];
+  const explorers = config.explorers||{};
+  for (const chainId in explorers) {
+    const url = explorers[chainId];
+    if (!parseUrl(url, ["http", "https"])) {
+      delete explorers[chainId];
+    }
+  }
+  config.explorers = explorers;
+
   for (const network of config.networks) {
     if (!parseUrl(network.nodeUrl, ["http", "https", "ws", "wss"])) {
       delete network.nodeUrl;
     }
     if (!parseUrl(network.walletCustodyAPIBaseUrl, ["http", "https"])) {
         delete network.walletCustodyAPIBaseUrl
+    }
+    if (!parseUrl(network.explorerUrl, ["http", "https"])) {
+      delete network.explorerUrl;
+    }
+    if (!network.explorerUrl) { // try to find a url in the explorers field
+      if (config.explorers[network.chainID]) {
+        network.explorerUrl = config.explorers[network.chainID];
+      }
     }
     // may add later some other verifications like the chain id matches the node 
   }
@@ -55,4 +72,17 @@ export function changeDefaultNetwork(config, url) {
 
 export function getNetworkList(config) {
   return config.networks;
+}
+
+export function getExplorerUrl(config, chainID) {
+  if (!config) return undefined;
+  if (!chainID) { // assume the default config
+    const network = getDefaultNetwork(config)
+    if (network) return network.explorerUrl;
+  } else { // use the chain ID
+    if (config.explorers[chainID]) {
+      return config.explorers[chainID];
+    } 
+  }
+  return undefined;
 }
