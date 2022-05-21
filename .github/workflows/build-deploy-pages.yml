@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - "main"
+      - "vue-auditor"
 jobs:
   compile-build:
     runs-on: ubuntu-latest

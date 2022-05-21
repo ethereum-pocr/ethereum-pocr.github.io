@@ -15,12 +15,17 @@
               :items-per-page="-1"
               hide-default-footer
             >
+              <template v-slot:item.node="{ item }">
+                  <div>{{ item.node }}</div>
+                  <div>{{ item.nodeName }}</div>
+              </template>
             </v-data-table>
           </v-card-text>
         </v-card>
       </v-tab-item>
       <v-tab-item value="pledges">
         <v-card>
+          <v-card-title>Your pledge history</v-card-title>
           <v-card-text>
             <v-data-table
               :items="pledgeHistory"
@@ -44,13 +49,15 @@ export default {
     currentTab: "footprints",
     footprintTableHeaders: [
       { text: "Block N°", value: "blockNumber" },
-      { text: "Node address", value: "node" },
-      { text: "Assigned Footprint", value: "footprint" },
+      { text: "Auditor", value: "auditorName" },
+      { text: "Node", value: "node" },
+      { text: "Assigned", value: "footprint" },
     ],
     pledgeTableHeaders: [
       { text: "Block N°", value: "blockNumber" },
-      { text: "Auditor address", value: "node" },
+      // { text: "Auditor address", value: "auditor" },
       { text: "Pledge", value: "pledge" },
+      { text: "Total", value: "total" },
     ],
   }),
 

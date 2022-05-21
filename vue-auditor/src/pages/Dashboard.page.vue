@@ -5,7 +5,7 @@
         <v-card height="200" width="200" class="ma-6">
           <v-card-subtitle>Block</v-card-subtitle>
           <v-card-title class="align-center">
-            <span class="text-h3 ma-auto">{{
+            <span class="text-h3 ma-auto" :style="lastBlockNoTurnSealing?'color:red':''">{{
               lastBlock && lastBlock.block.number
             }}</span>
           </v-card-title>
@@ -13,13 +13,13 @@
             >{{ averageDelaySec.toFixed(2) }} sec</v-card-subtitle
           >
           <v-card-subtitle
-            >Total CTC: {{ totalCrypto.toFixed(4) }}</v-card-subtitle
+            >Total CRC: {{ totalCrypto.toFixed(4) }}</v-card-subtitle
           >
         </v-card>
       </v-col>
       <v-col cols="4">
         <v-card height="200" width="200" class="ma-6">
-          <v-card-subtitle>Nodes</v-card-subtitle>
+          <v-card-subtitle>Audited nodes</v-card-subtitle>
           <v-card-title class="align-center">
             <span class="text-h2 ma-auto">{{ nbOfNodes }}</span>
           </v-card-title>
@@ -60,6 +60,39 @@
           </template>
         </v-sparkline>
       </v-col>
+
+      <v-col cols="12" class="pa-8" v-if="lastBlock">
+        <v-card>
+          <v-card-title>Sealers</v-card-title>
+          <v-card-text>
+            <v-data-table
+              :items="sealers"
+              :headers="sealersHeaders"
+              :items-per-page="-1"
+              hide-default-footer
+            >
+              <template v-slot:item.name="{ item }">
+                <div>{{ item.address }}</div>
+                <div>{{ item.vanity.custom }}</div>
+              </template>
+              <template v-slot:item.ratio="{ item }">
+                <div>{{ (100 * item.sealedBlocks / totalSealedBlocks).toFixed(2) }} %</div>
+                <div>{{ item.sealedBlocks }} / {{ totalSealedBlocks }}</div>
+              </template>
+              <template v-slot:item.balance="{ item }">
+                <div>{{ item.balance.toFixed(4) }}</div>
+              </template>
+              <template v-slot:item.lastReward="{ item }">
+                <div>{{ item.lastReward.toFixed(4) }}</div>
+              </template>
+              <template v-slot:item.lastSealer="{ item }">
+                <v-icon v-if="item.address==lastBlock.sealer.address">mdi-seal</v-icon>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
       <v-col cols="12" class="pa-8" v-if="lastBlock">
         <v-card-title>Block reward per node</v-card-title>
         <v-card-subtitle>
@@ -92,11 +125,11 @@
       </v-col>
 
       <v-col cols="12" class="pa-8">
-        <v-card-title>CTC Creation by block </v-card-title>
+        <v-card-title>CRC Creation by block </v-card-title>
         <v-card-subtitle
           >Last reward:
-          {{ rewardsByBlock[rewardsByBlock.length - 1].toFixed(4) }} CTC;
-          Average: {{ averageReward.toFixed(4) }} CTC; Last
+          {{ rewardsByBlock[rewardsByBlock.length - 1].toFixed(4) }} CRC;
+          Average: {{ averageReward.toFixed(4) }} CRC; Last
           {{ rewardsByBlock.length - 1 }} blocks</v-card-subtitle
         >
         <v-sparkline
@@ -115,6 +148,7 @@
 
 <script>
 import { get, call } from "vuex-pathify";
+import { handleMM } from '../lib/api';
 
 export default {
   data: () => {
@@ -122,15 +156,20 @@ export default {
       nbBlocksToKeep: 100,
       sealerMap: new Map(),
       blocks: [],
-      //   blockNumber: 0,
-      //   sealersLabels: [],
-      //   sealersAddress: [],
-      //   sealersFootprint: [],
       sealersReward: [],
+      sealersHeaders: [
+      { text: "Name", value: "name" },
+      { text: "Footprint", value: "footprint" },
+      { text: "Reward (CRC)", value: "lastReward" },
+      { text: "Balance (CRC)", value: "balance" },
+      { text: "Sealing ratio", value: "ratio" },
+      { text: "Last", value: "lastSealer" },
+    ],
     };
   },
   async mounted() {
-    await this.fetchChainInformations()
+    await handleMM(this.fetchChainInformations)
+    // await this.fetchChainInformations()
     await this.fetchAllValues();
     await this.subscribeToChainUpdates();
   },
@@ -144,7 +183,6 @@ export default {
       "rewardsByBlock",
       "averageReward",
       "averageDelaySec",
-      "lastBlock",
     ]),
     sealersFootprint() {
       return this.sealers.map((s) => s.footprint);
@@ -154,6 +192,12 @@ export default {
     },
     sealersLabels() {
       return this.sealers.map((s) => s.vanity.custom);
+    },
+    totalSealedBlocks() {
+      return this.sealers.reduce( (total, s)=>total+s.sealedBlocks, 0);
+    },
+    lastBlockNoTurnSealing() {
+      return this.lastBlock && this.lastBlock.block.difficulty==1; // 1 means out of turn ; 2 means in turn
     },
   },
   methods: {

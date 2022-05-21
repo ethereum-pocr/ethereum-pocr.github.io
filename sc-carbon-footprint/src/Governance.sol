@@ -53,10 +53,15 @@ contract Governance is
 
         (lastAuditAtBlock, ) = auditorLastAuditInfo(_auditor);
 
-        bool isBlockOK = (block.number >= (lastAuditAtBlock + minimalPeriod));
-        uint256 redeemAtBlock = lastAuditAtBlock + minimalPeriod;
+        if (lastAuditAtBlock == 0) {
+            // there has not been any audit yet, so auditor can redeem its pledge immediatly
+            return (true, 0);
+        } else {
+            bool isBlockOK = (block.number >= (lastAuditAtBlock + minimalPeriod));
+            uint256 redeemAtBlock = lastAuditAtBlock + minimalPeriod;
 
-        return (isBlockOK, redeemAtBlock);
+            return (isBlockOK, redeemAtBlock);
+        }
     }
 
     /** the caller must be a sealer node with a footprint superior to zero (means the node exists)*/

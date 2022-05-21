@@ -107,7 +107,7 @@ export const routes = [
     {
         name: "history", path: "/history", component: History, meta: {
             displayInSidenav: "Audit",
-            restricted: hasRole(ROLES.APPROVED_AUDITOR),
+            restricted: any(hasRole(ROLES.PENDING_AUDITOR), hasRole(ROLES.APPROVED_AUDITOR)),
             forceRedirectTo: "status",
             hidden: not(any(hasRole(ROLES.PENDING_AUDITOR), hasRole(ROLES.APPROVED_AUDITOR)))
         }

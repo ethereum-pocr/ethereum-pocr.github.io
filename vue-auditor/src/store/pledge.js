@@ -51,16 +51,18 @@ const actions = {
         console.log("Pledging", amount)
         await handleMMResponse(writeCallWithOptions("pledge", { amount: toWei(amount, "ether") }));
         dispatch("fetchPledgedAmount");
+        dispatch("fetchBalance");
     },
 
     async redeemPledge({ dispatch }) {
         // when the smart contract is redeployed with the getPledgeBack function replace the below code
         const wallet = $store.get("auth/wallet");
         const amount = $store.get("pledge/pledgedAmount");
-        await  handleMMResponse(writeCall("transferPledge", wallet, amount));
+        await handleMMResponse(writeCall("transferPledge", wallet, toWei(amount, "ether" )));
         // replace with:
         // await handleMMResponse(writeCall("getPledgeBack"));
         dispatch("fetchPledgedAmount");
+        dispatch("fetchBalance");
     }
 }
 

@@ -25,8 +25,9 @@ jobs:
         run: |
           cd sc-carbon-footprint/ && npm install -g solc &&  npm ci && ./build.sh && \
           export SMART_CONTRACT_BYTECODE=$(node extract-bytecode.js) && echo $SMART_CONTRACT_BYTECODE && \
-          envsubst < ../pocr-network/genesis/kerleano.json > kerleano.final.json && \
-          envsubst < ../pocr-network/genesis/genesis-local.json > genesis-local.final.json
+          export GIT_HEAD_HASH=$(git rev-parse  HEAD) && \
+          node inject-bytecode.js ../pocr-network/genesis/kerleano.json && cp ../pocr-network/genesis/kerleano.json kerleano.final.json && \
+          node inject-bytecode.js ../pocr-network/genesis/genesis-local.json && cp ../pocr-network/genesis/genesis-local.json genesis-local.final.json 
       - name: publish genesis kerleano.json
         uses: svenstaro/upload-release-action@v2
         with:

@@ -6,6 +6,8 @@ import allContracts from "sc-carbon-footprint";
 import $store from "@/store/index";
 import { AsyncLocalStorage } from "./async-local-storage";
 
+import { governanceAddress } from "./const";
+
 const LocalStorage = new AsyncLocalStorage();
 
 
@@ -20,7 +22,6 @@ export async function getWalletBalance(walletAddress) {
     // return await wallet.getBalance();
 }
 
-export const governanceAddress = "0x0000000000000000000000000000000000000100";
 
 export function getContractInstanceByName(contractName) {
     const contract = allContracts.get(contractName);
@@ -136,6 +137,17 @@ export function writeCallWithOptions(methodName, options, ...args) {
             reject(err)
         })
     });
+}
+
+async function collectDataFunction(target, data) {
+    const cmd = `eth.sendTransaction({from: eth.coinbase, to:"${target}", data:"${data}"})`
+    return {isTx: true, result: cmd}
+}
+export async function getCallData(methodName, ...args) {
+    const contract = $store.get("auth/contract");
+    const cmd = await contract[methodName]( collectDataFunction, ...args)
+    console.log(cmd)
+    return cmd;
 }
 
 export async function handleMMResponse(promise, errorCallback) {

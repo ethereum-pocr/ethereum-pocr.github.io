@@ -15,5 +15,5 @@ then
 fi
 
 echo "##################################### bootnode = $BOOTNODE_OPTS ##########################################"
-
-geth $BOOTNODE_OPTS --rpc.allow-unprotected-txs --networkid "$networkId" --verbosity ${verbosity:-1}  --http --http.corsdomain="*" --http.addr "0.0.0.0" --http.port 8545 --http.api "eth,web3,net,admin,debug,miner,personal" --http.corsdomain "*" --ws --ws.addr "0.0.0.0" --ws.port 8546 --ws.api "eth,web3,net,admin,debug,miner,personal" --ws.origins "*" --syncmode full --mine --miner.gasprice 1000000000 --miner.etherbase $address --unlock $address --password ~/.accountpassword --allow-insecure-unlock --keystore ${KEYSTORE_PATH:-/app/keystore}
+NAT_OPS="-nat extip:$externalip"
+geth $BOOTNODE_OPTS $NAT_OPS --rpc.allow-unprotected-txs --networkid "$networkId" --verbosity ${verbosity:-1}  --http --http.corsdomain="*" --http.addr "0.0.0.0" --http.port 8545 --http.api "eth,web3,net,admin,debug,miner,personal" --http.corsdomain "*" --ws --ws.addr "0.0.0.0" --ws.port 8546 --ws.api "eth,web3,net,admin,debug,miner,personal" --ws.origins "*" --syncmode full --mine --miner.gasprice 1000000000 --miner.etherbase $address --unlock $address --password ~/.accountpassword --allow-insecure-unlock --keystore ${KEYSTORE_PATH:-/app/keystore}

@@ -6,15 +6,26 @@ const { nodeModuleNameResolver } = require("typescript");
 // takes the target genesis json file from the first param
 
 const governanceAddress = "0000000000000000000000000000000000000100";
+const totalCryptoAddress = "0000000000000000000000000000000000000101";
+const totalCryptoBytecode = "0x60806040";
+
 
 function injectByteCode(genesisFile, bytecode, nonce) {
   const genesis = JSON.parse(fs.readFileSync(genesisFile, "utf8"));
-  if (genesis.alloc && genesis.alloc[governanceAddress]) {
-    genesis.alloc[governanceAddress].code = bytecode;
+  if (!genesis.alloc) {
+    genesis.alloc = {};
   }
-  if (nonce) {
-    genesis.nonce = nonce;
-  }
+  genesis.alloc[governanceAddress] = {
+    balance: "0x0",
+    code: bytecode,
+  };
+  genesis.alloc[totalCryptoAddress] = {
+    balance: "0x0",
+    code: totalCryptoBytecode,
+  };
+  
+  genesis.nonce = nonce;
+
   fs.writeFileSync(genesisFile, JSON.stringify(genesis, null, 2));
   console.log("Genesis file updated", genesisFile);
 }

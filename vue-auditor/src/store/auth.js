@@ -16,6 +16,7 @@ const state = () => ({
     custodyModel: null, // "metamask" or "api" or null if not available
     custodyApiUrl: null, // the url of the custody api when the custody model is "api"
     wallet: null,
+    delegatedWallet: null,
     contract: null,
     registered: false,
     // roles
@@ -92,22 +93,33 @@ const actions = {
 
         // get the current address
         const wallet = $store.get("auth/wallet");
-        let sealerNode = await $store.dispatch("nodes/fetchOneNodeInfo", wallet);
-        if (!sealerNode) { // wallet is not a node, is the wallet a delegate of a node
-            const delegateOf = await readOnlyCall("delegateOf", wallet);
-            sealerNode = await $store.dispatch("nodes/fetchOneNodeInfo", delegateOf);
-        }
         if (wallet) {
             // check if it's Auditor
             const isAuditor = await readOnlyCall("auditorRegistered", wallet);
             const isAuditorApproved = await readOnlyCall("auditorApproved", wallet);
-            // get the value of the footprint
+            // see if the node is a sealer and get the value of the footprint if it exists
+            let sealerNode = await $store.dispatch("nodes/fetchOneNodeInfo", wallet);
             console.log("sealerNode", sealerNode);
+            if (!sealerNode) { // wallet is not a node, is the wallet a delegate of a node
+                try {
+                    const delegateOf = await readOnlyCall("delegateOf", wallet);
+                    console.log("retrieved delegateOf", delegateOf);
+                    sealerNode = await $store.dispatch("nodes/fetchOneNodeInfo", delegateOf);
+                } catch (error) {
+                    console.log("retrieved delegateOf impossible - ealier version of the genesis");
+                }
+            }
             if (sealerNode) { // wallet found as sealer or delegate of a sealer
                 $store.set("auth/isNode", true);
-                const isVoterNode = await readOnlyCall("canActAsSealerNode", wallet);
+                let isVoterNode = false;
+                try { // to keep compatibility with the old genesis
+                    isVoterNode = await readOnlyCall("canActAsSealerNode", wallet);
+                } catch (error) {
+                    const footprint = await readOnlyCall("footprint", wallet);
+                    isVoterNode = footprint > 0;
+                }
                 $store.set("auth/isVoterNode", isVoterNode);
-                
+                $store.set("auth/delegatedWallet", sealerNode.address);
             } 
             // set the values to the store
             $store.set("auth/isAuditor", isAuditor);

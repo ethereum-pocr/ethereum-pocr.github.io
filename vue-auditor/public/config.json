@@ -7,7 +7,7 @@
       "walletCustodyAPIBaseUrl": "http://localhost:8081",
       "token": "CRC",
       "chainID": "1804",
-      "default": false
+      "default": true
     },
     {
       "name": "Kerleano (GdC Node)",
@@ -29,7 +29,7 @@
       "walletCustodyAPIBaseUrl": "http://localhost:8081",
       "token": "CRC",
       "chainID": "1804",
-      "default": true
+      "default": false
     }
   ]
 }

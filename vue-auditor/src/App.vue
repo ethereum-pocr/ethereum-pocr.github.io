@@ -22,6 +22,13 @@
         >
           {{wallet}}
         </v-chip>
+        <v-chip
+          class="ma-2"
+          color="blue"
+          text-color="white"
+        >
+          {{currentBlockNumber}}
+        </v-chip> 
 
       </v-app-bar>
 
@@ -61,7 +68,8 @@ export default {
   computed: {
     ...sync(["displaySnackbar", "snackbarMessage", "snackbarColor"]),
     ...get(["mmIsOpen"]),
-    ...get("auth", ["wallet", "walletRole"])
+    ...get("auth", ["wallet", "walletRole"]),
+    ...get("nodes", ["currentBlockNumber"]),
   },
 
   methods: {

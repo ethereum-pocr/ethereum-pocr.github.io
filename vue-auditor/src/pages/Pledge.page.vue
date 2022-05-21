@@ -11,9 +11,9 @@
         <v-card-title>Pledge Informations</v-card-title>
         <v-card-text>
           <div>
-            Min pledge to start audit: {{ toEther(minPledgeAmount) }}&nbsp;CRC
+            Min pledge to start audit: {{ toEther(minPledgeAmount).toFixed(4) }}&nbsp;CRC
           </div>
-          <div>Current pledged amount: {{ pledgedAmount }}&nbsp;CRC</div>
+          <div>Current pledged amount: {{ pledgedAmount.toFixed(4) }}&nbsp;CRC</div>
           <v-btn
             small
             @click="redeemPledge"
