@@ -156,8 +156,8 @@ sudo mv ./geth-pocr /usr/local/bin
 
 ## Notes on the genesis file
 
-* local chain ID for dev: 1804
-* testnet chain ID: 1974
+* local chain ID for dev: 1974
+* testnet chain ID: 1804
 * production chain ID : 2606
 
 Block period set to 4 seconds for the moment
