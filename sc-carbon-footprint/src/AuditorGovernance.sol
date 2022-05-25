@@ -213,7 +213,7 @@ contract AuditorGovernance is IAuditorGovernance {
         return auditorsStatus[_auditor].approved;
     }
 
-
+    /** @notice this function returns the number of votes for an auditor */
     function auditorVotes(address _auditor)
         public
         view
@@ -223,6 +223,9 @@ contract AuditorGovernance is IAuditorGovernance {
         return auditorsStatus[_auditor].votes;
     }
 
+    /** @notice this function returns the block number when the last audit has been done 
+     * and also the minimum pledge amount required to do an audit
+     */
     function auditorLastAuditInfo(address _auditor)
         public
         view
@@ -235,6 +238,7 @@ contract AuditorGovernance is IAuditorGovernance {
         );
     }
 
+    /** @notice this function calculates and returns the current minimum pledge amount to audit a node */
     function minPledgeAmountToAuditNode(address _auditor)
         public
         view
@@ -247,9 +251,11 @@ contract AuditorGovernance is IAuditorGovernance {
         uint256 minPledge = 1000 ether;
 
         if (nbBlocks < maxNbBlockPerPeriod && minPledgeAtLastAudit > 0) {
-            // there is an amortisation of the previous pledge amount to be added
-            //       = minPledge * (1 - nbBlocks / 650 000) + 1 000
-            // eq   minPledge = 1 000 + minPledge - minPledge * nbBlocks / 650 000
+            /** @notice
+             * there is an amortisation of the previous pledge amount to be added
+             *       = minPledge * (1 - nbBlocks / 650 000) + 1 000
+             * eq   minPledge = 1 000 + minPledge - minPledge * nbBlocks / 650 000
+             */
             minPledge =
                 minPledge +
                 minPledgeAtLastAudit -
@@ -259,6 +265,9 @@ contract AuditorGovernance is IAuditorGovernance {
         return minPledge;
     }
 
+    /** @notice this function is called by CarbonFootprint.sol contract 
+     * and is a requirement to enable an auditor to set a footprint 
+     */
     function auditorSettingFootprint(address _auditor)
         public
         override
@@ -268,15 +277,15 @@ contract AuditorGovernance is IAuditorGovernance {
         AuditorStatus storage s = auditorsStatus[_auditor];
 
         if (s.approved) {
-            // auditor must still be approved
+            /** @notice auditor must still be approved */
             if (
                 me.pledgedAmount(_auditor) <
                 minPledgeAmountToAuditNode(_auditor)
             ) {
-                // not enough pledge in the contract
+                /** @notice not enough pledge in the contract */
                 return false;
             } else {
-                // enough pledge, save the calculation
+               /** @notice enough pledge, save the calculation */
                 s.minPledgeAtLastAudit = minPledgeAmountToAuditNode(_auditor);
                 s.lastAuditAtBlock = block.number;
                 return true;
