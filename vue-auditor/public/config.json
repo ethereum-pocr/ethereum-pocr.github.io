@@ -7,7 +7,7 @@
     {
       "name": "Kerleano (Khaled node)",
       "nodeUrl": "wss://kerleano-ws.awnen.com",
-      "walletCustodyAPIBaseUrl": "http://localhost:8081",
+      "walletCustodyAPIBaseUrl": "https://saturn-dev1.westeurope.cloudapp.azure.com/custody/",
       "explorerUrl": "https://ethereum-pocr.github.io/explorer",
       "token": "CRC",
       "chainID": "1804",

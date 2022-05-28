@@ -183,15 +183,17 @@ const actions = {
         contract.events.CarbonFootprintUpdate(prov.get({fromBlock: 1}), {})
         .on("log", async log=>{
             // try to find the sealer in the list
-            const found = sealers.find(s=>s.address.toLowerCase() == log.returnValues.node.toLowerCase())
+            let found = sealers.find(s=>s.address.toLowerCase() == log.returnValues.node.toLowerCase())
             if (!found) {
                 const sealer = await updateSealerDetails(web3, {
                     address: log.returnValues.node.toLowerCase(), 
                     vanity: {custom:"Unknown innactive node"},
                     sealedBlocks: 0
                 })
+                // check again if it not already added, as the above can execute concurrently
+                found = sealers.find(s=>s.address.toLowerCase() == sealer.address)
                 // we have collected the node data, but maybe it is not a node anymore
-                if (sealer.footprint>0) {
+                if (sealer.footprint>0 && found===undefined) {
                     console.log("Adding an innactive sealer", sealer);
                     // keep in the local array variable 
                     sealers.push(sealer);
