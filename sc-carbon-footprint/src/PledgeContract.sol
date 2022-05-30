@@ -3,7 +3,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "./intf/IPledgeContract.sol";
-import "./utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract PledgeContract is IPledgeContract, ReentrancyGuard {
     uint256 private totalConfiscatedAmount;
