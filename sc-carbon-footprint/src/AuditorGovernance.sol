@@ -6,12 +6,21 @@ import "./intf/ICarbonFootprint.sol";
 import "./intf/IAuditorGovernance.sol";
 import "./intf/IPledgeContract.sol";
 
+
 contract AuditorGovernance is IAuditorGovernance {
     struct NodeVote {
         bool vote;
         uint256 atBlock;
     }
 
+    /**
+     * @notice
+     * The struct AuditorStatus maintains all registration data relative to one auditor
+     *
+     * @dev
+     * The struct contains the voters mapping, which gets all node's addresses and vote
+     * once they have voted
+     */
     struct AuditorStatus {
         bool registered;
         uint256 votes;
@@ -31,6 +40,8 @@ contract AuditorGovernance is IAuditorGovernance {
 
     uint256 private nbApprovedAuditors;
 
+    /** @notice this function enables an auditor to register by itself
+     * if it's the first auditor, then it is instantly approved */
     function selfRegisterAuditor() public override {
         AuditorStatus storage s = auditorsStatus[msg.sender];
 
@@ -51,6 +62,9 @@ contract AuditorGovernance is IAuditorGovernance {
         }
     }
 
+    /** @notice this function set the auditor status to approved 
+     *  @dev this function is internal and called in functions selfRegisterAuditor and voteAuditor
+     */
     function approveAuditor(address _auditor) private {
         AuditorStatus storage s = auditorsStatus[_auditor];
 
@@ -64,8 +78,13 @@ contract AuditorGovernance is IAuditorGovernance {
         }
     }
 
+    /** @dev this function is implemented in Governance.sol contract */
     function onAuditorRejected(address _auditor) internal virtual {}
 
+    /** @notice the objective of this function is to set the status on an auditor to rejected 
+     * after a majority of votes against him 
+     *  @dev this function is internal and called in function voteAuditor
+     */
     function rejectAuditor(address _auditor) private {
         AuditorStatus storage s = auditorsStatus[_auditor];
 
@@ -78,15 +97,17 @@ contract AuditorGovernance is IAuditorGovernance {
             emit AuditorApproved(_auditor, false);
         }
     }
+
     /**
-     * Virtual function overriden in the Governance.sol to tell if the msg.sender can vote an auditor with its address
+     * @dev Virtual function overriden in the Governance.sol 
+     * to tell if the msg.sender can vote an auditor with its address
      */
     function canVoteAuditor() virtual internal view returns(bool) {
         return true;
     }
 
     /**
-     * Only a node with a footprint can vote on an auditor
+     * @notice Only a node with a footprint can vote on an auditor
      * Only an auditor registered can be voted on
      * A non approved auditor that reaches enough votes (N/2+1) becomes approved
      * An approved auditor that reaches enougth votes (N/2+1) becomes un approved
@@ -106,7 +127,7 @@ contract AuditorGovernance is IAuditorGovernance {
         bool currentVote = currentAuditorVote(_auditor, msg.sender);
         uint256 minVotes = me.nbNodes() / 2 + 1;
 
-        // the new vote should be the inverse of the current vote or it shall have no effect
+        /** @notice the new vote should be the inverse of the current vote or it shall have no effect */
         if (_accept != currentVote) {
             (s.voters[msg.sender].vote, s.voters[msg.sender].atBlock) = (
                 _accept,
@@ -116,7 +137,7 @@ contract AuditorGovernance is IAuditorGovernance {
             emit AuditorVoted(_auditor, msg.sender, _accept);
 
             if (!s.approved) {
-                // not yet approved : accept should increase the number of votes
+                /** @notice not yet approved : accept should increase the number of votes */
                 if (_accept) {
                     s.votes++;
                 } else {
@@ -127,7 +148,7 @@ contract AuditorGovernance is IAuditorGovernance {
                     approveAuditor(_auditor);
                 }
             } else {
-                // already approved : accept should decrease the number of votes
+                /** @notice already approved : accept should decrease the number of votes */
                 if (_accept) {
                     s.votes--;
                 } else {
@@ -141,6 +162,7 @@ contract AuditorGovernance is IAuditorGovernance {
         }
     }
 
+    /** @dev returns the auditor address from an index */
     function auditorAddress(uint256 _index)
         public
         view
@@ -150,6 +172,7 @@ contract AuditorGovernance is IAuditorGovernance {
         return auditorsAddresses[_index];
     }
 
+    /** @notice this function returns the vote of a node for an auditor */
     function currentAuditorVote(address _auditor, address _node)
         public
         view
@@ -158,18 +181,19 @@ contract AuditorGovernance is IAuditorGovernance {
     {
         AuditorStatus storage s = auditorsStatus[_auditor];
 
-        // If the node has not yet vote since last auditor status update, the current node vote is considered agreed with the current status (no vote for status change)
+        /** @notice If the node has not yet vote since last auditor status update, the current node vote is considered agreed with the current status (no vote for status change) */
         if (
-            s.voters[_node].atBlock == 0 || // The node has never voted at all (lastVote.atBlock is zero)
-            s.voters[_node].atBlock <= s.statusUpdateBlock // The node has not vote since last auditor status update (s.voters[msg.sender].atBlock <= s.statusUpdateBlock)
+            s.voters[_node].atBlock == 0 || /** @notice The node has never voted at all (lastVote.atBlock is zero) */
+            s.voters[_node].atBlock <= s.statusUpdateBlock /** @notice The node has not vote since last auditor status update (s.voters[msg.sender].atBlock <= s.statusUpdateBlock) */
         ) {
-            // the current node vote is considered agreed with the current status (no vote for status change)
+            /** @notice the current node vote is considered agreed with the current status (no vote for status change) */
             return s.approved;
         }
 
         return s.voters[msg.sender].vote;
     }
 
+    /** @notice this function returns true or false depending on whether the auditor is regitered */
     function auditorRegistered(address _auditor)
         public
         view
@@ -179,6 +203,7 @@ contract AuditorGovernance is IAuditorGovernance {
         return auditorsStatus[_auditor].registered;
     }
 
+    /** @notice this function returns true or false depending on whether the auditor is approved */
     function auditorApproved(address _auditor)
         public
         view
@@ -188,6 +213,7 @@ contract AuditorGovernance is IAuditorGovernance {
         return auditorsStatus[_auditor].approved;
     }
 
+    /** @notice this function returns the number of votes for an auditor */
     function auditorVotes(address _auditor)
         public
         view
@@ -197,6 +223,9 @@ contract AuditorGovernance is IAuditorGovernance {
         return auditorsStatus[_auditor].votes;
     }
 
+    /** @notice this function returns the block number when the last audit has been done 
+     * and also the minimum pledge amount required to do an audit
+     */
     function auditorLastAuditInfo(address _auditor)
         public
         view
@@ -209,6 +238,7 @@ contract AuditorGovernance is IAuditorGovernance {
         );
     }
 
+    /** @notice this function calculates and returns the current minimum pledge amount to audit a node */
     function minPledgeAmountToAuditNode(address _auditor)
         public
         view
@@ -221,9 +251,11 @@ contract AuditorGovernance is IAuditorGovernance {
         uint256 minPledge = 1000 ether;
 
         if (nbBlocks < maxNbBlockPerPeriod && minPledgeAtLastAudit > 0) {
-            // there is an amortisation of the previous pledge amount to be added
-            //       = minPledge * (1 - nbBlocks / 650 000) + 1 000
-            // eq   minPledge = 1 000 + minPledge - minPledge * nbBlocks / 650 000
+            /** @notice
+             * there is an amortisation of the previous pledge amount to be added
+             *       = minPledge * (1 - nbBlocks / 650 000) + 1 000
+             * eq   minPledge = 1 000 + minPledge - minPledge * nbBlocks / 650 000
+             */
             minPledge =
                 minPledge +
                 minPledgeAtLastAudit -
@@ -233,6 +265,9 @@ contract AuditorGovernance is IAuditorGovernance {
         return minPledge;
     }
 
+    /** @notice this function is called by CarbonFootprint.sol contract 
+     * and is a requirement to enable an auditor to set a footprint 
+     */
     function auditorSettingFootprint(address _auditor)
         public
         override
@@ -242,15 +277,15 @@ contract AuditorGovernance is IAuditorGovernance {
         AuditorStatus storage s = auditorsStatus[_auditor];
 
         if (s.approved) {
-            // auditor must still be approved
+            /** @notice auditor must still be approved */
             if (
                 me.pledgedAmount(_auditor) <
                 minPledgeAmountToAuditNode(_auditor)
             ) {
-                // not enough pledge in the contract
+                /** @notice not enough pledge in the contract */
                 return false;
             } else {
-                // enough pledge, save the calculation
+               /** @notice enough pledge, save the calculation */
                 s.minPledgeAtLastAudit = minPledgeAmountToAuditNode(_auditor);
                 s.lastAuditAtBlock = block.number;
                 return true;
