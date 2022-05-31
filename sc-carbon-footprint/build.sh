@@ -15,6 +15,11 @@ then
 
   echo "- Verify compilation and script by displaying the loaded contracts"
   node -e 'console.log("  > "+require("./contracts/index.js").names().join("\n  > "))'
+
+  export POCR_CONTRACT_NAME=GovernanceLocalNetwork
+  export SMART_CONTRACT_BYTECODE=$(node extract-bytecode.js)
+  export GIT_HEAD_HASH=$(git rev-parse  HEAD)
+  node inject-bytecode.js ../pocr-network/genesis/saturndev-all-sealers-authorized.json 
 fi
 
 

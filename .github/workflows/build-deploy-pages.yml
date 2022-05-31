@@ -1,0 +1,56 @@
+name: deploy-github-pages
+on: 
+  push:
+    branches:
+      - "main"
+      - "vue-auditor"
+jobs:
+  compile-build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo displaying the cache key vue-build-result-${{ github.ref_name }}-${{ github.sha }}
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-latest
+      - run: curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(cat solc-file)
+      - run: chmod +x solc && mkdir -p $HOME/.local/bin
+      - run: mv solc $HOME/.local/bin/solc 
+      - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - run: echo $PATH && solc --version
+
+      - run: cd pocr-utils && npm i && npm run build 
+      - run: cd sc-carbon-footprint && npm i && npm run build 
+      - run: cd vue-auditor && npm install && npm run build
+      - run: cd vue-auditor/dist && ls -als
+      - uses: actions/cache@v3
+        with:
+          path: vue-auditor/dist
+          key: vue-build-result-${{ github.ref_name }}-${{ github.sha }}
+
+  upload-gh-pages:
+    runs-on: ubuntu-latest
+    needs:
+      - compile-build
+    # defaults:
+    #   run:
+    #     working-directory: vue-auditor/dist
+    steps:
+      - uses: actions/checkout@v3
+      - run: git config user.email "actions@github.com"
+      - run: git config user.name "GitHub Actions"
+      - run: git fetch --prune --depth=1 origin gh-pages || git checkout --orphan gh-pages
+      - run: git checkout gh-pages 
+      - run: git rm -rf .
+      - uses: actions/cache@v3
+        with:
+          path: vue-auditor/dist
+          key: vue-build-result-${{ github.ref_name }}-${{ github.sha }}
+      - run: pwd
+      - run: ls -als vue-auditor/dist
+      - run: |
+          git --work-tree vue-auditor/dist add --all
+          git --work-tree vue-auditor/dist commit -m "Updated from branch ${{ github.ref_name }} - ${{ github.sha }}" > ./commit.out || true
+          grep "nothing to commit" ./commit.out || git push origin HEAD:gh-pages --force
+         

@@ -18,7 +18,7 @@ In the root of the `pocr-monorepo` folder there is a `docker-compose.yml` that b
  The `Dockerfile` uses `multistage` the default stage `runtime` will download the `geth` built priviously and available in the gitlab and the second stage `dev` is to get `geth` from local machine
  To use `dev` stage update in `.env` file the key `SEALER_TARGET` by `dev` instead of `runtime` and then copy your `geth` binary to `pocr-network/sealer/geth`
 
- * pocr-monitoring: frontend app that will monitor the network (local or remote) nodes and show the carbon footprint of each and the `CTC` rewards cumulated by each
+ * pocr-monitoring: frontend app that will monitor the network (local or remote) nodes and show the carbon footprint of each and the `CRC` rewards cumulated by each
 
  * lite-explorer: An opensource solution, to explorer the blocks of the blockchain
 

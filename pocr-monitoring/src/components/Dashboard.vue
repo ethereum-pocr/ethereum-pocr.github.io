@@ -9,12 +9,12 @@
               <span class="text-h3 ma-auto">{{ blockNumber }}</span>
             </v-card-title>
             <v-card-subtitle>{{averageDelaySec.toFixed(2)}} sec</v-card-subtitle>
-            <v-card-subtitle>Total CTC: {{totalCrypto.toFixed(4)}}</v-card-subtitle>
+            <v-card-subtitle>Total CRC: {{totalCrypto.toFixed(4)}}</v-card-subtitle>
           </v-card>
         </v-col>
         <v-col cols="3">
           <v-card elevation="3" height="200" width="200" class="ma-6">
-            <v-card-subtitle>Nodes</v-card-subtitle>
+            <v-card-subtitle>Audited nodes</v-card-subtitle>
             <v-card-title class="align-center">
               <span class="text-h2 ma-auto">{{ nbNodes }}</span>
             </v-card-title>
@@ -82,8 +82,8 @@
         </v-col>
 
         <v-col cols="12" class="pa-8">
-          <v-card-title>CTC Creation by block </v-card-title>
-          <v-card-subtitle>Last reward: {{rewardsByBlock[rewardsByBlock.length-1].toFixed(4)}} CTC; Average: {{averageReward.toFixed(4)}} CTC; Last {{rewardsByBlock.length-1}} blocks</v-card-subtitle>
+          <v-card-title>CRC Creation by block </v-card-title>
+          <v-card-subtitle>Last reward: {{rewardsByBlock[rewardsByBlock.length-1].toFixed(4)}} CRC; Average: {{averageReward.toFixed(4)}} CRC; Last {{rewardsByBlock.length-1}} blocks</v-card-subtitle>
           <v-sparkline
             auto-draw
             type="trend"

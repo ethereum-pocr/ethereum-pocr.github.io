@@ -5,7 +5,7 @@ services:
     image: nginx
     restart: unless-stopped
     depends_on:
-      - pocr-monitoring
+      # - pocr-monitoring
       - sealer-1
       - sealer-2
       - sealer-3    
@@ -44,6 +44,7 @@ services:
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
       - verbosity=3
+      - externalip=172.25.0.102
       # The image is packaged with 2 genesis file 'kerleano.json' and 'local.json'
       # default genesis file is 'local.json' where 3 sealers are authorized
       # you can override the genesis to use 'kerleano.json' where only '0x6e45c195e12d7fe5e02059f15d59c2c976a9b730' is authorized to seal
@@ -75,6 +76,7 @@ services:
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
       - verbosity=3
+      - externalip=172.25.0.103
       # The image is packaged with 2 genesis file 'kerleano.json' and 'local.json'
       # default genesis file is 'local.json' where 3 sealers are authorized
       # you can override the genesis to use 'kerleano.json' where only '0x6e45c195e12d7fe5e02059f15d59c2c976a9b730' is authorized to seal
@@ -105,6 +107,7 @@ services:
       - bootnodePort=${BOOTNODE_PORT}
       - networkId=${NETWORK_ID}
       - verbosity=3
+      - externalip=172.25.0.104
       # The image is packaged with 2 genesis file 'kerleano.json' and 'local.json'
       # default genesis file is 'local.json' where 3 sealers are authorized
       # you can override the genesis to use 'kerleano.json' where only '0x6e45c195e12d7fe5e02059f15d59c2c976a9b730' is authorized to seal
@@ -123,21 +126,22 @@ services:
       chainnet:
         ipv4_address: 172.25.0.104
 
-  pocr-monitoring:
-    depends_on:
-      - sealer-1
-      - sealer-2
-      - sealer-3
-    # environment:
-    #   - url=ws://server/ 
-    build:
-      context: .
-      dockerfile: monitoring.dockerfile
-    ports:
-      - 8081:80
-    networks:
-      chainnet:
-        ipv4_address: 172.25.0.105
+  # pocr-monitoring:
+  #   depends_on:
+  #     - sealer-1
+  #     - sealer-2
+  #     - sealer-3
+  #   # environment:
+  #   #   - url=ws://server/ 
+  #   build:
+  #     context: .
+  #     dockerfile: monitoring.dockerfile
+  #   ports:
+  #     - 8081:80
+  #   networks:
+  #     chainnet:
+  #       ipv4_address: 172.25.0.105
+
   remix:
     hostname: remix
     image: remixproject/remix-ide
