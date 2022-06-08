@@ -1,0 +1,33 @@
+
+{
+  "explorers": {
+    "1804": "http://localhost:8800/"
+  },
+  "networks": [
+    {
+      "name": "Local dev node1 (sealer 1)",
+      "nodeUrl": "ws://localhost:8542",
+      "walletCustodyAPIBaseUrl": "http://localhost:8086",
+      "token": "CRC",
+      "chainID": "1804",
+      "default": true
+    },
+    {
+      "name": "Local dev node2 (sealer 2)",
+      "nodeUrl": "ws://localhost:8544",
+      "walletCustodyAPIBaseUrl": "http://localhost:8086",
+      "token": "CRC",
+      "chainID": "1804",
+      "default": false
+    },
+    {
+      "name": "Local dev node3 (sealer 3)",
+      "nodeUrl": "ws://localhost:8546",
+      "walletCustodyAPIBaseUrl": "http://localhost:8086",
+      "token": "CRC",
+      "chainID": "1804",
+      "default": false
+    }
+  ]
+}
+

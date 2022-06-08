@@ -126,21 +126,17 @@ services:
       chainnet:
         ipv4_address: 172.25.0.104
 
-  # pocr-monitoring:
-  #   depends_on:
-  #     - sealer-1
-  #     - sealer-2
-  #     - sealer-3
-  #   # environment:
-  #   #   - url=ws://server/ 
-  #   build:
-  #     context: .
-  #     dockerfile: monitoring.dockerfile
-  #   ports:
-  #     - 8081:80
-  #   networks:
-  #     chainnet:
-  #       ipv4_address: 172.25.0.105
+  auditor-monitoring:
+    build:
+      context: .
+      dockerfile: vue-auditor/Dockerfile
+    ports:
+      - 8081:80
+    volumes: 
+      - ./auditor-config-local.json:/usr/share/nginx/html/config.json
+    networks:
+      chainnet:
+        ipv4_address: 172.25.0.105
 
   remix:
     hostname: remix
