@@ -1,0 +1,28 @@
+name: Vue auditor CI
+on:
+  push:
+    branches:
+    - main
+    paths:
+      - vue-auditor/**/*
+      - pocr-utils/**/*
+      - .github/workflows/vue-auditor.yml
+
+jobs:
+
+  docker-vue-auditor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: int128/kaniko-action@v1.7.0
+        with:
+          tags: ghcr.io/ethereum-pocr/ethereum-pocr.github.io/vue-auditor:latest
+          file: vue-auditor/Dockerfile
+          context: .
+          push: true
+ 
