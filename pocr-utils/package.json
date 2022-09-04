@@ -4,6 +4,7 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
+    "prebuild": "rm -Rf ./build",
     "build": "./node_modules/typescript/bin/tsc"
   },
   "keywords": [],
