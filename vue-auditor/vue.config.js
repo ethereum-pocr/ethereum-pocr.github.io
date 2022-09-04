@@ -9,11 +9,10 @@ module.exports = {
       title: "Home",
       chunks: ['chunk-vendors', 'chunk-common', 'index']
     },
-    // 'auth': {
-    //   entry: "./src/pages/auth/main.js",
-    //   template: "./public/index.html",
-    //   title: "AUTH",
-    //   chunks: ['chunk-vendors', 'chunk-common', 'auth']
-    // },
   },
+  configureWebpack: {
+    devServer: {
+      headers: { 'Access-Control-Allow-Origin': '*' }
+    }
+  }
 };

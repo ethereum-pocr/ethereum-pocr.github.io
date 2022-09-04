@@ -5,7 +5,7 @@
         <v-card height="200" width="200" class="ma-6">
           <v-card-subtitle>Block <explorer type="block" :id="lastBlock?lastBlock.block.number:0"></explorer></v-card-subtitle>
           <v-card-title class="align-center">
-            <span class="text-h3 ma-auto" :style="lastBlockNoTurnSealing?'color:red':''">{{
+            <span class="text-h4 ma-auto" :style="lastBlockNoTurnSealing?'color:red':''">{{
               lastBlock && lastBlock.block.number
             }}</span>
           </v-card-title>
@@ -29,7 +29,7 @@
         <v-card height="200" width="200" class="ma-6">
           <v-card-subtitle>Total footprint</v-card-subtitle>
           <v-card-title class="align-center">
-            <span class="text-h2 ma-auto">{{ totalFootprint }}</span>
+            <span class="text-h4 ma-auto">{{ totalFootprint }}</span>
           </v-card-title>
           <v-card-subtitle
             >Average:

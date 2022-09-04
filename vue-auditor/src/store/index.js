@@ -49,7 +49,15 @@ const store = new Vuex.Store({
         },
         async fetchConfig({ commit }) {
             try {
-                const res = await fetch("./config.json")
+                let configUrl = "./config.json";
+                const url = new URL(window.location.href);
+                if (url.searchParams.has("config")) {
+                    const uConf = new URL(url.searchParams.get("config"));
+                    configUrl = uConf.href;
+                    url.searchParams.delete("config")
+                    // window.history.replaceState(null, null, url);
+                }
+                const res = await fetch(configUrl)
                 if( res.status === 200 ) {
                     const config = await res.json();
                     commit("config", await cleanUpConfig(config))
