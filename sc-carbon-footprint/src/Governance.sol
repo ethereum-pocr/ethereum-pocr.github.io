@@ -64,7 +64,7 @@ contract Governance is
         uint256 lastAuditAtBlock;
 
         (lastAuditAtBlock, ) = auditorLastAuditInfo(_auditor);
-
+        // Slither complains of a strict equality check but would accept <= 0 on an unsigned int! Ignore the warning
         if (lastAuditAtBlock == 0) {
             /** @notice there has not been any audit yet, so auditor can redeem its pledge immediatly */
             return (true, 0);
@@ -98,9 +98,9 @@ contract Governance is
         override
         returns (bool)
     {
-        uint256 nbNodes = this.nbNodes();
+        uint256 _nbNodes = this.nbNodes();
 
-        return _votes >= (nbNodes / 2 + 1);
+        return _votes >= (_nbNodes / 2 + 1);
     }
 
     /** @notice called to decide is the sender is a node or an auditor, used by improvement proposal

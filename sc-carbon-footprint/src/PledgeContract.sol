@@ -71,6 +71,9 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
             _amount <= pledgesAmountsByAuditor[msg.sender],
             "not enough funds"
         );
+        require(
+            _target != address(0), "cannot transfer to the zero address"
+        );
         // test if the sender is a registered auditor and therefore test if it can remove its pledge
         bool mayTransfer;
         (mayTransfer, ) = canTransferPledge(_target, _amount);

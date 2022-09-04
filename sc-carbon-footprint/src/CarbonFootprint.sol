@@ -40,6 +40,7 @@ contract CarbonFootprint {
      * - be different that the address of the _node parameter
      */
     function setFootprint(address _node, uint256 _value) external {
+        // Slither consider that me becomes an external contract but it is this contract so the reentrancy warning can be ignored
         IAuditorGovernance me = IAuditorGovernance(address(this));
 
         require(
