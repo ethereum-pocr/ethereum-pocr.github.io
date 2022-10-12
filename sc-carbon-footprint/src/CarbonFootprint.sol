@@ -22,12 +22,27 @@ import "./intf/IAuditorGovernance.sol";
 
 contract CarbonFootprint {
     mapping(address => uint256) public footprint;
-
+    mapping (uint256 => address) public indexedNodesAddresses;
     uint256 public nbNodes;
-
+  
     uint256 public totalFootprint;
 
     event CarbonFootprintUpdate(address indexed node, uint256 footprint);
+
+    function getFootprint(uint256 index)
+     public
+        view
+        returns (
+            address,
+            uint256,
+            bool
+        )
+    {
+        if (index >= nbNodes)
+            return (address(0),0,false);
+        else
+            return (indexedNodesAddresses[index], footprint[indexedNodesAddresses[index]],true);
+    }
 
     /**
      * @notice
@@ -64,6 +79,7 @@ contract CarbonFootprint {
             footprint[_node] = _value;
             nbNodes += 1;
             totalFootprint += _value;
+            indexedNodesAddresses[nbNodes]=_node;
         }
 
         /** @dev
@@ -90,6 +106,7 @@ contract CarbonFootprint {
          * and wedelete the mapping entry - which technically set to zero the value*/
         if ((current > 0) && (_value == 0)) {
             totalFootprint -= current;
+            indexedNodesAddresses[nbNodes]=address(0);
             nbNodes -= 1;
             delete footprint[_node];
         }
