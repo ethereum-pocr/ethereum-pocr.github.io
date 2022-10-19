@@ -1,6 +1,21 @@
 
 # Docker build
 
+
+** Prerequesites
+It is required to have docker-compose v2.3.3 installed for the scripts to work (or you get a nonsense misleading python error). To upgrade:
+
+```
+sudo apt update
+sudo apt install docker-compose-plugin
+docker compose version
+sudo rm /usr/local/bin/docker-compose
+echo 'alias docker-compose="docker compose"' >> ~/.bashrc
+source ~/.bashrc
+docker-compose version
+```
+
+
 ** Build monitoring.dockerfile
 ---
 ```sh
