@@ -5,9 +5,9 @@
   },
   "networks": [
     {
-      "name": "Kerleano (Khaled node)",
-      "nodeUrl": "wss://kerleano-ws.awnen.com",
-      "walletCustodyAPIBaseUrl": "https://saturn-dev1.westeurope.cloudapp.azure.com/custody/",
+      "name": "Kerleano (CACIB test node)",
+      "nodeUrl": "wss://common-test.bonds.dag.ca-cib.com/clientws",
+      "walletCustodyAPIBaseUrl": "https://pocrnet-test.dag.ca-cib.com/custody/",
       "explorerUrl": "https://ethereum-pocr.github.io/explorer",
       "token": "CRC",
       "chainID": "1804",
