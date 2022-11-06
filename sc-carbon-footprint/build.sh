@@ -18,6 +18,7 @@ then
 
   export POCR_CONTRACT_NAME=GovernanceLocalNetwork
   export SMART_CONTRACT_BYTECODE=$(node extract-bytecode.js)
+  # echo $SMART_CONTRACT_BYTECODE > $POCR_CONTRACT_NAME.bytecode
 fi
 
 

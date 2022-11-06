@@ -28,3 +28,4 @@ pnpm-debug.log*
 ._.DS_Store
 **/.DS_Store
 **/._.DS_Store
+pocr-network/bootnode.log
