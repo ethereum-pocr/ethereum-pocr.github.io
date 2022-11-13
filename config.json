@@ -29,7 +29,7 @@
     },
     {
       "name": "Local dev (sealer 1)",
-      "nodeUrl": "ws://localhost:8542",
+      "nodeUrl": "ws://localhost:8402",
       "walletCustodyAPIBaseUrl": "http://localhost:8081",
       "token": "CRC",
       "chainID": "1804",
