@@ -91,6 +91,8 @@ contract AuditorGovernance is IAuditorGovernance {
         if (s.approved) {
             s.approved = false;
             s.votes = 0;
+            s.lastAuditAtBlock = 0; // Reset the audit status
+            s.minPledgeAtLastAudit = 0; // Reset the audit status
             s.statusUpdateBlock = block.number;
             nbApprovedAuditors--;
             onAuditorRejected(_auditor);

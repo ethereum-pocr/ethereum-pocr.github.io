@@ -55,7 +55,7 @@ const actions = {
     },
 
     async voteAuditor(context, {auditorAddress, accept}) {
-        return handleMMResponse(writeCallWithOptions("voteAuditor", {maxGas:120000}, auditorAddress, accept));
+        return handleMMResponse(writeCallWithOptions("voteAuditor", {maxGas:200000}, auditorAddress, accept));
     }
 
 }

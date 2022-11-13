@@ -376,6 +376,9 @@ describe("Run tests on POCR Governance contract", function () {
       expect(log!.event).to.equal("PledgeConfiscated");
       log = logs.pop();
       expect(log).to.be.ok;
+      expect(log!.event).to.equal("AmountPledged");
+      log = logs.pop();
+      expect(log).to.be.ok;
       expect(log!.event).to.equal("AuditorVoted");
       
     });
