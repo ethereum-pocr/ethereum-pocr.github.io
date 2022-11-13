@@ -56,9 +56,9 @@ const actions = {
 
     async redeemPledge({ dispatch }) {
         // when the smart contract is redeployed with the getPledgeBack function replace the below code
-        const wallet = $store.get("auth/wallet");
-        const amount = $store.get("pledge/pledgedAmount");
-        await handleMMResponse(writeCall("transferPledge", wallet, toWei(amount, "ether" )));
+        // const wallet = $store.get("auth/wallet");
+        // const amount = $store.get("pledge/pledgedAmount");
+        await handleMMResponse(writeCall("getPledgeBack"));
         // replace with:
         // await handleMMResponse(writeCall("getPledgeBack"));
         dispatch("fetchPledgedAmount");

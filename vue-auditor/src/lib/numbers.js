@@ -42,3 +42,21 @@ export function toWei(bi, from) {
   if(from === "gwei") return n.multipliedBy(GWEI_FACTOR)
   return n
 }
+
+/** Convert a big int to a smart contract parameter call 
+ * @param {BigNumber} bi
+ * @return {string}
+*/
+export function toParam(bi) {
+  // return bi.toFormat(0, BigNumber.ROUND_DOWN, {groupSeparator:''})
+  return '0x'+bi.toString(16)
+}
+
+window.Numberlib = {
+  toWebBigInt,
+  toNumber,
+  toEther,
+  toGWei,
+  toWei,
+  toParam
+}

@@ -24,6 +24,7 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
         emit AmountPledged(
             msg.sender,
             msg.value,
+            0,
             pledgesAmountsByAuditor[msg.sender]
         );
     }
@@ -80,6 +81,7 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
         require(mayTransfer, "not allowed to transfer pledge out");
         pledgesAmountsByAuditor[msg.sender] -= _amount;
         _target.transfer(_amount);
+        emit AmountPledged(msg.sender, 0, _amount, pledgesAmountsByAuditor[msg.sender]);
         return true;
     }
 
@@ -91,6 +93,7 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
         }
         totalConfiscatedAmount += amount;
         pledgesAmountsByAuditor[_auditor] = 0;
+        emit AmountPledged(_auditor, 0, amount, pledgesAmountsByAuditor[_auditor]);
         emit PledgeConfiscated(_auditor, amount, totalConfiscatedAmount);
     }
 

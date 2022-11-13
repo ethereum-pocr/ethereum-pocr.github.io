@@ -85,11 +85,11 @@ const actions = {
         // get the logs of the current auditor only
         contract.events.AmountPledged(prov.get({fromBlock: 1}), {from: wallet})
         .on("log", async log=>{
-            // console.log("get logs ", log, "filter", {from: wallet});
+            console.log("get logs ", log, "filter", {from: wallet});
             const pledge = {
                 blockNumber: log.blockNumber,
                 auditor: log.returnValues.from,
-                pledge: toEther(log.returnValues.amount),
+                pledge: toEther(log.returnValues.amountAdded)-toEther(log.returnValues.amountRemoved),
                 total: toEther(log.returnValues.total),
                 txHash: log.transactionHash
             };

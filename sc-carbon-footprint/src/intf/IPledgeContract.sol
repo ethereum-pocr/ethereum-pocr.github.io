@@ -6,7 +6,7 @@ interface IPledgeContract {
   function pledge() external payable;
   function pledgedAmount(address owner) external view returns (uint);
   function transferPledge(address payable target, uint amount) external returns (bool);
-  event AmountPledged(address indexed from, uint amount, uint total);
+  event AmountPledged(address indexed from, uint amountAdded, uint amountRemoved, uint total);
 
   function confiscatedAmount() external view returns (uint);
   event PledgeConfiscated(address indexed from, uint amount, uint total);

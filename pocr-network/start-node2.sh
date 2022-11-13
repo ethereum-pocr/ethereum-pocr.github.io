@@ -4,6 +4,7 @@ BOOTNODE=enode://$BOOTNODEKEY@127.0.0.1:30390
 GETH=/Users/guenole/VSCode/saturn/github/go-ethereum/build/bin/geth 
 $GETH version
 
+NAME="Dev Node 2"
 COINBASE=0x926ed993bf6a57306a7dc5ef2f6c2053da42f85c
 AUDITOR=0x3d0a5f7514906c02178c6ce5c4ec33256f08ce58
 HTTP_PORT=8503
@@ -16,5 +17,5 @@ CMD="$GETH --verbosity=3 --datadir $DATADIR --keystore ./keystore --syncmode ful
 
 echo $CMD
 
-$CMD
+$CMD --miner.extradata="$NAME"
 
