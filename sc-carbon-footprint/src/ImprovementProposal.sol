@@ -3,14 +3,19 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "./intf/IImprovementProposal.sol";
+import "./intf/Constants.sol";
 
 
 contract ImprovementProposal is IImprovementProposal {
-  uint constant private _blockDelayBeforeVote = 1_950_000;
-  uint constant private _blockSpanForVote = 400_000;
-  function getBlockConstantValues() virtual internal view returns (uint blockDelayBeforeVote, uint blockSpanForVote) {
-    blockDelayBeforeVote = _blockDelayBeforeVote;
-    blockSpanForVote = _blockSpanForVote;
+  // uint constant private _blockDelayBeforeVote = 1_950_000;
+  // uint constant private _blockSpanForVote = 400_000;
+  // function getBlockConstantValues() virtual internal pure returns (uint blockDelayBeforeVote, uint blockSpanForVote) {
+  //   blockDelayBeforeVote = 1_950_000;
+  //   blockSpanForVote = 400_000;
+  // }
+
+  function getConstantValue(uint) virtual internal pure returns (uint) {
+      return 0;
   }
 
   struct IP {
@@ -45,7 +50,8 @@ contract ImprovementProposal is IImprovementProposal {
   }
 
   function evaluateStatus(IP storage _ip) private view returns (IPStatus status) {
-    (uint blockDelayBeforeVote, uint blockSpanForVote) = getBlockConstantValues();
+    uint blockDelayBeforeVote = getConstantValue(Const_BlockDelayBeforeVote);
+    uint blockSpanForVote = getConstantValue(Const_BlockSpanForVote);
     uint voteFrom = _ip.firstVoteAtBlock;
     if (voteFrom < _ip.createdAtBlock) {
       voteFrom = _ip.createdAtBlock + blockDelayBeforeVote;
@@ -83,7 +89,8 @@ contract ImprovementProposal is IImprovementProposal {
     uint nodesFor,
     uint nodesAgainst
   ) {
-    (uint blockDelayBeforeVote, uint blockSpanForVote) = getBlockConstantValues();
+    uint blockDelayBeforeVote = getConstantValue(Const_BlockDelayBeforeVote);
+    uint blockSpanForVote = getConstantValue(Const_BlockSpanForVote);
     require(_index < nbIPs, "invalid index");
     IP storage ip = ips[_index];
     index = ip.index;

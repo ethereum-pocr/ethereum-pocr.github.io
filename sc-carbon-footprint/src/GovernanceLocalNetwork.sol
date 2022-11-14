@@ -6,13 +6,15 @@ import "./Governance.sol";
 
 contract GovernanceLocalNetwork is Governance {
 
-    function getBlockConstantValues()
+    function getConstantValue(uint key)
         internal
         pure
         override
-        returns (uint256 blockDelayBeforeVote, uint256 blockSpanForVote)
+        returns (uint256)
     {
-        blockDelayBeforeVote = 5;
-        blockSpanForVote = 100;
+        if (key == Const_BlockDelayBeforeVote) return 5;
+        if (key == Const_BlockSpanForVote) return 100;
+        if (key == Const_MaxNbBlockPerPeriod) return 50;
+        return 0;
     }
 }

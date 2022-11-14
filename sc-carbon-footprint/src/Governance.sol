@@ -8,6 +8,7 @@ import "./PledgeContract.sol";
 import "./ImprovementProposal.sol";
 import "./NodeDelegation.sol";
 
+import "./intf/Constants.sol";
 /**
  * @notice
  * The objective of this contract is to group some governance rules
@@ -21,6 +22,19 @@ contract Governance is
     ImprovementProposal,
     NodeDelegation
 {
+
+    function getConstantValue(uint key)
+        internal
+        pure
+        virtual override (ImprovementProposal, AuditorGovernance)
+        returns (uint256)
+    {
+        if (key == Const_BlockDelayBeforeVote) return 1_950_000;
+        if (key == Const_BlockSpanForVote) return 400_000;
+        if (key == Const_MaxNbBlockPerPeriod) return 650_000;
+        return 0;
+    }
+
     /** @notice This function returns true if the node address has a footprint > 0 */
     function isSealerNode(address node) public view returns (bool) {
         return this.footprint(node) > 0;

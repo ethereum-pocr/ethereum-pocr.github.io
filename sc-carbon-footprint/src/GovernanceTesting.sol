@@ -7,13 +7,15 @@ import "./Governance.sol";
 contract GovernanceTesting is Governance {
     uint256 public currentTime = 1649253088;
 
-    function getBlockConstantValues()
+    function getConstantValue(uint key)
         internal
         pure
         override
-        returns (uint256 blockDelayBeforeVote, uint256 blockSpanForVote)
+        returns (uint256)
     {
-        blockDelayBeforeVote = 5;
-        blockSpanForVote = 10;
+        if (key == Const_BlockDelayBeforeVote) return 5;
+        if (key == Const_BlockSpanForVote) return 10;
+        if (key == Const_MaxNbBlockPerPeriod) return 50;
+        return 0;
     }
 }

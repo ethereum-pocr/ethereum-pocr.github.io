@@ -5,6 +5,7 @@ pragma solidity >=0.7.0 <0.9.0;
 import "./intf/ICarbonFootprint.sol";
 import "./intf/IAuditorGovernance.sol";
 import "./intf/IPledgeContract.sol";
+import "./intf/Constants.sol";
 
 
 contract AuditorGovernance is IAuditorGovernance {
@@ -39,6 +40,10 @@ contract AuditorGovernance is IAuditorGovernance {
     uint256 public nbAuditors;
 
     uint256 private nbApprovedAuditors;
+
+    function getConstantValue(uint) virtual internal pure returns (uint) {
+        return 0;
+    }
 
     /** @notice this function enables an auditor to register by itself
      * if it's the first auditor, then it is instantly approved */
@@ -248,7 +253,7 @@ contract AuditorGovernance is IAuditorGovernance {
     {
         AuditorStatus storage s = auditorsStatus[_auditor];
         uint256 minPledgeAtLastAudit = s.minPledgeAtLastAudit;
-        uint256 maxNbBlockPerPeriod = 650_000;
+        uint256 maxNbBlockPerPeriod = getConstantValue(Const_MaxNbBlockPerPeriod);
         uint256 nbBlocks = block.number - s.lastAuditAtBlock;
         uint256 minPledge = 1000 ether;
 
