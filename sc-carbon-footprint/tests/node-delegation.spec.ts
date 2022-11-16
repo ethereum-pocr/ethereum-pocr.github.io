@@ -30,8 +30,10 @@ describe("Run tests on POCR Governance contract", function () {
   let auditor: EthProviderInterface;
   let node1: EthProviderInterface;
   let delegate1: EthProviderInterface;
+  let nbNodes: number;
 
   async function init() {
+    nbNodes = 0;
     web3 = new Web3(Ganache.provider({default_balance_ether:10000}) as any);
     auditor = new Web3FunctionProvider(web3.currentProvider, (list) => Promise.resolve(list[0]));
     auditorWallet = await auditor.account();
@@ -42,12 +44,22 @@ describe("Run tests on POCR Governance contract", function () {
     if (allContracts.get(POCRContractName)) {
       CarbonFootprint = allContracts.get(POCRContractName)!;
       instance = await CarbonFootprint.deploy(auditor.newi({ maxGas: 3000000 }));
-      
+      await addSealer(await node1.account())
     } else {
       throw new Error(POCRContractName+" contract not defined in the compilation result");
     }
   }
-
+  /**
+   * Attention: This function is replacing the work of the geth cliquepocr.synchronizeSealers()
+   * that replicate in the smart contract the list of sealers and their number.
+   * It uses 2 smart contract function that should only exists in the GovernanceTesting contract.
+   * @param address sealer node address
+   */
+  async function addSealer(address: string) {
+    await instance.setAsSealerAt(auditor.send({maxGas: 100_000}), nbNodes, address);
+    nbNodes ++;
+    await instance.setNbNodes(auditor.send({maxGas: 100_000}), nbNodes);
+  }
 
   describe('Test the Node Delegation scheme', () => {
     beforeEach(async () => {

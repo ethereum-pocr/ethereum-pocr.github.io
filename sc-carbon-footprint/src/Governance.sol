@@ -35,9 +35,9 @@ contract Governance is
         return 0;
     }
 
-    /** @notice This function returns true if the node address has a footprint > 0 */
+    /** @notice This function returns true if the node address is a sealer and has a footprint > 0 */
     function isSealerNode(address node) public view returns (bool) {
-        return isSealer[node];
+        return isSealer[node] && footprint[node] > 0;
     }
 
     /**

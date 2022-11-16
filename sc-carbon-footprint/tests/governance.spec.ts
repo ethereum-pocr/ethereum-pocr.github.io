@@ -17,7 +17,7 @@ import Ganache from "ganache-core";
 import allContracts from "../contracts";
 
 const POCRContractNameActual = "Governance"; 
-const POCRContractName = "GovernanceTesting"; // Attention the actual name to use is Governance
+const POCRContractName = "GovernanceTesting"; // Attention the actual name to use in production is Governance
 
 
 
@@ -30,8 +30,10 @@ describe("Run tests on POCR Governance contract", function () {
   let auditor: EthProviderInterface;
   let node1: EthProviderInterface;
   let delegate1: EthProviderInterface;
+  let nbNodes: number = 0;
 
   async function init() {
+    nbNodes = 0;
     web3 = new Web3(Ganache.provider({default_balance_ether:10000}) as any);
     auditor = new Web3FunctionProvider(web3.currentProvider, (list) => Promise.resolve(list[0]));
     auditorWallet = await auditor.account();
@@ -42,12 +44,23 @@ describe("Run tests on POCR Governance contract", function () {
     if (allContracts.get(POCRContractName)) {
       CarbonFootprint = allContracts.get(POCRContractName)!;
       instance = await CarbonFootprint.deploy(auditor.newi({ maxGas: 3000000 }));
-      
+      await addSealer(await node1.account())
     } else {
       throw new Error(POCRContractName+" contract not defined in the compilation result");
     }
   }
-
+  
+  /**
+   * Attention: This function is replacing the work of the geth cliquepocr.synchronizeSealers()
+   * that replicate in the smart contract the list of sealers and their number.
+   * It uses 2 smart contract function that should only exists in the GovernanceTesting contract.
+   * @param address sealer node address
+   */
+  async function addSealer(address: string) {
+    await instance.setAsSealerAt(auditor.send({maxGas: 100_000}), nbNodes, address);
+    nbNodes ++;
+    await instance.setNbNodes(auditor.send({maxGas: 100_000}), nbNodes);
+  }
 
   describe('Tests on the Auditors governance interface', () => {
     const logs: EventData[] = [];
@@ -64,6 +77,7 @@ describe("Run tests on POCR Governance contract", function () {
     it('should enable an initial registration', async () => {
       const tx = await instance.selfRegisterAuditor(auditor.send({maxGas: 180000}));
       console.log("Tx", await web3.eth.getTransactionReceipt(tx));
+      await new Promise(r=>setTimeout(r, 300)) // needed to ensure logs have been received because it appears not to be the case in all occasion !
       let log = logs.pop();
       expect(log).to.be.ok;
       expect(log!.event).to.equal("AuditorApproved")
@@ -119,6 +133,8 @@ describe("Run tests on POCR Governance contract", function () {
     it("should add a 2nd node and set the variable nbNodes to 2", async () => {
       // Given a new auditor
       const wallets = await web3.eth.getAccounts()
+      // Given a new sealer is added
+      await addSealer(wallets[2])
       // Given that the bootstrap auditor has set the footprint for 2 nodes
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
@@ -147,6 +163,8 @@ describe("Run tests on POCR Governance contract", function () {
     it("should add a 3rd node and calculate the total totalFootprint", async () => {
       // Given a new auditor
       const wallets = await web3.eth.getAccounts()
+      // Given a new sealer is added
+      await addSealer(wallets[3])
       // Given that the bootstrap auditor has set the footprint for 2 nodes
       const registered = await instance.auditorRegistered(auditor.call(), auditorWallet)
       if (!registered) {
