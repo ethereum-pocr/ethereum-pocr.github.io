@@ -88,6 +88,16 @@ async function processBlock(web3, block) {
         data.totalCrypto = Number.parseFloat(web3.utils.fromWei(totalCrypto, "ether"))
         data.nbNodes = Number.parseInt(nbNodes)
         data.receivedAt = Date.now();
+
+        // read the sealers from the contract
+        const sealers = []
+        for (let index = 0; index < nbNodes; index++) {
+            const sealer = await carbonFootprint.sealers(intf.call(), index)
+            const isSealer = await carbonFootprint.isSealer(intf.call(), sealer)
+            sealers.push({sealer, isSealer})
+        }
+        console.log("Loaded sealers", sealers);
+
     } catch (error) {
         console.warn("Error in preparing block", error)
     }
@@ -122,6 +132,7 @@ const actions = {
     async fetchAllValues({ dispatch }) {
         await dispatch("fetchNumberOfNodes");
         await dispatch("fetchTotalFootprint");
+        await dispatch("updateNodesStatus");
     },
 
     async fetchNumberOfNodes() {
@@ -132,6 +143,16 @@ const actions = {
     async fetchTotalFootprint() {
         const totalFootprint = await readOnlyCall("totalFootprint");
         $store.set("nodes/totalFootprint", Number.parseInt(totalFootprint));
+    },
+
+    async updateNodesStatus() {
+        const sealers = $store.get("nodes/sealers")
+        for (const sealer of sealers) {
+            const s = await readOnlyCall("isSealer", sealer.address)
+            console.log("isSealer", sealer);
+            sealer.isActive = s
+        }
+        $store.set("auth/sealers", sealers)
     },
 
     subscribeToChainUpdates({ state, rootState, dispatch }) {
@@ -159,7 +180,7 @@ const actions = {
 
 
 
-    async insertNewBlock({ state, rootState, commit }, block) {
+    async insertNewBlock({ state, rootState, commit, dispatch }, block) {
         const web3 = new Web3($store.get("auth/provider"));
         commit("currentBlockNumber", block.number);
         if (rootState.auth.wallet) {
@@ -173,6 +194,7 @@ const actions = {
         if (blocks.length>0) {
             $store.set("nodes/totalCrypto", blocks[blocks.length-1].totalCrypto)
         }
+        dispatch("fetchAllValues");
     },
 
     discoverNotRunningSealers({rootState, state}) {

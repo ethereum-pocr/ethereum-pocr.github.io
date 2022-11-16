@@ -16,7 +16,7 @@ import "./intf/Constants.sol";
  */
 
 contract Governance is
-    CarbonFootprint,
+    CarbonFootprint, // Must stay the first inherited contract because its storage slots are used in geth
     AuditorGovernance,
     PledgeContract,
     ImprovementProposal,
@@ -37,7 +37,7 @@ contract Governance is
 
     /** @notice This function returns true if the node address has a footprint > 0 */
     function isSealerNode(address node) public view returns (bool) {
-        return this.footprint(node) > 0;
+        return isSealer[node];
     }
 
     /**

@@ -73,7 +73,7 @@
             >
               <template v-slot:item.name="{ item }">
                 <div>{{ item.address }}</div>
-                <div>{{ item.vanity.custom }}</div>
+                <div><v-icon>{{item.isActive?"mdi-lock-open-check-outline":"mdi-lock-remove"}}</v-icon> {{ item.vanity.custom }}</div>
               </template>
               <template v-slot:item.ratio="{ item }">
                 <div>{{ (100 * item.sealedBlocks / totalSealedBlocks).toFixed(2) }} %</div>
