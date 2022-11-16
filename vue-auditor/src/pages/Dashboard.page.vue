@@ -38,11 +38,11 @@
         </v-card>
       </v-col>
       <v-col cols="12" class="pa-8" v-if="lastBlock">
-        <v-card-title>Footprint for each of the nodes</v-card-title>
+        <v-card-title>Carbon Footprint for each of the nodes</v-card-title>
         <v-card-subtitle>
           Last block sealer: {{ lastBlock.sealer.address }} /
           {{ lastBlock.sealer.vanity.custom }}. Footprint:
-          {{ lastBlock.sealer.footprint }}
+          {{ lastBlock.sealer.footprint }} g.CO₂
         </v-card-subtitle>
         <v-sparkline
           auto-draw
@@ -72,8 +72,8 @@
               hide-default-footer
             >
               <template v-slot:item.name="{ item }">
-                <div>{{ item.address }}</div>
                 <div><v-icon>{{item.isActive?"mdi-lock-open-check-outline":"mdi-lock-remove"}}</v-icon> {{ item.vanity.custom }}</div>
+                <div>{{ item.address }}</div>
               </template>
               <template v-slot:item.ratio="{ item }">
                 <div>{{ (100 * item.sealedBlocks / totalSealedBlocks).toFixed(2) }} %</div>
@@ -92,13 +92,13 @@
           </v-card-text>
         </v-card>
       </v-col>
-
+<!-- 
       <v-col cols="12" class="pa-8" v-if="lastBlock">
         <v-card-title>Block reward per node</v-card-title>
         <v-card-subtitle>
           Last block sealer: {{ lastBlock.sealer.address }} /
           {{ lastBlock.sealer.vanity.custom }}. Footprint:
-          {{ lastBlock.sealer.footprint }}
+          {{ lastBlock.sealer.footprint }} g.CO₂
         </v-card-subtitle>
         <v-sparkline
           auto-draw
@@ -122,9 +122,9 @@
             {{ Number.parseFloat(item.value).toFixed(2) }}
           </template>
         </v-sparkline>
-      </v-col>
+      </v-col> -->
 
-      <v-col cols="12" class="pa-8">
+      <!-- <v-col cols="12" class="pa-8">
         <v-card-title>CRC Creation by block </v-card-title>
         <v-card-subtitle
           >Last reward:
@@ -141,7 +141,7 @@
           label-size="3"
           :gradient="['#42b3f4']"
         ></v-sparkline>
-      </v-col>
+      </v-col> -->
     </v-row>
   </v-layout>
 </template>
@@ -161,9 +161,9 @@ export default {
       sealersReward: [],
       sealersHeaders: [
       { text: "Name", value: "name" },
-      { text: "Footprint", value: "footprint" },
-      { text: "Reward (CRC)", value: "lastReward" },
-      { text: "Balance (CRC)", value: "balance" },
+      { text: "Footprint (g.CO₂)", value: "footprint" },
+      { text: "Reward (₡)", value: "lastReward" },
+      { text: "Balance (₡)", value: "balance" },
       { text: "Sealing ratio", value: "ratio" },
       { text: "Last", value: "lastSealer" },
     ],

@@ -74,7 +74,7 @@ contract Governance is
         }
 
         /** @notice Then the last audit should be less that 30 days ago */
-        uint256 minimalPeriod = 650_000; // 30 days
+        uint256 minimalPeriod = getConstantValue(Const_MaxNbBlockPerPeriod);
         uint256 lastAuditAtBlock;
 
         (lastAuditAtBlock, ) = auditorLastAuditInfo(_auditor);
