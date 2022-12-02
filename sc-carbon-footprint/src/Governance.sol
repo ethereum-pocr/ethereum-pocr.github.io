@@ -32,6 +32,7 @@ contract Governance is
         if (key == Const_BlockDelayBeforeVote) return 1_950_000;
         if (key == Const_BlockSpanForVote) return 400_000;
         if (key == Const_MaxNbBlockPerPeriod) return 650_000;
+        if (key == Const_MinPledgeAmountWei) return 1000 ether;
         return 0;
     }
 

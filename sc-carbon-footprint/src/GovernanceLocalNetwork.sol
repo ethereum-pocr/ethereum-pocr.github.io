@@ -15,6 +15,7 @@ contract GovernanceLocalNetwork is Governance {
         if (key == Const_BlockDelayBeforeVote) return 5;
         if (key == Const_BlockSpanForVote) return 100;
         if (key == Const_MaxNbBlockPerPeriod) return 50;
+        if (key == Const_MinPledgeAmountWei) return 1000 ether;
         return 0;
     }
 }

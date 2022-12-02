@@ -255,7 +255,7 @@ contract AuditorGovernance is IAuditorGovernance {
         uint256 minPledgeAtLastAudit = s.minPledgeAtLastAudit;
         uint256 maxNbBlockPerPeriod = getConstantValue(Const_MaxNbBlockPerPeriod);
         uint256 nbBlocks = block.number - s.lastAuditAtBlock;
-        uint256 minPledge = 1000 ether;
+        uint256 minPledge = getConstantValue(Const_MinPledgeAmountWei);
 
         if (nbBlocks < maxNbBlockPerPeriod && minPledgeAtLastAudit > 0) {
             /** @notice
