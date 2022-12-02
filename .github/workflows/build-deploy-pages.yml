@@ -2,8 +2,7 @@ name: deploy-github-pages
 on: 
   push:
     branches:
-      - "main"
-      - "vue-auditor"
+      - "revert-to-v1.3"
 jobs:
   compile-build:
     runs-on: ubuntu-latest
