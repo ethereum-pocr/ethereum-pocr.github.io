@@ -30,8 +30,10 @@ describe("Run tests on POCR Governance contract", function () {
   let auditor: EthProviderInterface;
   let node1: EthProviderInterface;
   let delegate1: EthProviderInterface;
+  let nbNodes: number;
 
   async function init() {
+    nbNodes = 0;
     web3 = new Web3(Ganache.provider({default_balance_ether:10000}) as any);
     auditor = new Web3FunctionProvider(web3.currentProvider, (list) => Promise.resolve(list[0]));
     auditorWallet = await auditor.account();
@@ -42,13 +44,22 @@ describe("Run tests on POCR Governance contract", function () {
     if (allContracts.get(POCRContractName)) {
       CarbonFootprint = allContracts.get(POCRContractName)!;
       instance = await CarbonFootprint.deploy(auditor.newi({ maxGas: 3000000 }));
-      
     } else {
       throw new Error(POCRContractName+" contract not defined in the compilation result");
     }
   }
 
-
+  /**
+   * Attention: This function is replacing the work of the geth cliquepocr.synchronizeSealers()
+   * that replicate in the smart contract the list of sealers and their number.
+   * It uses 2 smart contract function that should only exists in the GovernanceTesting contract.
+   * @param address sealer node address
+   */
+  async function addSealer(address: string) {
+    await instance.setAsSealerAt(auditor.send({maxGas: 100_000}), nbNodes, address);
+    nbNodes ++;
+    await instance.setNbNodes(auditor.send({maxGas: 100_000}), nbNodes);
+  }
 
   describe('Tests of the PledgeContract', () => {
     const PledgeContractName = "PledgeContract";
@@ -153,6 +164,9 @@ describe("Run tests on POCR Governance contract", function () {
       node2Wallet = wallets[2];
       node = new Web3FunctionProvider(web3.currentProvider, ()=>Promise.resolve(nodeWallet));
       node2 = new Web3FunctionProvider(web3.currentProvider, ()=>Promise.resolve(node2Wallet));
+      await addSealer(await node.account())
+      await addSealer(await node2.account())
+
       await instance.setFootprint(auditor.send({maxGas:200000}), nodeWallet, 1000);
       await instance.setFootprint(auditor.send({maxGas:200000}), node2Wallet, 1000);
       await instance.voteAuditor(node.send({maxGas: 200000}), auditorWallet, false);

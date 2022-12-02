@@ -15,6 +15,7 @@ NODE2=$!
 ./start-node3.sh 2>node3/geth.log 1>node3/geth.log &
 NODE3=$!
 
+tail -f node1/geth.log &
 echo "Press enter to stop the processes"
 read 
 

@@ -8,6 +8,7 @@ import "./PledgeContract.sol";
 import "./ImprovementProposal.sol";
 import "./NodeDelegation.sol";
 
+import "./intf/Constants.sol";
 /**
  * @notice
  * The objective of this contract is to group some governance rules
@@ -15,15 +16,29 @@ import "./NodeDelegation.sol";
  */
 
 contract Governance is
-    CarbonFootprint,
+    CarbonFootprint, // Must stay the first inherited contract because its storage slots are used in geth
     AuditorGovernance,
     PledgeContract,
     ImprovementProposal,
     NodeDelegation
 {
-    /** @notice This function returns true if the node address has a footprint > 0 */
+
+    function getConstantValue(uint key)
+        internal
+        pure
+        virtual override (ImprovementProposal, AuditorGovernance)
+        returns (uint256)
+    {
+        if (key == Const_BlockDelayBeforeVote) return 1_950_000;
+        if (key == Const_BlockSpanForVote) return 400_000;
+        if (key == Const_MaxNbBlockPerPeriod) return 650_000;
+        if (key == Const_MinPledgeAmountWei) return 1000 ether;
+        return 0;
+    }
+
+    /** @notice This function returns true if the node address is a sealer and has a footprint > 0 */
     function isSealerNode(address node) public view returns (bool) {
-        return this.footprint(node) > 0;
+        return isSealer[node] && footprint[node] > 0;
     }
 
     /**
@@ -60,7 +75,7 @@ contract Governance is
         }
 
         /** @notice Then the last audit should be less that 30 days ago */
-        uint256 minimalPeriod = 650_000; // 30 days
+        uint256 minimalPeriod = getConstantValue(Const_MaxNbBlockPerPeriod);
         uint256 lastAuditAtBlock;
 
         (lastAuditAtBlock, ) = auditorLastAuditInfo(_auditor);

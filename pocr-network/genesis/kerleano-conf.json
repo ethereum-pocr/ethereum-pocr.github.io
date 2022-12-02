@@ -1,0 +1,13 @@
+{
+  "genesisTemplate": "kerleano.json",
+  "initialSealers": ["0x1311aef86d1db33db945fc488eeff1c6105b9593"],
+  "initialAuditor": "0x3D0a5f7514906c02178c6Ce5c4ec33256F08Ce58",
+  "auditorInitialCredit": 25001,
+  "governanceContract": "GovernanceKerleano",
+  "chainID": 1804,
+  "secPerBlock": 4,
+  "epoch": 151200,
+  "blockGasLimit": "119000000",
+  "timestamp": "0x86e1970",
+  "extraDataVanity": "4775c3a96e6f6cc3a9206465204361646f7564616c206d61646520506f435221"
+}

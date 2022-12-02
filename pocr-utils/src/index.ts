@@ -33,18 +33,29 @@ export interface JSONRPCBlockDetail {
   baseFeePerGas?: HexString;
 }
 
-function splitExtraData(extraData: HexString): {vanity: Buffer, signature?: Buffer} {
+function splitExtraData(extraData: HexString): {toBeSigned: Buffer, vanity: Buffer, signature?: Buffer, signers: string[]} {
   let ed = Buffer.from(removeHexPrefix(extraData), "hex");
   if (ed.length < signatureLength) {
-    return {vanity: ed}
+    return {toBeSigned: ed, vanity: ed, signers:[]};
   }
-  const vanity = ed.slice(0, ed.length-signatureLength);
+  const vanity = ed.slice(0, 32); // Vanity is 32 bytes long
+  const toBeSigned = ed.slice(0, ed.length-signatureLength); // all but the signature
   const signature = ed.slice(ed.length-signatureLength);
-  return {vanity, signature};
+  // if there are more data in between it is an epoch block with the list of sealers. While we are there let's extract it, it can be useful
+  const signers: string[] = [];
+  if (ed.length>(32+signatureLength)) {
+    const signerData = ed.slice(32, ed.length-signatureLength);
+    let i=0;
+    while ((i+20)<=signerData.length) { // do we have an address available of data
+      const signer = signerData.slice(i, i+20);
+      signers.push(`0x${signer.toString("hex")}`);
+    }
+  }
+  return {toBeSigned, vanity, signature, signers};
 }
 
 export function cliqueRLPHash(header:JSONRPCBlockDetail): Buffer {
-  const {vanity, signature} = splitExtraData(header.extraData);
+  const {toBeSigned, signature} = splitExtraData(header.extraData);
   if (signature === undefined) {
     throw new Error("Missing signature in extra data");
   }
@@ -61,7 +72,7 @@ export function cliqueRLPHash(header:JSONRPCBlockDetail): Buffer {
     toType(header.gasLimit, TypeOutput.Number),
     toType(header.gasUsed, TypeOutput.Number),
     toType(header.timestamp, TypeOutput.Number),
-    vanity, // only the part without the signature
+    toBeSigned, // only the part without the signature
     toType(header.mixHash, TypeOutput.Buffer),
     toType(header.nonce, TypeOutput.Buffer)
   ]
@@ -78,6 +89,7 @@ export function cliqueRLPHash(header:JSONRPCBlockDetail): Buffer {
 export interface SealerInfo {
   address: HexString;
   vanity: VanityInfo;
+  signers?: string[];
 }
 
 export interface VanityInfo {
@@ -122,7 +134,7 @@ export function decodeVanity(vanity: Buffer): VanityInfo {
 }
 
 export function poaBlockHashToSealerInfo(block: JSONRPCBlockDetail): SealerInfo {
-  const {vanity, signature} = splitExtraData(block.extraData);
+  const {vanity, signature, signers} = splitExtraData(block.extraData);
   if (signature === undefined) {
     throw new Error("Missing signature in extra data");
   }
@@ -139,5 +151,7 @@ export function poaBlockHashToSealerInfo(block: JSONRPCBlockDetail): SealerInfo 
   // const vanity2 = Buffer.alloc(32, 0)
   // vanity2.write("0123456789abcdef0123456789abcdef")
   const txtVanity = decodeVanity(vanity)
-  return {address,vanity:txtVanity};
+  const si:SealerInfo = {address, vanity:txtVanity};
+  if (signers.length>0) si.signers = [...signers];
+  return si;
 }

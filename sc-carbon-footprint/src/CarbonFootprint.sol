@@ -21,11 +21,50 @@ import "./intf/IAuditorGovernance.sol";
  */
 
 contract CarbonFootprint {
+
+    /* nbNodes and sealers are never to be modified by the smart contract but by the client program (geth) 
+        The objective for the geth program is to synchronize the actual sealers in the smart contract from the snapshot
+        At each block, the consensus will check that the address at index is the same as in the snapshot and if not correct update the address
+        Then update the total number of nodes.
+
+        - pseudo code
+        // start by removing missing sealers
+        for i = 0 to nbNodes-1
+            s = sealers[i]
+            e = isSealer[s]
+            if s not in snapshot.sealers then 
+                isSealer[s] = false
+                sealers[i] = zero
+            
+        // now force the replication of the snapshot
+        for i = 0 to snapshot.sealers.length-1
+            s = sealers[i]
+            e = isSealer[snapshot.sealers[i]]
+            if s != snapshot.sealers[i] then
+                 sealers[i] = snapshot.sealers[i]
+            if not e then
+                 isSealer[snapshot.sealers[i]] = true
+        
+        // finally update the number of nodes
+        nbNodes = snapshot.sealers.length      
+
+    */
+    uint256 public nbNodes; // set by geth program
+    mapping(uint256 => address) public sealers; // 0..nbNodes-1, if it has a non zero address it is a sealer. set by geth program
+    mapping(address => bool) public isSealer; // true is the address is a sealer. set by the geth program
+
+    // updated by auditors 
     mapping(address => uint256) public footprint;
 
-    uint256 public nbNodes;
-
-    uint256 public totalFootprint;
+    // should be transformed into a function looping on the actual sealers
+    // uint256 public totalFootprint;
+    function totalFootprint() external view returns (uint) {
+        uint total = 0;
+        for (uint256 index = 0; index < nbNodes; index++) {
+            total = total + footprint[sealers[index]];
+        }
+        return total;
+    }
 
     event CarbonFootprintUpdate(address indexed node, uint256 footprint);
 
@@ -63,8 +102,8 @@ contract CarbonFootprint {
          * and we increment nbNodes and totalFootprint */
         if ((current == 0) && (_value > 0)) {
             footprint[_node] = _value;
-            nbNodes += 1;
-            totalFootprint += _value;
+            // nbNodes += 1;
+            // totalFootprint += _value;
         }
 
         /** @dev
@@ -74,8 +113,8 @@ contract CarbonFootprint {
          * and we update totalFootprint */
         if ((current > 0) && (_value > 0)) {
             footprint[_node] = _value;
-            totalFootprint -= current;
-            totalFootprint += _value;
+            // totalFootprint -= current;
+            // totalFootprint += _value;
         }
 
         /**
@@ -90,8 +129,8 @@ contract CarbonFootprint {
          * and we decrement nbNodes
          * and wedelete the mapping entry - which technically set to zero the value*/
         if ((current > 0) && (_value == 0)) {
-            totalFootprint -= current;
-            nbNodes -= 1;
+            // totalFootprint -= current;
+            // nbNodes -= 1;
             delete footprint[_node];
         }
 
