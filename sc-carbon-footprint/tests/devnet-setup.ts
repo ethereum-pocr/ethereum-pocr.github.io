@@ -26,16 +26,23 @@ async function run() {
       console.log("Pledging an additional", minPledge-pledged, "wei");
       await instance.pledge(main.send({maxGas: 200000, amount: minPledge-pledged}));
     }
-    const maxGas = await instance.setFootprint(main.test(), wallet, 1000);
-    if (wallet == node3Wallet) {
-      //
-    } else {
-      await instance.setFootprint(main.send({maxGas}), wallet, 1000 + Math.floor(Math.random() * 100));
+    try {
+      
+      const maxGas = await instance.setFootprint(main.test(), wallet, 100000);
+      if (wallet == node3Wallet) {
+        //
+        await instance.setFootprint(main.send({maxGas}), wallet, 100000 + Math.floor(Math.random() * 10000));
+      } else {
+        await instance.setFootprint(main.send({maxGas}), wallet, 100000 + Math.floor(Math.random() * 10000));
+      }
+      const nbNodes = await instance.nbNodes(main.call())
+      const footprint = await instance.footprint(main.call(), wallet)
+      const totalFootprint = await instance.totalFootprint(main.call())
+      console.log("Footprint situation", {wallet, footprint, nbNodes, totalFootprint});
+    } catch (error) {
+      console.error("Fail setting the footprint", error)
+      return;
     }
-    const nbNodes = await instance.nbNodes(main.call())
-    const footprint = await instance.footprint(main.call(), wallet)
-    const totalFootprint = await instance.totalFootprint(main.call())
-    console.log("Footprint situation", {wallet, footprint, nbNodes, totalFootprint});
     
   }
 }
