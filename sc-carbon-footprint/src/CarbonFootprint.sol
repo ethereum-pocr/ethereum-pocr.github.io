@@ -55,6 +55,7 @@ contract CarbonFootprint {
 
     // updated by auditors 
     mapping(address => uint256) public footprint;
+    mapping(address => uint) public footprintBlock;
 
     // should be transformed into a function looping on the actual sealers
     // uint256 public totalFootprint;
@@ -92,47 +93,18 @@ contract CarbonFootprint {
         );
 
         /** @dev
-         * GET the current node's footprint */
-        uint256 current = footprint[_node];
-
-        /** @dev
-         * IF the current node's footprint is equal to zero
-         * and the _value set is superior to zero
-         * THEN we set the node's footprint
-         * and we increment nbNodes and totalFootprint */
-        if ((current == 0) && (_value > 0)) {
+         * When the value to be set is greater than zero 
+         * then it is setting the new footprint nd saving the block
+         * 
+         * When the value is zero it means removing the footprint
+         * technically done by a delete
+         */
+        if (_value > 0) {
             footprint[_node] = _value;
-            // nbNodes += 1;
-            // totalFootprint += _value;
-        }
-
-        /** @dev
-         * IF the current node's footprint is superior to zero
-         * and the _value set is superior to zero
-         * THEN we update the node's footprint
-         * and we update totalFootprint */
-        if ((current > 0) && (_value > 0)) {
-            footprint[_node] = _value;
-            // totalFootprint -= current;
-            // totalFootprint += _value;
-        }
-
-        /**
-         * @notice 
-         * this case represents the delete of a node
-         * when _value = 0, it means we want to delete
-         *
-         * @dev
-         * IF the current node's footprint is superior to zero
-         * and the _value set is equal to zero
-         * THEN we update the totalFootprint
-         * and we decrement nbNodes
-         * and wedelete the mapping entry - which technically set to zero the value*/
-        if ((current > 0) && (_value == 0)) {
-            // totalFootprint -= current;
-            // nbNodes -= 1;
+        } else {
             delete footprint[_node];
         }
+        footprintBlock[_node] = block.number;
 
         emit CarbonFootprintUpdate(_node, _value);
     }

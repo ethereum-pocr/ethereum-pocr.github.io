@@ -35,7 +35,7 @@ They will use the `setFootprint(address, value)` function, that should be restri
 
 Auditors addresses will need to be added by a governance board. To be defined
 
-## From within the PoCR consensus
+## From within the PoCR consensus (To be corrected with the V2)
 
 The consensus written as a variation of clique / PoA uses the smart contract to retrieve 3 values:
 - `nbNodes`: the number of declared nodes with a footprint
@@ -60,3 +60,19 @@ func (this *CarbonFootprintContract) footprint(ofNode common.Address) (*big.Int,
 	}
 }
 ```
+
+## Building a compatible genesis file
+
+The script `node prepare-genesis.js <config file>` will take all elements necessary to adjust a template genesis file (specified in the config) and output (stdout) a json genesis file. 
+
+This is to be used in the github workflow:
+
+- To create a kerleano genesis that will be shareable to all nodes via the releases assets : https://github.com/ethereum-pocr/ethereum-pocr.github.io/releases/download/${RELEASE_TAG}/kerleano.json
+- To ensure 100% reproducibility of the genesis should we have to rollback
+
+## Running the network in a local environment (for dev testing only)
+
+In `ethereum-pocr.github.io/pocr-network` you all all necessary script:
+
+- `./init-dev-1.sh && ./start-node1.sh` to run a single node network. Perfect for local interaction and dev. But a ganache or similar will do as well unless you want to test the governance smart contracts of the PocR.
+- `./start-all-3.sh` to init and run a 3 nodes network. Good when you want to test the consensus and the geth development locally.

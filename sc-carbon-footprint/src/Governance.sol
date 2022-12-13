@@ -25,7 +25,7 @@ contract Governance is
 
     function getConstantValue(uint key)
         internal
-        pure
+        view
         virtual override (ImprovementProposal, AuditorGovernance)
         returns (uint256)
     {
