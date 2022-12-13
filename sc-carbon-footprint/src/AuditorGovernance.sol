@@ -41,7 +41,7 @@ contract AuditorGovernance is IAuditorGovernance {
 
     uint256 private nbApprovedAuditors;
 
-    function getConstantValue(uint) virtual internal pure returns (uint) {
+    function getConstantValue(uint) virtual internal view returns (uint) {
         return 0;
     }
 

@@ -14,7 +14,7 @@ contract ImprovementProposal is IImprovementProposal {
   //   blockSpanForVote = 400_000;
   // }
 
-  function getConstantValue(uint) virtual internal pure returns (uint) {
+  function getConstantValue(uint) virtual internal view returns (uint) {
       return 0;
   }
 
