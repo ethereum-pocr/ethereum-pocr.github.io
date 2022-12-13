@@ -25,7 +25,7 @@ jobs:
         run: |
           cd sc-carbon-footprint/ && npm install -g solc &&  npm ci && ./build.sh && \
           export GIT_HEAD_HASH=$(git rev-parse  HEAD) && \
-          node prepare-genesis.js ../pocr-network/genesis/kerleano-conf.json > kerleano.final.json && \
+          node prepare-genesis.js ../pocr-network/genesis/kerleano-conf.json > kerleano.final.json
       - name: publish genesis kerleano.json
         uses: svenstaro/upload-release-action@v2
         with:
