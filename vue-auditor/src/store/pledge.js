@@ -49,7 +49,7 @@ const actions = {
 
     async addToPledge({ dispatch }, amount) {
         console.log("Pledging", amount)
-        await handleMMResponse(writeCallWithOptions("pledge", { amount: toWei(amount, "ether") }));
+        await handleMMResponse(writeCallWithOptions("pledge", { amount: toWei(amount, "ether"), maxGas: 300000}));
         dispatch("fetchPledgedAmount");
         dispatch("fetchBalance");
     },

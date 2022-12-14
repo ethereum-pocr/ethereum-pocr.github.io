@@ -149,10 +149,10 @@ const actions = {
         const sealers = $store.get("nodes/sealers")
         for (const sealer of sealers) {
             const s = await readOnlyCall("isSealer", sealer.address)
-            console.log("isSealer", sealer);
+            // console.log("isSealer", sealer);
             sealer.isActive = s
         }
-        $store.set("auth/sealers", sealers)
+        $store.set("nodes/sealers", sealers)
     },
 
     subscribeToChainUpdates({ state, rootState, dispatch }) {
@@ -161,14 +161,29 @@ const actions = {
 
         const web3 = new Web3(rootState.auth.provider);
         const subscription = web3.eth.subscribe("newBlockHeaders");
-        subscription.on("data", async (block) => {
+        let blockProcessing = false;
+        const blocksWaiting = [];
+        const processingFunc = async (block) => {
             try {
+                if (block.baseFeePerGas == undefined) block = await web3.eth.getBlock(block.number);
                 await dispatch("insertNewBlock", block);
             } catch (error) {
                 // some error on the subscription processing
                 // if the error is due to the loss of connection it needs a reset of the connection
                 console.warn("Error on receiving a new block", error);
                 dispatch("subscribeToChainUpdates");
+            }
+        }
+        subscription.on("data", async block =>{
+            if (blockProcessing) blocksWaiting.push(block);
+            else try {
+                blockProcessing = true;
+                await processingFunc(block);
+            } finally {
+                blockProcessing = false;
+            }
+            while( (block = blocksWaiting.shift()) ) {
+                await processingFunc(block);
             }
         });
         $store.set("nodes/chainUpdateSubscription", subscription);

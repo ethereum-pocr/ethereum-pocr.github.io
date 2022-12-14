@@ -55,7 +55,7 @@ export default {
       wallets: [],
       networks: [],
       selectedNetwork: {name: "undefined"},
-      password: "xxxxxxxx",//undefined,
+      password: undefined,
       show: false,
     }
   },

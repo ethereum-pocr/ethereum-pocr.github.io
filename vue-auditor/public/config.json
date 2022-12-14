@@ -16,7 +16,7 @@
     {
       "name": "Kerleano (GdC Node)",
       "nodeUrl": "ws://kerleano-client.francecentral.cloudapp.azure.com:8546",
-      "walletCustodyAPIBaseUrl": "http://localhost:8081",
+      "walletCustodyAPIBaseUrl": "https://pocrnet-test.dag.ca-cib.com/custody/",
       "token": "CRC",
       "chainID": "1804"
     },

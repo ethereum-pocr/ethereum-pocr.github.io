@@ -246,7 +246,7 @@ const actions = {
     },
 
     async selfRegister({ dispatch }) {
-        await handleMMResponse(writeCallWithOptions("selfRegisterAuditor", {maxGas:180000}));
+        await handleMMResponse(writeCallWithOptions("selfRegisterAuditor", {maxGas:200000}));
         dispatch("fetchIsRegistered");
         dispatch("status/fetchIsApproved", null, { root: true });
         dispatch("fetchRole");

@@ -1,4 +1,5 @@
 import Web3 from "web3";
+import BigInt from "./bigint-polyfill";
 import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
 import { Web3CustodyFunctionProvider } from "@saturn-chain/web3-custody-functions";
 import { WalletCustodyApiImpl } from "@saturn-chain/wallet-custody-rest-api";
@@ -87,7 +88,7 @@ export async function readOnlyCallWithOptions(methodName, options, ...args) {
     const contract = $store.get("auth/contract");
     if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
     return contract[methodName](
-        intf(provider).call(options),
+        wrapSend(intf(provider).call(options)), 
         ...args
     );
 }
@@ -110,6 +111,13 @@ function convertMMErrorMessage(message) {
     }
 }
 
+function wrapSend(send) {
+    return (target, data) => {
+        //console.log("Wrapped sender", target, data);
+        return send(target, data)
+    }
+}
+
 export function writeCallWithOptions(methodName, options, ...args) {
     const wallet = $store.get("auth/wallet");
     if (!wallet) {
@@ -118,6 +126,8 @@ export function writeCallWithOptions(methodName, options, ...args) {
     const provider = $store.get("auth/provider");
     const contract = $store.get("auth/contract");
     if (!(methodName in contract)) return Promise.reject(new Error(`Method ${methodName} does not exists in contract`));
+    if (options.amount) options.amount=new BigInt(options.amount.toString(10))
+    console.log("opts.amount + BigInt(opts.gasPrice||0)*BigInt(opts.maxGas||0) ", options, options.amount? '0x'+options.amount.toString(16): "---");
 
     return new Promise( (resolve, reject)=>{
         // First test the execution with the node using the call approach
@@ -127,7 +137,7 @@ export function writeCallWithOptions(methodName, options, ...args) {
             resolve(
                 // as it succeeded, try executing it as a transaction
                 await contract[methodName](
-                    intf(provider).send(options),
+                    wrapSend(intf(provider).send(options)),
                     ...args
                 )
             )
