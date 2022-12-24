@@ -95,7 +95,7 @@ async function processBlock(web3, block) {
             const isSealer = await carbonFootprint.isSealer(intf.call(), sealer)
             sealers.push({sealer, isSealer})
         }
-        console.log("Loaded sealers", sealers);
+        // console.log("Loaded sealers", sealers);
 
     } catch (error) {
         console.warn("Error in preparing block", error)
@@ -162,7 +162,7 @@ const actions = {
         const web3 = rootState.auth.web3;
         const subscription = subscribeNewBlocks(web3) //web3.eth.subscribe("newBlockHeaders");
         let blockProcessing = false;
-        const blocksWaiting = [];
+        let blocksWaiting = [];
         const processingFunc = async (block) => {
             try {
                 if (block.baseFeePerGas == undefined) block = await web3.eth.getBlock(block.number);
@@ -171,6 +171,7 @@ const actions = {
                 // some error on the subscription processing
                 // if the error is due to the loss of connection it needs a reset of the connection
                 console.warn("Error on receiving a new block", error);
+                blocksWaiting = []; // clear
                 dispatch("subscribeToChainUpdates");
             }
         }
@@ -179,11 +180,11 @@ const actions = {
             else try {
                 blockProcessing = true;
                 await processingFunc(block);
+                while( (block = blocksWaiting.shift()) ) {
+                    await processingFunc(block);
+                }
             } finally {
                 blockProcessing = false;
-            }
-            while( (block = blocksWaiting.shift()) ) {
-                await processingFunc(block);
             }
         });
         $store.set("nodes/chainUpdateSubscription", subscription);

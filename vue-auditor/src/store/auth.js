@@ -145,14 +145,14 @@ const actions = {
             const isAuditorApproved = await readOnlyCall("auditorApproved", wallet);
             // see if the node is a sealer and get the value of the footprint if it exists
             let sealerNode = await $store.dispatch("nodes/fetchOneNodeInfo", wallet);
-            console.log("sealerNode", sealerNode);
+            // console.log("sealerNode", sealerNode);
             if (!sealerNode) { // wallet is not a node, is the wallet a delegate of a node
                 try {
                     const delegateOf = await readOnlyCall("delegateOf", wallet);
-                    console.log("retrieved delegateOf", delegateOf);
+                    // console.log("retrieved delegateOf", delegateOf);
                     sealerNode = await $store.dispatch("nodes/fetchOneNodeInfo", delegateOf);
                 } catch (error) {
-                    console.log("retrieved delegateOf impossible - ealier version of the genesis");
+                    // console.log("retrieved delegateOf impossible - ealier version of the genesis");
                 }
             }
             if (sealerNode) { // wallet found as sealer or delegate of a sealer
