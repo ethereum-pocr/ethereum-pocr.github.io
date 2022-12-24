@@ -280,6 +280,9 @@ const actions = {
                 // ignore block                
             }
         }
+        if (blocks.length>0) {
+            $store.set("nodes/totalCrypto", blocks[blocks.length-1].totalCrypto)
+        }
         $store.set("nodes/blocks", blocks);
         $store.set("nodes/sealers", sealers);
         // We may have nodes that have been receiving a footprint that are not running, let's find them from the event log

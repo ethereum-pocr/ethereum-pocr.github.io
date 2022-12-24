@@ -103,31 +103,35 @@ export function subscribeNewBlocks(web3) {
     const delayMs = 1000;
     
     async function runLoop() {
-
-        if (!subs.props) {
-            // first execution: initialized the props and loop
-            subs.props = {lastBlock: await web3.eth.getBlockNumber(), lastCheck: Date.now()};
-        } else {
-            const lastBlock = await web3.eth.getBlockNumber();
-
-            // provider.sendAsync({method:"eth_blockNumber", id: __id++}, (e,r)=>console.log("send Async response", e, r))
-            // const r = await provider.request({method:"eth_blockNumber", id: __id++})
-            // console.log("Request eth_blockNumber", Number(r));
-
-            const lastCheck = Date.now();
-            //console.log("runLoop:", subs.props, {lastBlock, lastCheck});
-            if (lastBlock > subs.props.lastBlock) {
-                for (let b=subs.props.lastBlock+1; b<=lastBlock; b++) {
-                    try {
-                        const block = await web3.eth.getBlock(b, false)
-                        subs.emit("data", block);
-                    } catch (error) {
-                        console.warn("Fail getting block "+b, error.message)
+        try {
+            if (!subs.props) {
+                // first execution: initialized the props and loop
+                subs.props = {lastBlock: await web3.eth.getBlockNumber(), lastCheck: Date.now()};
+            } else {
+                const lastBlock = await web3.eth.getBlockNumber();
+    
+                // provider.sendAsync({method:"eth_blockNumber", id: __id++}, (e,r)=>console.log("send Async response", e, r))
+                // const r = await provider.request({method:"eth_blockNumber", id: __id++})
+                // console.log("Request eth_blockNumber", Number(r));
+    
+                const lastCheck = Date.now();
+                //console.log("runLoop:", subs.props, {lastBlock, lastCheck});
+                if (lastBlock > subs.props.lastBlock) {
+                    for (let b=subs.props.lastBlock+1; b<=lastBlock; b++) {
+                        try {
+                            const block = await web3.eth.getBlock(b, false)
+                            subs.emit("data", block);
+                        } catch (error) {
+                            console.warn("Fail getting block "+b, error.message)
+                        }
                     }
                 }
+                subs.props = {lastBlock, lastCheck};
             }
-            subs.props = {lastBlock, lastCheck};
-        }
+        } catch (error) {
+            console.warn("Something went wront when processing the loop. Ignoring.", error.message);
+        }    
+
         // restart the loop after the delay
         subs.timer = setTimeout( runLoop , delayMs);
     }
