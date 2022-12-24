@@ -5,7 +5,7 @@ import { readOnlyCall, intf as _intf, writeCall, handleMMResponse, getWalletBala
 import { totalCRCAddress, GeneratedCRCTotalHash } from "@/lib/const";
 import $store from "@/store/index";
 
-const MAX_BLOCKS_TO_KEEP = 10;
+const MAX_BLOCKS_TO_KEEP = 40;
 
 const state = () => ({
     nbOfNodes: 0,
@@ -33,9 +33,16 @@ const getters = {
     },
     averageDelaySec(state) {
         if (state.blocks.length < 2) return 0;
-        const previousBlock = state.blocks[state.blocks.length - 2];
-        const lastBlock = state.blocks[state.blocks.length - 1];
-        return (lastBlock.receivedAt - previousBlock.receivedAt) / 1000;
+        const minIndex = state.blocks.length-Math.min(state.blocks.length, 11)
+        const delays = [];
+        for (let i=state.blocks.length-1; i>minIndex; i--) {
+            const previousBlock = state.blocks[i - 1];
+            const lastBlock = state.blocks[i];
+            delays.push((lastBlock.receivedAt - previousBlock.receivedAt) / 1000)
+        }
+        // console.log("Debug averageDelaySec", minIndex, state.blocks.length, delays);
+        if (delays.length == 0) return 0;
+        return delays.reduce( (sum, v)=>v+sum, 0) / delays.length;
     },
     lastBlock(state) {
         if (state.blocks.length === 0) return null;
@@ -99,6 +106,7 @@ async function processBlock(web3, block) {
 
     } catch (error) {
         console.warn("Error in preparing block", error)
+        throw new Error("Fail processing block "+block.number)
     }
     return data;
 }
@@ -155,9 +163,12 @@ const actions = {
         $store.set("nodes/sealers", sealers)
     },
 
-    subscribeToChainUpdates({ state, rootState, dispatch }) {
-        if (state.chainUpdateSubscription !== null) state.chainUpdateSubscription.unsubscribe();
-        dispatch("fetchChainInformations");
+    async subscribeToChainUpdates({ state, rootState, dispatch }) {
+        if (state.chainUpdateSubscription !== null) {
+            state.chainUpdateSubscription.unsubscribe();
+            $store.set("nodes/chainUpdateSubscription", null);
+        }
+        await dispatch("fetchChainInformations");
 
         const web3 = rootState.auth.web3;
         const subscription = subscribeNewBlocks(web3) //web3.eth.subscribe("newBlockHeaders");
@@ -172,7 +183,7 @@ const actions = {
                 // if the error is due to the loss of connection it needs a reset of the connection
                 console.warn("Error on receiving a new block", error);
                 blocksWaiting = []; // clear
-                dispatch("subscribeToChainUpdates");
+                await dispatch("subscribeToChainUpdates");
             }
         }
         subscription.on("data", async block =>{
@@ -203,12 +214,16 @@ const actions = {
             const bal = await getWalletBalance(rootState.auth.wallet);
             commit("currentWalletBalanceWei", bal);
         }
-        const {blocks, sealers} = await logicOnNewBloc(web3, [...state.blocks], [...state.sealers], block);
-        
-        $store.set("nodes/blocks", blocks);
-        $store.set("nodes/sealers", sealers);
-        if (blocks.length>0) {
-            $store.set("nodes/totalCrypto", blocks[blocks.length-1].totalCrypto)
+        try {
+            const {blocks, sealers} = await logicOnNewBloc(web3, [...state.blocks], [...state.sealers], block);
+            
+            $store.set("nodes/blocks", blocks);
+            $store.set("nodes/sealers", sealers);
+            if (blocks.length>0) {
+                $store.set("nodes/totalCrypto", blocks[blocks.length-1].totalCrypto)
+            }
+        } catch (error) {
+            // ignore that block
         }
         dispatch("fetchAllValues");
     },
@@ -257,9 +272,13 @@ const actions = {
 
         for (; index < blockNumber; index++) {
             const block = await web3.eth.getBlock(index, false);
-            const r = await logicOnNewBloc(web3, blocks, sealers, block);
-            blocks = r.blocks;
-            sealers = r.sealers;
+            try {
+                const r = await logicOnNewBloc(web3, blocks, sealers, block);
+                blocks = r.blocks;
+                sealers = r.sealers;
+            } catch (error) {
+                // ignore block                
+            }
         }
         $store.set("nodes/blocks", blocks);
         $store.set("nodes/sealers", sealers);

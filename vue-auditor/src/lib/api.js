@@ -105,6 +105,7 @@ export function subscribeNewBlocks(web3) {
     async function runLoop() {
 
         if (!subs.props) {
+            // first execution: initialized the props and loop
             subs.props = {lastBlock: await web3.eth.getBlockNumber(), lastCheck: Date.now()};
         } else {
             const lastBlock = await web3.eth.getBlockNumber();
@@ -117,17 +118,21 @@ export function subscribeNewBlocks(web3) {
             //console.log("runLoop:", subs.props, {lastBlock, lastCheck});
             if (lastBlock > subs.props.lastBlock) {
                 for (let b=subs.props.lastBlock+1; b<=lastBlock; b++) {
-                    const block = await web3.eth.getBlock(b, false)
-                    subs.emit("data", block);
+                    try {
+                        const block = await web3.eth.getBlock(b, false)
+                        subs.emit("data", block);
+                    } catch (error) {
+                        console.warn("Fail getting block "+b, error.message)
+                    }
                 }
             }
-            subs.timer = subs.props = {lastBlock, lastCheck};
+            subs.props = {lastBlock, lastCheck};
         }
-
+        // restart the loop after the delay
         subs.timer = setTimeout( runLoop , delayMs);
     }
-
-    setTimeout( runLoop , delayMs);
+    // initialize the loop in 10 ms to initialize the props
+    subs.timer = setTimeout( runLoop , 10);
     return subs
 }
 

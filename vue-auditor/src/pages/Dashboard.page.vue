@@ -2,7 +2,7 @@
   <v-layout row wrap>
     <v-row>
       <v-col cols="4">
-        <v-card height="200" width="300" class="ma-6">
+        <v-card height="200" width="300" class="my-6 ma-auto">
           <v-card-subtitle>Block <explorer type="block" :id="lastBlock?lastBlock.block.number:0"></explorer></v-card-subtitle>
           <v-card-title class="align-center">
             <span class="text-h4 ma-auto" :style="lastBlockNoTurnSealing?'color:red':''">{{
@@ -18,7 +18,7 @@
         </v-card>
       </v-col>
       <v-col cols="4">
-        <v-card height="200" width="200" class="ma-6">
+        <v-card height="200" width="200" class="my-6 ma-auto">
           <v-card-subtitle>Audited nodes</v-card-subtitle>
           <v-card-title class="align-center">
             <span class="text-h2 ma-auto">{{ nbOfNodes }}</span>
@@ -26,7 +26,7 @@
         </v-card>
       </v-col>
       <v-col cols="4">
-        <v-card height="200" width="300" class="ma-6">
+        <v-card height="200" width="300" class="my-6 ma-auto">
           <v-card-subtitle>Total footprint (g.CO₂ E)</v-card-subtitle>
           <v-card-title class="align-center">
             <span class="text-h4 ma-auto">{{ totalFootprint }}</span>
@@ -37,7 +37,8 @@
           >
         </v-card>
       </v-col>
-      <v-col cols="12" class="pa-8" v-if="lastBlock">
+      <v-col cols="12" class="py-8" v-if="lastBlock">
+        <v-card>
         <v-card-title>Carbon Footprint for each of the nodes</v-card-title>
         <v-card-subtitle>
           Last block sealer: {{ lastBlock.sealer.address }} /
@@ -70,9 +71,10 @@
             {{ item.value }}
           </template>
         </v-sparkline> -->
+        </v-card>
       </v-col>
 
-      <v-col cols="12" class="pa-8" v-if="lastBlock">
+      <v-col cols="12" class="pb-8" v-if="lastBlock">
         <v-card>
           <v-card-title>Sealers</v-card-title>
           <v-card-text>
