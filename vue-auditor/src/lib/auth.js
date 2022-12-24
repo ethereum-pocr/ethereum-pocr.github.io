@@ -17,15 +17,24 @@ export function setupAuthNavigationGuard(router, store) {
       // if no provider was available, assume that no direct provider was possible hence we need at least to have metamask
       if (!store.state.auth.provider) return next({ name: "installMetaMask" });
     }
-
+    
     // Just to make sure, if you do not have the smart contract instance yet, we instanciate it.
     if (!store.state.auth.contract) {
       store.commit("auth/contract", getContractInstance())
+    }    
+
+    if (to.name === "authentication") {
+      return next();
+    }
+    
+    // You seem to have a connected json rpc service, let's verify it is a PoCR network
+    const error = await store.dispatch("auth/checkNetworkProofOfCarbonReduction");
+    if ( error ) {
+      store.dispatch("errorFlash", `The connected network is probably not a Proof of Carbon Reduction network: ${error}`);
+      return next({ name: "installMetaMask" });
     }
 
-    // You're going to a non-auth route, keep going.
-    if (!to.meta || !to.meta.restricted) return next();
-
+    
     // Good, you have the provider. But have you connected a wallet?
     if (!store.state.auth.wallet) {
       console.log("Didn't find the wallet in the app. Trying to fetch it...");
@@ -33,6 +42,9 @@ export function setupAuthNavigationGuard(router, store) {
     
       console.log("Found a connected wallet.", address);
     }
+
+    // You're going to a non-auth route, keep going.
+    if (!to.meta || !to.meta.restricted) return next();
 
     // await store.dispatch("auth/fetchRole", null, { root: true });
 

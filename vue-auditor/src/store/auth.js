@@ -8,8 +8,12 @@ import { getDefaultNetwork, changeDefaultNetwork, getExplorerUrl } from "@/lib/c
 import $store from "@/store/index";
 import router from "../router.js";
 import {ROLES} from "../lib/const"
+import { poaBlockHashToSealerInfo } from '@root/../pocr-utils/build/index.js';
+import { intf } from '../lib/api.js';
 
 const state = () => ({
+    web3: null, // the web3 instance to avoid recreating it each time, because it has a side effect on the events of the provider
+    intf: null, // similarly the intf instance should not be recreated each time
     provider: null,
     providerMetamask: null,
     providerDirect: null,
@@ -60,9 +64,9 @@ async function detectMetamask() {
             console.log("Metamask chain info", chaininfo);
         })
         providerMetamask.on('accountsChanged', () => window.location.reload())
-        const web3 = new Web3(providerMetamask);
-        const chainID = await web3.eth.getChainId();
-
+        providerMetamask.on('chainChanged', () => window.location = new URL(window.location.pathname, window.location.origin).href)
+        const chainID = Number(providerMetamask.chainId)
+        
         return {
             providerModel: "metamask",
             provider: providerMetamask,
@@ -103,6 +107,27 @@ async function detectDirectAccess() {
 }
 
 const actions = {
+
+    async checkNetworkProofOfCarbonReduction() {
+        const web3 = $store.get("auth/web3");
+        const carbonFootprint = $store.get("auth/contract");
+        
+        try {
+            // try getting the blocknumber
+            const blockNumber = await web3.eth.getBlockNumber()
+            // try getting the poaInfo of the block
+            const block = await web3.eth.getBlock(blockNumber);
+            if (typeof block.difficulty === "string" && !block.difficulty.startsWith('0x')) block.difficulty = Number.parseInt(block.difficulty);
+            poaBlockHashToSealerInfo(block);
+            // try getting the number of sealers/nodes
+            await carbonFootprint.nbNodes(intf().call())
+            
+        } catch (error) {
+            console.error("Fail in checkNetworkProofOfCarbonReduction", error);
+            return error.message;
+        }
+        return false;
+    },
 
     async fetchRole() {
         console.log("fetchRole called");
@@ -149,7 +174,17 @@ const actions = {
         }
     },
 
-    async detectProvider() {
+    setConnection(store, provider) {
+        $store.set("auth/provider", provider.provider);
+        $store.set("auth/providerModel", provider.providerModel);
+        const web3 = new Web3(provider.provider);
+        web3.eth.ens = null
+        $store.set("auth/web3", web3);
+        window.myWeb3 = web3;
+        $store.set("auth/intf", null); // will created on the fly by the intf() function
+    },
+
+    async detectProvider({dispatch}) {
         console.log("Before detecting providers");
         try {
             await $store.dispatch("fetchConfig");
@@ -176,8 +211,9 @@ const actions = {
                 // return router.push({ name: "authentication" }); 
             } else { // a single provider detected, can skip the decision process
                 const provider = providerDirect || providerMetamask; // will get one that is not null
-                $store.set("auth/provider", provider.provider);
-                $store.set("auth/providerModel", provider.providerModel);
+                dispatch("setConnection", provider);
+                // $store.set("auth/provider", provider.provider);
+                // $store.set("auth/providerModel", provider.providerModel);
             }
         } catch (error) {
             console.error("Fail detecting a valid provider", error.message)
@@ -186,10 +222,11 @@ const actions = {
 
     async attemptToConnectWallet() {
         let addresses = [];
-        const providerMetamask = $store.get("auth/providerMetamask");
-        const providerDirect = $store.get("auth/providerDirect");
-        if (providerMetamask) addresses = await window.ethereum.request({ method: "eth_accounts" });
-        if (providerDirect && addresses.length == 0) addresses = await getCustodyLastWallets();
+        // const providerMetamask = $store.get("auth/providerMetamask");
+        // const providerDirect = $store.get("auth/providerDirect");
+        const model = $store.get("auth/providerModel");
+        if (model == "metamask") addresses = await window.ethereum.request({ method: "eth_accounts" });
+        if (model == "direct" && addresses.length == 0) addresses = await getCustodyLastWallets();
         console.log("attemptToConnectWallet", addresses);
         const address = addresses.length > 0 ? addresses[0] : null;
         if (!address) return;
@@ -205,8 +242,9 @@ const actions = {
         $store.set("auth/wallet", accounts[0]);
         // it's decided, the provider is metamask
         const provider = $store.get("auth/providerMetamask");
-        $store.set("auth/provider", provider.provider);
-        $store.set("auth/providerModel", provider.providerModel);
+        dispatch("setConnection", provider);
+        // $store.set("auth/provider", provider.provider);
+        // $store.set("auth/providerModel", provider.providerModel);
         // TODO: call fetchRole here to do a selective redirect? Or, just assume it's a first connect and don't care.
         await dispatch("fetchRole");
         router.push({ name: "dashboard" });
@@ -221,8 +259,9 @@ const actions = {
         $store.set("config", config);
 
         const provider = await detectDirectAccess(); // read again the default config now that it is chaged
-        $store.set("auth/provider", provider.provider);
-        $store.set("auth/providerModel", provider.providerModel);
+        dispatch("setConnection", provider);
+        // $store.set("auth/provider", provider.provider);
+        // $store.set("auth/providerModel", provider.providerModel);
         
         if (provider.custodyModel == "api") {
             const token = await verifyCustodyAuthentication(wallet, password)
@@ -236,8 +275,8 @@ const actions = {
     },
 
     async disconnect() {
+        await router.push({ name: "authentication" });
         $store.set("auth/wallet", null);
-        router.push({ name: "authentication" });
     },
 
     async fetchIsRegistered({ state }) {

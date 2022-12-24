@@ -1,6 +1,84 @@
 <template>
-  <div>Install MetaMask and then reload this application.</div>
+  <div>
+    <div v-if="providerModel!='metamask'">
+      <div>Install MetaMask and then reload this application.</div>
+      <div>Installation instructions available at <a href="https://metamask.io/download/" target="_blank">https://metamask.io/download/</a></div>
+    </div>
+    <div v-if="providerModel=='metamask'">
+      <v-row>
+        <v-col cols="4" v-for="network of networks" :key="network.chainId">
+          <v-card>
+            <v-card-title>{{network.name}}</v-card-title>
+            <v-card-text>
+              <div>{{network.title}}</div>
+              <div>chainID: {{network.chainId}}</div>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn @click="activateOrInstall(network)">Activate</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
+    </div>
+  </div>
 </template>
 <script>
-export default {};
+import { get, call } from "vuex-pathify";
+import { getExplorerUrl } from '../lib/config-file';
+export default {
+  data: ()=>({
+    networks: []
+  }),
+  computed: {
+    ...get(["config"]),
+    ...get("auth", ["provider", "providerModel"]),
+  },
+
+  async mounted() {
+    const res = await fetch('https://chainid.network/chains.json')
+    const all = await res.json()
+    this.networks = all.filter(n=>n.chain == 'CRC')
+  },
+
+  methods: {
+    ...call(["errorFlash"]),
+    ...call("auth", ["openMetaMaskConnectionDialog"]),
+    async activateOrInstall(network) {
+      const ethereum = this.provider;
+      const chainId = '0x'+Number(network.chainId).toString(16);
+      const explorerUrl = getExplorerUrl(this.config, network.chainId);
+      try {
+        await ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId }],
+        });
+        await this.openMetaMaskConnectionDialog();
+      } catch (switchError) {
+        // This error code indicates that the chain has not been added to MetaMask.
+        if (switchError.code === 4902) {
+          try {
+            await ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId,
+                  chainName: network.name,
+                  rpcUrls: [...network.rpc],
+                  nativeCurrency: network.nativeCurrency,
+                  blockExplorerUrls: network.explorers.filter(e=>e.standard=='EIP3091').map(e=>e.url).concat(explorerUrl)
+                },
+              ],
+            });
+            await this.openMetaMaskConnectionDialog();
+          } catch (addError) {
+            // handle "add" error
+            this.errorFlash("Fail adding the network:"+addError.message)
+          }
+        }
+        // handle other "switch" errors
+        this.errorFlash("Fail switching to the network:"+switchError.message)
+      }
+    }
+  }
+};
 </script>

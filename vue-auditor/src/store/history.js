@@ -1,6 +1,5 @@
 import { make } from "vuex-pathify";
 import { governanceAddress } from "@/lib/const";
-import Web3 from "web3";
 import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
 import allContracts from "sc-carbon-footprint";
 import { toEther } from "@/lib/numbers";
@@ -42,7 +41,7 @@ const actions = {
      * @param {{contract:SmartContractInstance, prov:Web3FunctionProvider} param1 
      */
     async fetchFootprintHistory({commit, rootState}, {contract, prov}) {
-        const web3 = new Web3($store.get("auth/provider"));
+        const web3 = $store.get("auth/web3");
         const sealers = rootState.nodes.sealers;
         const wallet = rootState.auth.wallet;
         $store.set("history/footprintHistory", []);

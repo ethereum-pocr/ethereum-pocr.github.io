@@ -1,8 +1,7 @@
-import Web3 from "web3";
 import { make } from "vuex-pathify";
 import { poaBlockHashToSealerInfo } from "pocr-utils";
 import { Web3FunctionProvider } from "@saturn-chain/web3-functions";
-import { readOnlyCall, intf as _intf, writeCall, handleMMResponse, getWalletBalance } from "@/lib/api";
+import { readOnlyCall, intf as _intf, writeCall, handleMMResponse, getWalletBalance, subscribeNewBlocks } from "@/lib/api";
 import { totalCRCAddress, GeneratedCRCTotalHash } from "@/lib/const";
 import $store from "@/store/index";
 
@@ -126,6 +125,7 @@ async function logicOnNewBloc(web3, blocks, sealers, block) {
         sealers[si] = sealer;
     }
     return {blocks, sealers};
+
 }
 
 const actions = {
@@ -159,8 +159,8 @@ const actions = {
         if (state.chainUpdateSubscription !== null) state.chainUpdateSubscription.unsubscribe();
         dispatch("fetchChainInformations");
 
-        const web3 = new Web3(rootState.auth.provider);
-        const subscription = web3.eth.subscribe("newBlockHeaders");
+        const web3 = rootState.auth.web3;
+        const subscription = subscribeNewBlocks(web3) //web3.eth.subscribe("newBlockHeaders");
         let blockProcessing = false;
         const blocksWaiting = [];
         const processingFunc = async (block) => {
@@ -196,7 +196,7 @@ const actions = {
 
 
     async insertNewBlock({ state, rootState, commit, dispatch }, block) {
-        const web3 = new Web3($store.get("auth/provider"));
+        const web3 = $store.get("auth/web3");
         commit("currentBlockNumber", block.number);
         if (rootState.auth.wallet) {
             const bal = await getWalletBalance(rootState.auth.wallet);
@@ -213,7 +213,7 @@ const actions = {
     },
 
     discoverNotRunningSealers({rootState, state}) {
-        const web3 = new Web3(rootState.auth.provider);
+        const web3 = rootState.auth.web3;
         const contract = rootState.auth.contract;
         const prov = new Web3FunctionProvider(rootState.auth.provider, ()=>Promise.resolve(contract.deployedAt));
         const sealers = [...state.sealers]; // make a copy of the sealers from the store
@@ -242,7 +242,7 @@ const actions = {
     },
 
     async fetchChainInformations({ rootState, dispatch }) {
-        const web3 = new Web3(rootState.auth.provider);
+        const web3 = rootState.auth.web3;
         // gets the eventually already available blocks to only request the new ones
         let blocks = [...(rootState.nodes.blocks||[])];
         // the sealers array or create it
@@ -267,7 +267,7 @@ const actions = {
         $store.dispatch("auth/fetchRole");
     },
     async fetchOneNodeInfo({rootState}, address) {
-        const web3 = new Web3(rootState.auth.provider);
+        const web3 = rootState.auth.web3;
         // ensure blocks are loaded, because it needs the blocks to find the node
         const sealers = rootState.nodes.sealers || [];
         let found = sealers.findIndex(s=>s.address == address.toLowerCase());
