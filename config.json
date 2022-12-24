@@ -4,37 +4,7 @@
     "1804": "https://ethereum-pocr.github.io/explorer"
   },
   "networks": [
-    {
-      "name": "Kerleano (CACIB test node)",
-      "nodeUrl": "wss://pocrnet-test.dag.ca-cib.com/clientws",
-      "walletCustodyAPIBaseUrl": "https://pocrnet-test.dag.ca-cib.com/custody/",
-      "explorerUrl": "https://ethereum-pocr.github.io/explorer",
-      "token": "CRC",
-      "chainID": "1804",
-      "default": true
-    },
-    {
-      "name": "Kerleano (GdC Node)",
-      "nodeUrl": "ws://kerleano-client.francecentral.cloudapp.azure.com:8546",
-      "walletCustodyAPIBaseUrl": "https://pocrnet-test.dag.ca-cib.com/custody/",
-      "token": "CRC",
-      "chainID": "1804"
-    },
-    {
-      "name": "Kerleano (CACIB node)",
-      "nodeUrl": "wss://cacib-saturn-test.francecentral.cloudapp.azure.com:9443",
-      "walletCustodyAPIBaseUrl": "http://localhost:8081",
-      "token": "CRC",
-      "chainID": "1804"
-    },
-    {
-      "name": "Local dev (sealer 1)",
-      "nodeUrl": "ws://localhost:8402",
-      "walletCustodyAPIBaseUrl": "http://localhost:8081",
-      "token": "CRC",
-      "chainID": "1804",
-      "default": false
-    }
+  
   ]
 }
 
