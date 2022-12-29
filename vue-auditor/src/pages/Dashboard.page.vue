@@ -172,11 +172,11 @@ export default {
       blocks: [],
       sealersReward: [],
       sealersHeaders: [
-      { text: "Name", value: "name" },
-      { text: "Footprint (g.CO₂)", value: "footprint" },
-      { text: "Reward (₡)", value: "lastReward" },
-      { text: "Balance (₡)", value: "balance" },
-      { text: "Sealing ratio", value: "ratio" },
+      { text: "Name", value: "name", align:"left" },
+      { text: "Footprint (g.CO₂)", value: "footprint" , align:"right"},
+      { text: "Reward (₡)", value: "lastReward" , align:"right"},
+      { text: "Balance (₡)", value: "balance" , align:"right"},
+      { text: "Sealing ratio", value: "ratio", align:"center"},
       { text: "Last", value: "lastSealer" },
     ],
     };
