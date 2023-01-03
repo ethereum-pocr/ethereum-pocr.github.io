@@ -88,11 +88,35 @@ export function intf(provider) {
     throw new Error("should not be calling the api functions without deciding the provider (metamask or direct)")
 }
 
-// let __id= 1000;
+let __id= 1000;
 export function subscribeNewBlocks(web3) {
     if (!web3) web3 = $store.get("auth/web3");
     if (!web3) throw new Error("Should not be calling the api functions without a provider connected")
-    // const provider = $store.get("auth/provider");
+    const provider = $store.get("auth/provider");
+    const model = $store.get("auth/providerModel");
+    const providerSendAsync = model == "metamask" ? 
+    // With metamask the send async exists and the skip cache should be activated to bypass the cached block request
+    (r, cb)=> {
+        provider.sendAsync({...r, skipCache:true}, cb)
+    } 
+    // else use the normal provider send method
+    : provider.send.bind(provider);
+    provider.sendAsync? provider.sendAsync.bind(provider) : provider.send.bind(provider);
+
+
+    async function getBlockNumber() {
+        const r = await new Promise( (res, rej)=>{
+            providerSendAsync({method:"eth_blockNumber", id: __id++, params:[]}, (e,r)=>{
+                // console.log("send Async response", e, r)
+                if (e) rej(e);
+                else if (r) res(r.result);
+                else rej(new Error('No error or response!'))
+            })
+        })
+        // console.log("Request eth_blockNumber", Number(r));
+        return Number(r);
+    }
+
     const subs = new EventEmitter({captureRejections: true});
     subs.unsubscribe = ()=>{
         if (subs.timer) {
@@ -106,13 +130,9 @@ export function subscribeNewBlocks(web3) {
         try {
             if (!subs.props) {
                 // first execution: initialized the props and loop
-                subs.props = {lastBlock: await web3.eth.getBlockNumber(), lastCheck: Date.now()};
+                subs.props = {lastBlock: await getBlockNumber(), lastCheck: Date.now()};
             } else {
-                const lastBlock = await web3.eth.getBlockNumber();
-    
-                // provider.sendAsync({method:"eth_blockNumber", id: __id++}, (e,r)=>console.log("send Async response", e, r))
-                // const r = await provider.request({method:"eth_blockNumber", id: __id++})
-                // console.log("Request eth_blockNumber", Number(r));
+                let lastBlock = await getBlockNumber();
     
                 const lastCheck = Date.now();
                 //console.log("runLoop:", subs.props, {lastBlock, lastCheck});

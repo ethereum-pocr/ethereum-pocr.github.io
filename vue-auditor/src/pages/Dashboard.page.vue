@@ -165,8 +165,6 @@ export default {
   components: {Explorer},
   data: () => {
     return {
-      timerLoop: null,
-      timeSinceLastBlock: 0,
       nbBlocksToKeep: 100,
       sealerMap: new Map(),
       blocks: [],
@@ -183,18 +181,10 @@ export default {
   },
   async mounted() {
     await handleMM(this.fetchChainInformations)
-    // await this.fetchChainInformations()
     await this.fetchAllValues();
     await this.subscribeToChainUpdates();
+    await this.initBackupLoop();
 
-    if (this.timerLoop) {clearInterval(this.timerLoop)}
-    this.timerLoop = setInterval( ()=>{
-      if (!this.lastBlock) return;
-      this.timeSinceLastBlock = Date.now()-this.lastBlock.receivedAt;
-      if (this.timeSinceLastBlock > 60*1000) {
-        window.location.reload()
-      }
-    }, 200);
   },
   computed: {
     ...get("nodes", [
@@ -206,6 +196,7 @@ export default {
       "rewardsByBlock",
       "averageReward",
       "averageDelaySec",
+      "timeSinceLastBlock"
     ]),
     sealersSorted() {
       return [...this.sealers].sort( (a,b)=>a.footprint-b.footprint )
@@ -235,6 +226,7 @@ export default {
       "fetchAllValues",
       "fetchChainInformations",
       "subscribeToChainUpdates",
+      "initBackupLoop"
     ]),
     // ...mapActions(["goToPage"]),
     // processBlockData(data) {
