@@ -78,7 +78,12 @@ export function getExplorerUrl(config, chainID) {
   if (!config) return undefined;
   if (!chainID) { // assume the default config
     const network = getDefaultNetwork(config)
-    if (network) return network.explorerUrl;
+    if (network) {
+      if (network.explorerUrl) return network.explorerUrl;
+      else return getExplorerUrl(config, network.chainID);
+    } else {
+      return undefined;
+    }
   } else { // use the chain ID
     if (config.explorers[chainID]) {
       return config.explorers[chainID];

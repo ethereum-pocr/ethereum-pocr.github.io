@@ -19,9 +19,10 @@ export default {
 
   computed: {
     url() {
-      const explorerUrl = $store.get("auth/explorerUrl");
+      let explorerUrl = $store.get("auth/explorerUrl");
       if (!explorerUrl) return undefined;
-      const u = new URL(`${explorerUrl}/${this.type}/${this.id}`)
+      while (explorerUrl.endsWith('/')) explorerUrl = explorerUrl.slice(0, explorerUrl.length-1)
+      const u = new URL(`${this.type}/${this.id}`, `${explorerUrl}/`)
       return u.href;
     }
   },
