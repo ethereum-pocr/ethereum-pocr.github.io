@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model="drawer" app clipped flat>
+  <v-navigation-drawer v-model="drawer" @input="drawerChange" app clipped flat>
     <v-divider></v-divider>
     <v-list>
       <v-list-item-group :value="$route.name" mandatory color="primary">
@@ -44,10 +44,17 @@ import { get } from "vuex-pathify";
 import { routes } from "@/router";
 
 export default {
+  props: {
+    value: Boolean,
+  },
   data: () => ({
-    drawer: null,
+    drawer: true,
   }),
-
+  watch: {
+    value() {
+      this.drawer = this.value;
+    }
+  },
   computed: {
     ...get(["mmIsOpen"]),
     ...get("auth", ["registered"]),
@@ -92,6 +99,10 @@ export default {
   },
 
   methods: {
+    drawerChange() {
+      // console.log("Drawer displayed changed", this.value, this.drawer);
+      this.$emit("input", this.drawer);
+    },
     goTo(routeName) {
       if (this.$route.name === routeName) return;
       this.$router.push({ name: routeName });

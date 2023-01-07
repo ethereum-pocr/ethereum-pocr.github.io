@@ -71,7 +71,7 @@ async function updateSealerDetails(web3, sealer) {
 }
 
 async function processBlock(web3, block) {
-    console.log("ProcessBloc", block.number);
+    console.log("ProcessBloc", block.number, new Date().toTimeString());
     const intf = _intf($store.get("auth/provider"));
     const carbonFootprint = $store.get("auth/contract");
 

@@ -1,38 +1,33 @@
 <template>
-  <v-layout row wrap>
+  <v-layout col wrap>
+    <v-card height="200" width="300" class="my-6 ma-auto">
+      <v-card-subtitle>Block <explorer type="block" :id="lastBlock?lastBlock.block.number:0"></explorer></v-card-subtitle>
+      <v-card-title class="align-center">
+        <span class="text-h4 ma-auto" :style="lastBlockNoTurnSealing?'color:red':''">{{
+          lastBlock && lastBlock.block.number
+        }}</span>
+      </v-card-title>
+      <v-card-subtitle>Total of {{ totalCrypto.toFixed(2) }} ₡ created</v-card-subtitle>
+      <v-card-subtitle>{{ (timeSinceLastBlock/1000).toFixed(2) }} sec. since last update</v-card-subtitle>
+    </v-card>
+
+    <v-card height="200" width="200" class="my-6 ma-auto">
+      <v-card-subtitle>Audited nodes</v-card-subtitle>
+      <v-card-title class="align-center">
+        <span class="text-h2 ma-auto">{{ nbOfNodes }}</span>
+      </v-card-title>
+    </v-card>
+    <v-card height="200" width="300" class="my-6 ma-auto">
+      <v-card-subtitle>Total footprint (g.CO₂ E)</v-card-subtitle>
+      <v-card-title class="align-center">
+        <span class="text-h4 ma-auto">{{ totalFootprint }}</span>
+      </v-card-title>
+      <v-card-subtitle class="mt-3"
+        >Average:
+        {{ (totalFootprint / nbOfNodes).toFixed(2) }} g.CO₂ E per node</v-card-subtitle
+      >
+    </v-card>
     <v-row>
-      <v-col cols="4">
-        <v-card height="200" width="300" class="my-6 ma-auto">
-          <v-card-subtitle>Block <explorer type="block" :id="lastBlock?lastBlock.block.number:0"></explorer></v-card-subtitle>
-          <v-card-title class="align-center">
-            <span class="text-h4 ma-auto" :style="lastBlockNoTurnSealing?'color:red':''">{{
-              lastBlock && lastBlock.block.number
-            }}</span>
-          </v-card-title>
-          <v-card-subtitle>Total of {{ totalCrypto.toFixed(2) }} ₡ created</v-card-subtitle>
-          <v-card-subtitle>{{ (timeSinceLastBlock/1000).toFixed(2) }} sec. since last update</v-card-subtitle>
-        </v-card>
-      </v-col>
-      <v-col cols="4">
-        <v-card height="200" width="200" class="my-6 ma-auto">
-          <v-card-subtitle>Audited nodes</v-card-subtitle>
-          <v-card-title class="align-center">
-            <span class="text-h2 ma-auto">{{ nbOfNodes }}</span>
-          </v-card-title>
-        </v-card>
-      </v-col>
-      <v-col cols="4">
-        <v-card height="200" width="300" class="my-6 ma-auto">
-          <v-card-subtitle>Total footprint (g.CO₂ E)</v-card-subtitle>
-          <v-card-title class="align-center">
-            <span class="text-h4 ma-auto">{{ totalFootprint }}</span>
-          </v-card-title>
-          <v-card-subtitle class="mt-3"
-            >Average:
-            {{ (totalFootprint / nbOfNodes).toFixed(2) }} g.CO₂ E per node</v-card-subtitle
-          >
-        </v-card>
-      </v-col>
       <v-col cols="12" class="py-8" v-if="lastBlock">
         <v-card>
         <v-card-title>Carbon Footprint for each of the nodes</v-card-title>

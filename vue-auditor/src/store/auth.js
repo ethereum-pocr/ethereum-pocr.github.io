@@ -50,6 +50,19 @@ const getters = {
             return state.providerDirect.explorerUrl;
         }
         return undefined;
+    },
+    chainName(state) {
+        let chainId=0;
+        console.log("build chainName")
+        switch (state.providerModel) {
+            case "direct": chainId=state.providerDirect.chainID; break;
+            case "metamask": chainId=state.providerMetamask.chainID; break;
+        }
+        switch (chainId) {
+            case 1804: return "Kerleano";
+            case 2606: return "PoCRNet";
+        }
+        return "Unknown"
     }
 }
 

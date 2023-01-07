@@ -1,8 +1,9 @@
 <template>
   <v-app id="inspire">
     <v-container>
-      <app-menu></app-menu>
+      <app-menu v-model="drawerDisplayed"></app-menu>
       <v-app-bar app clipped-left flat color="teal lighten-2">
+        <v-app-bar-nav-icon v-if="!drawerDisplayed" @click="showDrawer"></v-app-bar-nav-icon>
         <v-toolbar-title>Proof of Carbon Reduction</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-chip
@@ -28,6 +29,13 @@
           text-color="white"
         >
           {{currentBlockNumber}}
+        </v-chip> 
+        <v-chip
+          class="ma-2"
+          color="blue"
+          text-color="white"
+        >
+          {{chainName}}
         </v-chip> 
 
       </v-app-bar>
@@ -63,17 +71,22 @@ import $store from "@/store/index";
 
 export default {
   components: { AppMenu, WalletAuthenticationDialog },
-  data: () => ({}),
+  data: () => ({
+    drawerDisplayed: true
+  }),
 
   computed: {
     ...sync(["displaySnackbar", "snackbarMessage", "snackbarColor"]),
     ...get(["mmIsOpen"]),
-    ...get("auth", ["wallet", "walletRole"]),
+    ...get("auth", ["wallet", "walletRole", "chainName"]),
     ...get("nodes", ["currentBlockNumber"]),
   },
 
   methods: {
     ...call("auth", ["detectProvider", "disconnect"]),
+    showDrawer() {
+      this.drawerDisplayed = true;
+    },
   },
 
   mounted() {

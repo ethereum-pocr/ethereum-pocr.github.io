@@ -88,6 +88,71 @@ export function intf(provider) {
     throw new Error("should not be calling the api functions without deciding the provider (metamask or direct)")
 }
 
+const globalTimerList={};
+let globalTimerIndex=0;
+let globalTimerId=0;
+let globalTimerLastExecution=0;
+const globalTimerFunction = ()=>{
+    //console.log("interval");
+    globalTimerLastExecution = Date.now();
+    for (const id of Object.keys(globalTimerList)) {
+        const timeout = globalTimerList[id];
+        if (timeout.when<=globalTimerLastExecution) setImmediate(timeout.callback);
+    }
+}
+const initGlobalTimer = ()=>{
+    if (globalTimerId>0) clearInterval(globalTimerId);
+    globalTimerLastExecution = Date.now();
+    globalTimerId = setInterval(globalTimerFunction, 50);
+}
+
+['message', 'online', 'offline', 'pageshow'].forEach(ev=>
+window.addEventListener(ev, () => { 
+    // console.log("Should reset the timer", Date.now(), globalTimerLastExecution, Date.now() - globalTimerLastExecution > 30*1000);
+    if (Date.now() - globalTimerLastExecution > 30*1000) {
+        console.log("Setting the global timer");
+        initGlobalTimer()
+    }
+}));
+
+// Function that hides the standard setTimeout function to try using a permanent unique interval loop
+function setTimeout(cb, delayMs) {
+    let startAt = Date.now();
+    const id=globalTimerIndex++;
+    globalTimerList[id]={when: startAt + delayMs, callback(){ 
+        delete globalTimerList[id];
+        try {cb()} catch(e) {
+            console.log("timer callback failed - so what?", e);
+        }
+    }}
+}
+function clearTimeout(id) {
+    delete globalTimerList[id];
+}
+
+
+// Function that hides the standard setTimeout function to try using the Window.requestAnimationFrame()
+// function setTimeout(cb, delayMs) {
+//     let startAt = performance.now();
+//     const id={id:0};
+//     function frame(timestamp) {
+//         try {
+//             if (timestamp-startAt>delayMs) cb();
+//             else id.id = window.requestAnimationFrame( frame )
+//         } catch (error) {
+//             id.id = window.requestAnimationFrame( frame )
+//         }
+//     }
+//     id.id = window.requestAnimationFrame( frame )
+//     return id;
+// }
+// function clearTimeout(id) {
+//     if (id && id.id) window.cancelAnimationFrame(id.id)
+// }
+
+
+
+
 let __id= 1000;
 export function subscribeNewBlocks(web3) {
     if (!web3) web3 = $store.get("auth/web3");
