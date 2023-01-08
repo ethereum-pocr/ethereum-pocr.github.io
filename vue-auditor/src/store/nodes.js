@@ -80,8 +80,15 @@ async function processBlock(web3, block) {
         if (typeof block.difficulty === "string" && !block.difficulty.startsWith('0x')) block.difficulty = Number.parseInt(block.difficulty);
         const blockNumber = typeof block.number === "string" ? Number.parseInt(block.number) : block.number;
         // Total and delta
-        const totalCryptoB4 = web3.utils.toBN(await web3.eth.getStorageAt(totalCRCAddress, GeneratedCRCTotalHash, blockNumber -1))
-        const totalCrypto = web3.utils.toBN(await web3.eth.getStorageAt(totalCRCAddress, GeneratedCRCTotalHash, blockNumber))
+        let totalCryptoB4 = web3.utils.toBN(0);
+        let totalCrypto = web3.utils.toBN(0);
+        try {
+            totalCryptoB4 = web3.utils.toBN(await web3.eth.getStorageAt(totalCRCAddress, GeneratedCRCTotalHash, blockNumber -1))
+            totalCrypto = web3.utils.toBN(await web3.eth.getStorageAt(totalCRCAddress, GeneratedCRCTotalHash, blockNumber))
+        } catch (error) {
+            // can typically fails when the blockNumber is 128 block before the last block because of missing trie node
+            // In that case we ignore the calculation (zero)
+        }
         // extract the sealer data
         data.sealer = poaBlockHashToSealerInfo(block);
         data.sealer = await updateSealerDetails(web3, data.sealer);
@@ -152,11 +159,11 @@ const actions = {
             const lastBlock = $store.get("nodes/lastBlock");
             if (!lastBlock) return;
             const timeSinceLastBlock = Date.now()-lastBlock.receivedAt;
-            if (timeSinceLastBlock > 60*1000) {
-                console.warn("No block update since more than 60 seconds. Force a subscription");
-                window.location.reload();
-                // dispatch("subscribeToChainUpdates")
-            }
+            // if (timeSinceLastBlock > 60*1000) {
+            //     console.warn("No block update since more than 60 seconds. Force a subscription");
+            //     window.location.reload();
+            //     // dispatch("subscribeToChainUpdates")
+            // }
             commit("timeSinceLastBlock", timeSinceLastBlock)
         }, 200);
 
