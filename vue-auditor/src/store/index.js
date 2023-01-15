@@ -14,6 +14,7 @@ import status from "./status"
 import nodeGovernance from "./nodeGovernance"
 
 Vue.use(Vuex);
+let _logIndexCounter=0;
 
 const state = {
     // used for a nicer UX: if this is true, ignore the values above, we probably don't know the actual values yet
@@ -23,8 +24,9 @@ const state = {
     displaySnackbar: false,
     snackbarMessage: "",
     snackbarColor: "error",
-    config: undefined
+    config: undefined,
 }
+const logs = [];
 
 const store = new Vuex.Store({
     modules: {
@@ -41,6 +43,11 @@ const store = new Vuex.Store({
     ],
     state,
     mutations: make.mutations(state),
+    getters: {
+        logs() {
+            return logs;
+        }
+    },
     actions: {
         errorFlash({ commit }, message) {
             commit("snackbarMessage", message);
@@ -65,7 +72,29 @@ const store = new Vuex.Store({
             } catch (error) {
                 commit("config", undefined)
             }
+        },
+
+        addLog({state}, {type, args}) {
+            if (!state.config || (state.config && state.config.activate_log))
+                // commit("logs", state.logs.concat([{type, args, key: _logIndexCounter++}]), {silent: true})
+                logs.push({type, args, key: _logIndexCounter++})
         }
     }
 });
 export default store;
+
+const oldLog = console.log;
+const oldError = console.error;
+const oldWarn = console.warn;
+console.log = (...args) => {
+    oldLog(...args)
+    store.dispatch("addLog", {type:"info", args})
+}
+console.warn = (...args) => {
+    oldWarn(...args)
+    store.dispatch("addLog", {type:"warn", args})
+}
+console.error = (...args) => {
+    oldError(...args)
+    store.dispatch("addLog", {type:"error", args})
+}

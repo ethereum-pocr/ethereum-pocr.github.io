@@ -53,7 +53,6 @@ const getters = {
     },
     chainName(state) {
         let chainId=0;
-        console.log("build chainName")
         switch (state.providerModel) {
             case "direct": chainId=state.providerDirect.chainID; break;
             case "metamask": chainId=state.providerMetamask.chainID; break;
@@ -71,7 +70,12 @@ const mutations = make.mutations(state);
 // function to generalize the web3 provider and signature api options
 async function detectMetamask() {
     const config = $store.get("config");
-    const providerMetamask = await detectEthereumProvider();
+    let providerMetamask = undefined;
+    try {
+        providerMetamask = await detectEthereumProvider({timeout:2000});
+    } catch (error) {
+        console.log("fail detectEthereumProvider");
+    }
     if (providerMetamask) {
         providerMetamask.on("connect", chaininfo=>{
             console.log("Metamask chain info", chaininfo);

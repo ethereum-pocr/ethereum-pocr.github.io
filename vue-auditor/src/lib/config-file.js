@@ -19,6 +19,11 @@ export function parseUrl(url, acceptedProtocols) {
 export async function cleanUpConfig(config) {
   // Configuration of the internal network is optional and may contains no, one or several networks
 
+  if (config.activate_log) {
+    config.activate_log = true;
+  } else {
+    config.activate_log = false;
+  }
   // check the url of the server handling the private keys if not metamask
   if ( !Array.isArray(config.networks)) config.networks = [];
   const explorers = config.explorers||{};

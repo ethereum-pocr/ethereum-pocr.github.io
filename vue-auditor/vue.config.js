@@ -12,7 +12,7 @@ module.exports = {
   },
   configureWebpack: {
     devServer: {
-      headers: { 'Access-Control-Allow-Origin': '*' }
+      headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=1' }
     }
   }
 };

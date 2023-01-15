@@ -56,7 +56,7 @@ export default {
     }
   },
   computed: {
-    ...get(["mmIsOpen"]),
+    ...get(["mmIsOpen", "config"]),
     ...get("auth", ["registered"]),
     ...get("status", ["approved"]),
     sidenav() {
@@ -78,8 +78,9 @@ export default {
 
       const nav = [];
       const categories = [];
+      
       for (const el of list) {
-        if (el.hidden && el.hidden({ store: this.$store })) continue;
+        if (el.hidden && el.hidden({ store: this.$store, config: this.config })) continue;
         if (
           el.meta &&
           el.meta.displayInSidenav !== "" &&

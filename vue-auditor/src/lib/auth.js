@@ -7,6 +7,9 @@ export function setupAuthNavigationGuard(router, store) {
     if (to.name === "installMetaMask") {
       return next();
     }
+    if (to.name === "logs") {
+      return next();
+    }
 
     // Having a provider is considered mandatory. We'll check that you installed Metamask or have a wallet custody configured.
     if (!store.state.auth.providerModel) {

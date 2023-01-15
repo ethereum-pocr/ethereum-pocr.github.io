@@ -14,6 +14,7 @@ import Pledge from "@/pages/Pledge.page.vue";
 import Status from "@/pages/Status.page.vue";
 import ConfiscatedPledge from "@/pages/ConfiscatedPledge.page.vue";
 import Improvements from "@/pages/Improvements.page.vue";
+import Logger from "@/pages/Logger.page.vue";
 
 import { ROLES } from "./lib/const";
 
@@ -110,6 +111,14 @@ export const routes = [
             restricted: any(hasRole(ROLES.PENDING_AUDITOR), hasRole(ROLES.APPROVED_AUDITOR)),
             forceRedirectTo: "status",
             hidden: not(any(hasRole(ROLES.PENDING_AUDITOR), hasRole(ROLES.APPROVED_AUDITOR)))
+        }
+    },
+    {
+        name: "logs", path: "/logs", component: Logger, meta: {
+            displayInSidenav: "",
+            // restricted: any(hasRole(ROLES.PENDING_AUDITOR), hasRole(ROLES.APPROVED_AUDITOR)),
+            forceRedirectTo: "status",
+            hidden: ({config})=>!config?.activate_log
         }
     },
     // GdC: For some unknown reason the redirection should not be 'authentication' directly but it works with dashboard
