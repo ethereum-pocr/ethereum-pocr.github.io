@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity 0.8.17;
 
 import "./CarbonFootprint.sol";
 import "./AuditorGovernance.sol";
@@ -29,10 +29,10 @@ contract Governance is
         virtual override (ImprovementProposal, AuditorGovernance)
         returns (uint256)
     {
-        if (key == Const_BlockDelayBeforeVote) return 1_950_000;
-        if (key == Const_BlockSpanForVote) return 400_000;
-        if (key == Const_MaxNbBlockPerPeriod) return 650_000;
-        if (key == Const_MinPledgeAmountWei) return 1000 ether;
+        if (key == Const_BlockDelayBeforeVote) return 1_971_000; // 3 months = (365/4)*(24*3600)/4 = 1,971,000
+        if (key == Const_BlockSpanForVote) return 657_000; // 1 month = (365/12)*(24*3600)/4 = 657,000
+        if (key == Const_MaxNbBlockPerPeriod) return 1_971_000; // 3 months = (365/4)*(24*3600)/4 = 1,971,000
+        if (key == Const_MinPledgeAmountWei) return 5000 ether; // 5,000 ₡
         return 0;
     }
 

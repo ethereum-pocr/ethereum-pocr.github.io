@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity 0.8.17;
 
 import "./intf/IPledgeContract.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -223,8 +223,8 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
         // test that the nb of approvals is greater than the number of nodes / 2 +1
         require(hasEnoughVote(t.nbApprovals), "not enough approvals");
 
-        t.target.transfer(t.amount);
         t.completed = true;
+        t.target.transfer(t.amount);
         emit TransferChanged(
             t.index,
             TransferChangeStatus.Executed,
@@ -232,7 +232,7 @@ contract PledgeContract is IPledgeContract, ReentrancyGuard {
         );
     }
 
-    function cancelTransfer(uint256 _index) public override {
+    function cancelTransfer(uint256 _index) public override nonReentrant {
         // test that the caller is a valid node
         require(
             canSenderOperateTransfer(),

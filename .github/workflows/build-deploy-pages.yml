@@ -13,12 +13,14 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '16.8'
-      - run: curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-latest
-      - run: curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(cat solc-file)
-      - run: chmod +x solc && mkdir -p $HOME/.local/bin
-      - run: mv solc $HOME/.local/bin/solc 
-      - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - run: echo $PATH && solc --version
+      - run: |
+          # curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-latest && \
+          curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/list.txt && \
+          curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(grep v0.8.17 solc-file) && \
+          chmod +x solc && mkdir -p $HOME/.local/bin
+          mv solc $HOME/.local/bin/solc 
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo $PATH && solc --version
 
       - run: cd pocr-utils && npm i && npm run build 
       - run: cd sc-carbon-footprint && npm i && npm run build 

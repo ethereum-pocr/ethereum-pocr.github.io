@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity 0.8.17;
 
 import "./intf/ICarbonFootprint.sol";
 import "./intf/IAuditorGovernance.sol";
@@ -21,16 +21,17 @@ contract AuditorGovernance is IAuditorGovernance {
      * @dev
      * The struct contains the voters mapping, which gets all node's addresses and vote
      * once they have voted
+     * Note on the order of the fields, they are such to optimize the storage
      */
     struct AuditorStatus {
         bool registered;
-        uint256 votes;
         bool approved;
+        uint256 votes;
         uint256 registeredAtBlock;
         uint256 statusUpdateBlock;
-        mapping(address => NodeVote) voters;
         uint256 minPledgeAtLastAudit; // the calculated amount of the minimum pledge at last audit done
         uint256 lastAuditAtBlock; // the block number of the last audit done
+        mapping(address => NodeVote) voters;
     }
 
     mapping(address => AuditorStatus) private auditorsStatus;
