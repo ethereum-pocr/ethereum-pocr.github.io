@@ -23,7 +23,7 @@ contract Governance is
     NodeDelegation
 {
 
-    function getConstantValue(uint key)
+    function getConstantValue(uint256 key)
         internal
         view
         virtual override (ImprovementProposal, AuditorGovernance)

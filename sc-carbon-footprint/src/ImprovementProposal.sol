@@ -7,32 +7,32 @@ import "./intf/Constants.sol";
 
 
 contract ImprovementProposal is IImprovementProposal {
-  // uint constant private _blockDelayBeforeVote = 1_950_000;
-  // uint constant private _blockSpanForVote = 400_000;
-  // function getBlockConstantValues() virtual internal pure returns (uint blockDelayBeforeVote, uint blockSpanForVote) {
+  // uint256 constant private _blockDelayBeforeVote = 1_950_000;
+  // uint256 constant private _blockSpanForVote = 400_000;
+  // function getBlockConstantValues() virtual internal pure returns (uint256 blockDelayBeforeVote, uint256 blockSpanForVote) {
   //   blockDelayBeforeVote = 1_950_000;
   //   blockSpanForVote = 400_000;
   // }
 
-  function getConstantValue(uint) virtual internal view returns (uint) {
+  function getConstantValue(uint256) virtual internal view returns (uint256) {
       return 0;
   }
 
   struct IP {
-    uint index;
-    uint createdAtBlock;
-    uint nodesVoteFor;
-    uint nodesVoteAgainst;
-    uint auditorsVoteFor;
-    uint auditorsVoteAgainst;
+    uint256 index;
+    uint256 createdAtBlock;
+    uint256 nodesVoteFor;
+    uint256 nodesVoteAgainst;
+    uint256 auditorsVoteFor;
+    uint256 auditorsVoteAgainst;
     mapping(address => int8) nodeVotes; // -1 ; 0 ; +1
     mapping(address => int8) auditorVotes; // -1 ; 0 ; +1
-    uint firstVoteAtBlock;
+    uint256 firstVoteAtBlock;
   }
-  mapping(uint=>IP) private ips;
-  uint private nbIPs;
+  mapping(uint256=>IP) private ips;
+  uint256 private nbIPs;
 
-  function nbImprovementProposals() public view returns (uint) {
+  function nbImprovementProposals() public view returns (uint256) {
     return nbIPs;
   }
 
@@ -50,13 +50,13 @@ contract ImprovementProposal is IImprovementProposal {
   }
 
   function evaluateStatus(IP storage _ip) private view returns (IPStatus status) {
-    uint blockDelayBeforeVote = getConstantValue(Const_BlockDelayBeforeVote);
-    uint blockSpanForVote = getConstantValue(Const_BlockSpanForVote);
-    uint voteFrom = _ip.firstVoteAtBlock;
+    uint256 blockDelayBeforeVote = getConstantValue(Const_BlockDelayBeforeVote);
+    uint256 blockSpanForVote = getConstantValue(Const_BlockSpanForVote);
+    uint256 voteFrom = _ip.firstVoteAtBlock;
     if (voteFrom < _ip.createdAtBlock) {
       voteFrom = _ip.createdAtBlock + blockDelayBeforeVote;
     }
-    uint voteUntil = voteFrom + blockSpanForVote;
+    uint256 voteUntil = voteFrom + blockSpanForVote;
     if (block.number < voteFrom ) { // before the vote can start
       status = IPStatus.Proposed;
     } else if (block.number <= voteUntil) { // before the vote is closed
@@ -78,19 +78,19 @@ contract ImprovementProposal is IImprovementProposal {
     }
   }
 
-  function getImprovementProposal(uint _index) public view returns (
-    uint index,
+  function getImprovementProposal(uint256 _index) public view returns (
+    uint256 index,
     IPStatus status,
-    uint createdBlock,
-    uint voteFromBlock,
-    uint voteUntilBlock,
-    uint auditorsFor,
-    uint auditorsAgainst,
-    uint nodesFor,
-    uint nodesAgainst
+    uint256 createdBlock,
+    uint256 voteFromBlock,
+    uint256 voteUntilBlock,
+    uint256 auditorsFor,
+    uint256 auditorsAgainst,
+    uint256 nodesFor,
+    uint256 nodesAgainst
   ) {
-    uint blockDelayBeforeVote = getConstantValue(Const_BlockDelayBeforeVote);
-    uint blockSpanForVote = getConstantValue(Const_BlockSpanForVote);
+    uint256 blockDelayBeforeVote = getConstantValue(Const_BlockDelayBeforeVote);
+    uint256 blockSpanForVote = getConstantValue(Const_BlockSpanForVote);
     require(_index < nbIPs, "invalid index");
     IP storage ip = ips[_index];
     index = ip.index;
@@ -122,7 +122,7 @@ contract ImprovementProposal is IImprovementProposal {
     emit IPChanged(ip.index, IPStatus.Proposed);
   }
 
-  function voteForProposal(uint _index) public {
+  function voteForProposal(uint256 _index) public {
     require(_index < nbIPs, "invalid index");
     IP storage ip = ips[_index];
     require(voteAllowed(ip), "vote is closed");
@@ -174,7 +174,7 @@ contract ImprovementProposal is IImprovementProposal {
     emit IPVote(_index, actualVoter, s, 1);
   }
 
-  function voteAgainstProposal(uint _index) public {
+  function voteAgainstProposal(uint256 _index) public {
     require(_index < nbIPs, "invalid index");
     IP storage ip = ips[_index];
     require(voteAllowed(ip), "vote is closed");

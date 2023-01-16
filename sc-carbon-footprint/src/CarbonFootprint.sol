@@ -55,12 +55,12 @@ contract CarbonFootprint {
 
     // updated by auditors 
     mapping(address => uint256) public footprint;
-    mapping(address => uint) public footprintBlock;
+    mapping(address => uint256) public footprintBlock;
 
     // should be transformed into a function looping on the actual sealers
     // uint256 public totalFootprint;
-    function totalFootprint() external view returns (uint) {
-        uint total = 0;
+    function totalFootprint() external view returns (uint256) {
+        uint256 total = 0;
         for (uint256 index = 0; index < nbNodes; index++) {
             total = total + footprint[sealers[index]];
         }

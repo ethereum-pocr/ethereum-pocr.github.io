@@ -6,7 +6,7 @@ import "./Governance.sol";
 
 contract GovernanceLocalNetwork is Governance {
 
-    function getConstantValue(uint key)
+    function getConstantValue(uint256 key)
         internal
         pure
         override

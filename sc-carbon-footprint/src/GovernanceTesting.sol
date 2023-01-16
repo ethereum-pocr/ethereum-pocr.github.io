@@ -5,7 +5,7 @@ pragma solidity 0.8.17;
 import "./Governance.sol";
 
 contract GovernanceTesting is Governance {
-    function getConstantValue(uint key)
+    function getConstantValue(uint256 key)
         internal
         pure
         override

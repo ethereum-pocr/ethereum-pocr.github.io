@@ -6,8 +6,8 @@ import "./Governance.sol";
 
 contract GovernanceKerleano is Governance {
     // This is for the Test network only allowing nodes to update the params if needed
-    mapping(uint => uint256) public params;
-    function getConstantValue(uint key)
+    mapping(uint256 => uint256) public params;
+    function getConstantValue(uint256 key)
         internal
         view
         override
@@ -24,7 +24,7 @@ contract GovernanceKerleano is Governance {
     }
 
     // This is for the Test network only allowing nodes to update the params if needed
-    function setGovernanceParam(uint key, uint256 value) public {
+    function setGovernanceParam(uint256 key, uint256 value) public {
         require(canActAsSealerNode(msg.sender), "Can only be set by a sealer");
         params[key]=value;
     }
