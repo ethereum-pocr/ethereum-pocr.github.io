@@ -9,7 +9,7 @@ import $store from "@/store/index";
 import router from "../router.js";
 import {ROLES} from "../lib/const"
 import { poaBlockHashToSealerInfo } from '@root/../pocr-utils/build/index.js';
-import { intf } from '../lib/api.js';
+import { intf, getContractInstance } from '../lib/api.js';
 
 const state = () => ({
     web3: null, // the web3 instance to avoid recreating it each time, because it has a side effect on the events of the provider
@@ -201,7 +201,11 @@ const actions = {
         $store.set("auth/intf", null); // will created on the fly by the intf() function
     },
 
-    async detectProvider({dispatch}) {
+    async detectProvider({dispatch, commit, state}) {
+        // Just to make sure, if you do not have the smart contract instance yet, we instanciate it.
+        if (!state.contract) {
+            commit("contract", getContractInstance())
+        }  
         console.log("Before detecting providers");
         try {
             await $store.dispatch("fetchConfig");

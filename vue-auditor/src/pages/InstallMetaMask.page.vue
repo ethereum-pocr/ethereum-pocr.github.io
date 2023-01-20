@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div v-if="providerModel!='metamask'">
+    <div v-if="!providerMetamask">
       <div>Install MetaMask and then reload this application.</div>
       <div>Installation instructions available at <a href="https://metamask.io/download/" target="_blank">https://metamask.io/download/</a></div>
     </div>
-    <div v-if="providerModel=='metamask'">
+    <div v-if="providerMetamask">
       <v-row>
         <v-col cols="4" v-for="network of networks" :key="network.chainId">
           <v-card>
@@ -31,10 +31,11 @@ export default {
   }),
   computed: {
     ...get(["config"]),
-    ...get("auth", ["provider", "providerModel"]),
+    ...get("auth", ["provider", "providerModel", "providerMetamask"]),
   },
 
   async mounted() {
+    await this.detectProvider();
     const res = await fetch('https://chainid.network/chains.json')
     const all = await res.json()
     this.networks = all.filter(n=>n.chain == 'CRC')
@@ -42,9 +43,10 @@ export default {
 
   methods: {
     ...call(["errorFlash"]),
-    ...call("auth", ["openMetaMaskConnectionDialog"]),
+    ...call("auth", ["detectProvider", "openMetaMaskConnectionDialog"]),
     async activateOrInstall(network) {
-      const ethereum = this.provider;
+      if (!this.providerMetamask) throw new Error("metamask has not been installed")
+      const ethereum = this.providerMetamask.provider;
       const chainId = '0x'+Number(network.chainId).toString(16);
       const explorerUrl = getExplorerUrl(this.config, network.chainId);
       try {

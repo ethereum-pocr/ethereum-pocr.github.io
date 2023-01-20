@@ -1,9 +1,12 @@
 <template>
   <div>
-    <v-btn color="teal" dark @click="openMetaMaskConnectionDialog"
-      v-if="hasProviderMetamask"
-      >Connect Metamask Wallet</v-btn
-    >
+    <div v-if="hasProviderMetamask">
+      <v-btn color="teal" dark @click="openMetaMaskConnectionDialog"
+        >Connect Metamask Wallet</v-btn>
+      <v-btn class="mx-3" color="teal" dark @click="goToInstallMetamask"
+        >Switch / Install network</v-btn>
+
+    </div>
     <br><br>
     <div v-if="hasProviderDirect">
       <v-btn color="teal" dark @click="prepareOpenWeb3DirectConnectionDialog"
@@ -90,6 +93,10 @@ export default {
     async prepareOpenWeb3DirectConnectionDialog() {
       await this.openWeb3DirectConnectionDialog({wallet: this.wallet, password: this.password, nodeUrl: this.selectedNetwork.nodeUrl});
       this.wallets = await getCustodyLastWallets();
+    },
+
+    goToInstallMetamask() {
+      this.$router.push({ name: 'installMetaMask' })
     }
   },
 };
