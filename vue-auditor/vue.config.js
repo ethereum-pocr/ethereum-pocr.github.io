@@ -1,4 +1,4 @@
-
+const compression = require('compression')
 module.exports = {
   chainWebpack: (config) => config.resolve.symlinks(false),
   publicPath: "/",
@@ -12,7 +12,12 @@ module.exports = {
   },
   configureWebpack: {
     devServer: {
-      headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=1' }
+      disableHostCheck: true,
+      headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-cache, no-store, must-revalidate' },
+      before: app => {
+        app.set('etag', false);
+        app.use(compression());
+      }
     }
   }
 };

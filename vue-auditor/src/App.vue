@@ -16,12 +16,10 @@
         <v-chip
           v-if="wallet"
           class="ma-2"
-          close
           color="blue"
           text-color="white"
-          @click:close="disconnect"
         >
-          {{wallet}}
+          <v-icon @click="disconnect" class="mr-1">mdi-close</v-icon> {{wallet}}
         </v-chip>
         <v-chip
           class="ma-2"
@@ -48,6 +46,14 @@
     </v-container>
     <v-overlay :value="mmIsOpen">
       <v-progress-circular indeterminate></v-progress-circular>
+    </v-overlay>
+    <v-overlay :value="mmConnecting">
+      <v-card>
+        <v-card-title>Authorize the connection of the website to the browser wallet</v-card-title>
+        <v-actions>
+          <v-btn @click="cancelWalletConnection">Cancel</v-btn>
+        </v-actions>
+      </v-card>
     </v-overlay>
     <v-snackbar
       v-model="displaySnackbar"
@@ -78,12 +84,12 @@ export default {
   computed: {
     ...sync(["displaySnackbar", "snackbarMessage", "snackbarColor"]),
     ...get(["mmIsOpen"]),
-    ...get("auth", ["wallet", "walletRole", "chainName"]),
+    ...get("auth", ["wallet", "walletRole", "chainName", "mmConnecting"]),
     ...get("nodes", ["currentBlockNumber"]),
   },
 
   methods: {
-    ...call("auth", ["detectProvider", "disconnect"]),
+    ...call("auth", ["detectProvider", "disconnect", "cancelWalletConnection"]),
     showDrawer() {
       this.drawerDisplayed = true;
     },
@@ -91,7 +97,8 @@ export default {
 
   mounted() {
     // record the authentication function to make it available in api.js
-    $store.set("auth/walletAuthenticationFunction", this.$refs.walletAuthenticationDialog.authenticate) 
+    $store.set("auth/walletAuthenticationFunction", this.$refs.walletAuthenticationDialog.authenticate);
+    // this.detectProvider();
   }
 };
 </script>

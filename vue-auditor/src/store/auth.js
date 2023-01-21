@@ -1,9 +1,11 @@
 // import ready from "document-ready-promise";
-import detectEthereumProvider from '@metamask/detect-provider';
+// import detectEthereumProvider from '@metamask/detect-provider';
 import Web3 from "web3";
+import EventEmitter from 'events';
 import { make } from "vuex-pathify";
 import { readOnlyCall, writeCallWithOptions, handleMMResponse, getWeb3ProviderFromUrl, verifyCustodyAuthentication, getCustodyLastWallets } from "@/lib/api";
 import { getDefaultNetwork, changeDefaultNetwork, getExplorerUrl } from "@/lib/config-file";
+import { detectEthereumProvider, getEthereumProviderConnectedAccounts, unlockEthereumProviderAccounts, } from '../lib/ethereum-compatible-wallet';
 
 import $store from "@/store/index";
 import router from "../router.js";
@@ -29,7 +31,9 @@ const state = () => ({
     isVoterNode: false,
     isAuditor: false,
     isAuditorApproved: false,
-    walletAuthenticationFunction: null
+    walletAuthenticationFunction: null,
+    mmConnecting: false,
+    mmConnectionNotifier : new EventEmitter(),
 })
 
 const getters = {
@@ -76,12 +80,16 @@ async function detectMetamask() {
     } catch (error) {
         console.log("fail detectEthereumProvider");
     }
+    function chainChanged() {
+        window.location = new URL(window.location.pathname, window.location.origin).href;
+    }
     if (providerMetamask) {
-        providerMetamask.on("connect", chaininfo=>{
-            console.log("Metamask chain info", chaininfo);
-        })
-        providerMetamask.on('accountsChanged', () => window.location.reload())
-        providerMetamask.on('chainChanged', () => window.location = new URL(window.location.pathname, window.location.origin).href)
+        // providerMetamask.on("connect", chaininfo=>{
+        //     console.log("Metamask chain info", chaininfo);
+        // })
+        // providerMetamask.on('accountsChanged', () => window.location.reload())
+        providerMetamask.removeListener('chainChanged', chainChanged);
+        providerMetamask.on('chainChanged', chainChanged);
         const chainID = Number(providerMetamask.chainId)
         
         return {
@@ -122,13 +130,12 @@ async function detectDirectAccess() {
         return undefined
     }
 }
-
 const actions = {
 
     async checkNetworkProofOfCarbonReduction() {
         const web3 = $store.get("auth/web3");
         const carbonFootprint = $store.get("auth/contract");
-        
+        console.log("checkNetworkProofOfCarbonReduction", web3);
         try {
             // try getting the blocknumber
             const blockNumber = await web3.eth.getBlockNumber()
@@ -191,7 +198,7 @@ const actions = {
         }
     },
 
-    setConnection(store, provider) {
+    async setConnection(store, provider) {
         $store.set("auth/provider", provider.provider);
         $store.set("auth/providerModel", provider.providerModel);
         const web3 = new Web3(provider.provider);
@@ -243,10 +250,11 @@ const actions = {
 
     async attemptToConnectWallet() {
         let addresses = [];
-        // const providerMetamask = $store.get("auth/providerMetamask");
+        const providerMetamask = $store.get("auth/providerMetamask");
         // const providerDirect = $store.get("auth/providerDirect");
         const model = $store.get("auth/providerModel");
-        if (model == "metamask") addresses = await window.ethereum.request({ method: "eth_accounts" });
+        
+        if (model == "metamask") addresses = await getEthereumProviderConnectedAccounts(providerMetamask.provider, {timeout:1000});
         if (model == "direct" && addresses.length == 0) addresses = await getCustodyLastWallets();
         console.log("attemptToConnectWallet", addresses);
         const address = addresses.length > 0 ? addresses[0] : null;
@@ -256,19 +264,37 @@ const actions = {
         return address;
     },
 
-    async openMetaMaskConnectionDialog({ dispatch }) {
+    async cancelWalletConnection({ state}) {
+        if (state.mmConnecting) {
+            state.mmConnectionNotifier.emit("cancel");
+        }
+    },
+
+    async openMetaMaskConnectionDialog({ dispatch, state, commit }, {noRedirect = false}={}) {
+        const provider = $store.get("auth/providerMetamask");
         $store.set("auth/wallet", null);
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" })
+        // const notifier = new EventEmitter();
+        // setTimeout( ()=>notifier.emit("cancel"), 10000);
+        let accounts = await getEthereumProviderConnectedAccounts(provider.provider, {timeout: 500});
+        if (accounts.length==0) {
+            try {
+                commit("mmConnecting", true)
+                accounts = await unlockEthereumProviderAccounts(provider.provider, state.mmConnectionNotifier)
+            } finally {
+                commit("mmConnecting", false)
+            }
+        }
         if (accounts.length === 0) return;
         $store.set("auth/wallet", accounts[0]);
         // it's decided, the provider is metamask
-        const provider = $store.get("auth/providerMetamask");
         dispatch("setConnection", provider);
         // $store.set("auth/provider", provider.provider);
         // $store.set("auth/providerModel", provider.providerModel);
         // TODO: call fetchRole here to do a selective redirect? Or, just assume it's a first connect and don't care.
-        await dispatch("fetchRole");
-        router.push({ name: "dashboard" });
+        if (!noRedirect) {
+            await dispatch("fetchRole");
+            router.push({ name: "dashboard" });
+        }
     },
 
     async openWeb3DirectConnectionDialog({ dispatch }, {wallet, password, nodeUrl}) {
@@ -286,6 +312,7 @@ const actions = {
         
         if (provider.custodyModel == "api") {
             const token = await verifyCustodyAuthentication(wallet, password)
+            
             // console.log("openWeb3DirectConnectionDialog", wallet, password, token);
             if (token) {
                 $store.set("auth/wallet", wallet);

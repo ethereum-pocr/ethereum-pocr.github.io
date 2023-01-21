@@ -25,13 +25,16 @@
 <script>
 import { get, call } from "vuex-pathify";
 import { getExplorerUrl } from '../lib/config-file';
+import {switchEthereumProviderNetwork, getEthereumProviderChainInfo} from "../lib/ethereum-compatible-wallet";
+import router from "../router.js";
+
 export default {
   data: ()=>({
     networks: []
   }),
   computed: {
     ...get(["config"]),
-    ...get("auth", ["provider", "providerModel", "providerMetamask"]),
+    ...get("auth", ["provider", "providerModel", "providerMetamask", "wallet"]),
   },
 
   async mounted() {
@@ -43,42 +46,32 @@ export default {
 
   methods: {
     ...call(["errorFlash"]),
-    ...call("auth", ["detectProvider", "openMetaMaskConnectionDialog"]),
+    ...call("auth", ["detectProvider", "openMetaMaskConnectionDialog", "attemptToConnectWallet"]),
     async activateOrInstall(network) {
       if (!this.providerMetamask) throw new Error("metamask has not been installed")
       const ethereum = this.providerMetamask.provider;
       const chainId = '0x'+Number(network.chainId).toString(16);
       const explorerUrl = getExplorerUrl(this.config, network.chainId);
       try {
-        await ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId }],
-        });
-        await this.openMetaMaskConnectionDialog();
-      } catch (switchError) {
-        // This error code indicates that the chain has not been added to MetaMask.
-        if (switchError.code === 4902) {
-          try {
-            await ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [
-                {
-                  chainId,
-                  chainName: network.name,
-                  rpcUrls: [...network.rpc],
-                  nativeCurrency: network.nativeCurrency,
-                  blockExplorerUrls: network.explorers.filter(e=>e.standard=='EIP3091').map(e=>e.url).concat(explorerUrl)
-                },
-              ],
-            });
-            await this.openMetaMaskConnectionDialog();
-          } catch (addError) {
-            // handle "add" error
-            this.errorFlash("Fail adding the network:"+addError.message)
-          }
+        await this.openMetaMaskConnectionDialog({noRedirect: true});
+
+        if (!this.wallet) throw new Error("Could not find an account");
+        const info = getEthereumProviderChainInfo(ethereum);
+        if (info.chainId != network.chainId) {
+          await switchEthereumProviderNetwork(ethereum, {
+            chainId, 
+            chainName: network.name,
+            rpcUrls: [...network.rpc],
+            nativeCurrency: network.nativeCurrency,
+            blockExplorerUrls: network.explorers.filter(e=>e.standard=='EIP3091').map(e=>e.url).concat(explorerUrl)
+          }, this.wallet)
+        } else {
+          this.attemptToConnectWallet()
         }
-        // handle other "switch" errors
-        this.errorFlash("Fail switching to the network:"+switchError.message)
+        router.push({ name: "dashboard" });
+      } catch (addError) {
+        // handle "add" error
+        this.errorFlash("Fail adding the network:"+addError.message)
       }
     }
   }

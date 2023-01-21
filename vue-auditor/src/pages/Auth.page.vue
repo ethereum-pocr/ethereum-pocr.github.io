@@ -1,9 +1,9 @@
 <template>
   <div>
     <div v-if="hasProviderMetamask">
-      <v-btn color="teal" dark @click="openMetaMaskConnectionDialog"
+      <v-btn color="teal" class=" my-3" dark @click="prepareOpenMetaMaskConnectionDialog"
         >Connect Metamask Wallet</v-btn>
-      <v-btn class="mx-3" color="teal" dark @click="goToInstallMetamask"
+      <v-btn class="mx-3 my-3" color="teal" dark @click="goToInstallMetamask"
         >Switch / Install network</v-btn>
 
     </div>
@@ -86,9 +86,29 @@ export default {
     },
   },
   methods: {
-    ...call("auth", ["openMetaMaskConnectionDialog", "openWeb3DirectConnectionDialog"]),
+    ...call(["errorFlash"]),
+    ...call("auth", ["openMetaMaskConnectionDialog", "openWeb3DirectConnectionDialog", "setConnection", "checkNetworkProofOfCarbonReduction"]),
     updateWallet(v) {
       this.wallet = v;
+    },
+    async prepareOpenMetaMaskConnectionDialog() {
+      const metamask = this.$store.state.auth.providerMetamask;
+      if (!metamask) return;
+
+      await this.setConnection(metamask);
+
+      if (!await this.checkNetworkProofOfCarbonReduction()) {
+        try {
+          await this.openMetaMaskConnectionDialog()
+        } catch (error) {
+          this.errorFlash("Could not connect an account from the wallet: " + error.message);
+          return;
+        }
+        this.goToDashboard()
+      } else {
+        this.goToInstallMetamask()
+      }
+
     },
     async prepareOpenWeb3DirectConnectionDialog() {
       await this.openWeb3DirectConnectionDialog({wallet: this.wallet, password: this.password, nodeUrl: this.selectedNetwork.nodeUrl});
@@ -97,6 +117,10 @@ export default {
 
     goToInstallMetamask() {
       this.$router.push({ name: 'installMetaMask' })
+    },
+
+    goToDashboard() {
+      this.$router.push({ name: 'dashboard' })
     }
   },
 };
