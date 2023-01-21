@@ -1,7 +1,21 @@
 import { getContractInstance } from "./api";
 
+let _fullyLoaded = false;
+window.addEventListener("load", ()=>{_fullyLoaded=true}, {once:true})
+
+async function fullLoaded() {
+  await new Promise( resolve=>{
+    if (_fullyLoaded) resolve();
+    else window.addEventListener("load", ()=>{resolve()}, {once:true})
+  })
+}
+
 export function setupAuthNavigationGuard(router, store) {
   router.beforeEach(async (to, from, next) => {
+    // force waiting for all other element to be ready because it can cause problem on mobile browser (brave in particular)
+    await fullLoaded();
+
+
     console.log("routing ", from.name, to.name);
     // first need to control if we have not routed to the metamask missing page
     if (to.name === "installMetaMask") {
