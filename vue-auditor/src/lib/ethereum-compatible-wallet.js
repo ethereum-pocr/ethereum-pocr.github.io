@@ -79,13 +79,14 @@ export function detectEthereumProvider({
  * @param {Provider} provider 
  * @returns {{connected:boolean, chainId?: number, chainIdHex?: string, networkVersion?: number}}
  */
-export function getEthereumProviderChainInfo(provider) {
+export async function getEthereumProviderChainInfo(provider) {
   if (!provider) return {connected: false};
-
+  const chainId = await provider.request({ method: 'eth_chainId' })
+  
   return {
     connected: provider.isConnected(),
-    chainId: Number(provider.chainId),
-    chainIdHex: `0x${ Number(provider.chainId).toString(16)}`,
+    chainId: Number(chainId),
+    chainIdHex: `0x${ Number(chainId).toString(16)}`,
     networkVersion: Number(provider.networkVersion),
   }
 }

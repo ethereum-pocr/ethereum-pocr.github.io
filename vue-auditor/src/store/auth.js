@@ -5,7 +5,7 @@ import EventEmitter from 'events';
 import { make } from "vuex-pathify";
 import { readOnlyCall, writeCallWithOptions, handleMMResponse, getWeb3ProviderFromUrl, verifyCustodyAuthentication, getCustodyLastWallets } from "@/lib/api";
 import { getDefaultNetwork, changeDefaultNetwork, getExplorerUrl } from "@/lib/config-file";
-import { detectEthereumProvider, getEthereumProviderConnectedAccounts, unlockEthereumProviderAccounts, } from '../lib/ethereum-compatible-wallet';
+import { detectEthereumProvider, getEthereumProviderConnectedAccounts, unlockEthereumProviderAccounts, getEthereumProviderChainInfo} from '@/lib/ethereum-compatible-wallet';
 
 import $store from "@/store/index";
 import router from "../router.js";
@@ -73,6 +73,7 @@ const mutations = make.mutations(state);
 
 // function to generalize the web3 provider and signature api options
 async function detectMetamask() {
+    console.log("Entering detect Metamask")
     const config = $store.get("config");
     let providerMetamask = undefined;
     try {
@@ -85,20 +86,22 @@ async function detectMetamask() {
     }
     if (providerMetamask) {
         // providerMetamask.on("connect", chaininfo=>{
-        //     console.log("Metamask chain info", chaininfo);
+            //     console.log("Metamask chain info", chaininfo);
         // })
         // providerMetamask.on('accountsChanged', () => window.location.reload())
         providerMetamask.removeListener('chainChanged', chainChanged);
         providerMetamask.on('chainChanged', chainChanged);
-        const chainID = Number(providerMetamask.chainId)
-        
+        const chain = await getEthereumProviderChainInfo(providerMetamask)
+        // const explorerUrl = getExplorerUrl(config, chainID)
+        const explorerUrl = getExplorerUrl(config, chain.chainId)
+        console.log("Explorer url defined", explorerUrl)
         return {
             providerModel: "metamask",
             provider: providerMetamask,
             custodyModel: "metamask",
             custodyApiUrl: null,
-            chainID,
-            explorerUrl: getExplorerUrl(config, chainID)
+            chainID: chain.chainId,
+            explorerUrl
         }
     } else return undefined;
 }
@@ -266,7 +269,7 @@ const actions = {
         
         if (model == "metamask") addresses = await getEthereumProviderConnectedAccounts(providerMetamask.provider, {timeout:1000});
         if (model == "direct" && addresses.length == 0) addresses = await getCustodyLastWallets();
-        console.log("attemptToConnectWallet", addresses);
+        console.log("wallets found [", ...addresses, "]");
         const address = addresses.length > 0 ? addresses[0] : null;
         if (!address) return;
         $store.set("auth/wallet", address);

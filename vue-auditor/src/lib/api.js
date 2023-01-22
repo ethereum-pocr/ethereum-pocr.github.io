@@ -97,7 +97,10 @@ const globalTimerFunction = ()=>{
     globalTimerLastExecution = Date.now();
     for (const id of Object.keys(globalTimerList)) {
         const timeout = globalTimerList[id];
-        if (timeout.when<=globalTimerLastExecution) setImmediate(timeout.callback);
+        if (timeout.when<=globalTimerLastExecution) {
+            // console.log("Calling the timer callback");
+            setImmediate(timeout.callback);
+        }
     }
 }
 const initGlobalTimer = ()=>{
@@ -131,27 +134,6 @@ function clearTimeout(id) {
 }
 
 
-// Function that hides the standard setTimeout function to try using the Window.requestAnimationFrame()
-// function setTimeout(cb, delayMs) {
-//     let startAt = performance.now();
-//     const id={id:0};
-//     function frame(timestamp) {
-//         try {
-//             if (timestamp-startAt>delayMs) cb();
-//             else id.id = window.requestAnimationFrame( frame )
-//         } catch (error) {
-//             id.id = window.requestAnimationFrame( frame )
-//         }
-//     }
-//     id.id = window.requestAnimationFrame( frame )
-//     return id;
-// }
-// function clearTimeout(id) {
-//     if (id && id.id) window.cancelAnimationFrame(id.id)
-// }
-
-
-
 
 let __id= 1000;
 export function subscribeNewBlocks(web3) {
@@ -166,7 +148,7 @@ export function subscribeNewBlocks(web3) {
     } 
     // else use the normal provider send method
     : provider.send.bind(provider);
-    provider.sendAsync? provider.sendAsync.bind(provider) : provider.send.bind(provider);
+    //provider.sendAsync? provider.sendAsync.bind(provider) : provider.send.bind(provider);
 
 
     async function getBlockNumber() {
@@ -174,7 +156,8 @@ export function subscribeNewBlocks(web3) {
             providerSendAsync({method:"eth_blockNumber", id: __id++, params:[]}, (e,r)=>{
                 // console.log("send Async response", e, r)
                 if (e) rej(e);
-                else if (r) res(r.result);
+                else if (r.result) res(r.result);
+                else if (typeof r == "string") res(r); // the brave wallet on mobile respond with the value directly rather than the {result:""} structure
                 else rej(new Error('No error or response!'))
             })
         })
@@ -193,6 +176,7 @@ export function subscribeNewBlocks(web3) {
     
     async function runLoop() {
         try {
+            // console.log("Starting the block receiving loop")
             if (!subs.props) {
                 // first execution: initialized the props and loop
                 subs.props = {lastBlock: await getBlockNumber(), lastCheck: Date.now()};

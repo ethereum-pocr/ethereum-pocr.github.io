@@ -15,7 +15,7 @@ import status from "./status"
 import nodeGovernance from "./nodeGovernance"
 
 Vue.use(Vuex);
-let _logIndexCounter=0;
+// let _logIndexCounter=0;
 
 const state = {
     initialized: false,
@@ -57,6 +57,7 @@ const store = new Vuex.Store({
             commit("displaySnackbar", true);
         },
         async fetchConfig({ commit }) {
+            console.log("Inside fetchConfig")
             try {
                 let configUrl = "./config.json";
                 const url = new URL(window.location.href);
@@ -72,6 +73,7 @@ const store = new Vuex.Store({
                     commit("config", await cleanUpConfig(config))
                 }
             } catch (error) {
+                console.error("Could not process the config", error.message)
                 commit("config", undefined)
             }
         },
@@ -81,8 +83,12 @@ const store = new Vuex.Store({
             try {
                 commit("initialized", false);
                 
+                console.log("Fetching config");
                 await dispatch("fetchConfig");
+                if (state.config.activate_log) wrapConsoleLogging();
+                console.log("Fetching config - done");
                 store.commit("auth/contract", getContractInstance())
+                console.log("Detecting providers");
                 await dispatch("auth/detectProvider");
                 console.log("Detected provider model", state.auth.providerModel);
                 if (state.auth.providerModel == "metamask") {
@@ -107,29 +113,42 @@ const store = new Vuex.Store({
                 await dispatch("errorFlash", "Initialization failed - reload page: "+error.message)
             }
         },
-
-        addLog({state}, {type, args}) {
-            if (!state.config || (state.config && state.config.activate_log))
-                // commit("logs", state.logs.concat([{type, args, key: _logIndexCounter++}]), {silent: true})
-                logs.push({type, args, key: _logIndexCounter++})
-        }
     },
 
 });
 export default store;
 
-const oldLog = console.log;
-const oldError = console.error;
-const oldWarn = console.warn;
-console.log = (...args) => {
-    oldLog(...args)
-    store.dispatch("addLog", {type:"info", args})
-}
-console.warn = (...args) => {
-    oldWarn(...args)
-    store.dispatch("addLog", {type:"warn", args})
-}
-console.error = (...args) => {
-    oldError(...args)
-    store.dispatch("addLog", {type:"error", args})
+export function wrapConsoleLogging() {
+    const oldLog = console.log;
+    const oldError = console.error;
+    const oldWarn = console.warn;
+    
+    function addLineInBody(payload) {
+        if (!window.document) return;
+        let logs = window.document.getElementById("--logs--")
+        if (!logs) {
+            // const body = window.document.getElementsByClassName("body")
+            if (!document.body) return;
+            logs = document.createElement("div")
+            logs.setAttribute("id", "--logs--")
+            logs.setAttribute("style", "position: relative; z-index: 100;")
+            document.body.insertBefore(logs, document.body.firstElementChild)
+        }
+        const pre = document.createElement("pre");
+        pre.innerHTML=`<b>${payload.type}</b> : ${payload.args.map(a=>(typeof a=="object"?'Object':typeof a == "undefined"?'Undef':a)).join(', ')}`
+        logs.appendChild(pre);
+    }
+    
+    console.log = (...args) => {
+        oldLog(...args)
+        addLineInBody({type:"info", args})
+    }
+    console.warn = (...args) => {
+        oldWarn(...args)
+        addLineInBody({type:"warn", args})
+    }
+    console.error = (...args) => {
+        oldError(...args)
+        addLineInBody({type:"error", args})
+    }
 }

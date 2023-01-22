@@ -56,7 +56,7 @@ export default {
         await this.openMetaMaskConnectionDialog({noRedirect: true});
 
         if (!this.wallet) throw new Error("Could not find an account");
-        const info = getEthereumProviderChainInfo(ethereum);
+        const info = await getEthereumProviderChainInfo(ethereum);
         if (info.chainId != network.chainId) {
           await switchEthereumProviderNetwork(ethereum, {
             chainId, 
