@@ -297,8 +297,11 @@ const actions = {
         let index = Math.max(lastBlockInMemory+1, blockNumber - MAX_BLOCKS_TO_KEEP);
         console.log("From block", index, "to", blockNumber, "sealers count", sealers.length, "blocks count", blocks.length);
 
-        for (; index < blockNumber; index++) {
-            const block = await web3.eth.getBlock(index, false);
+        const blockNumbers = [];
+        for (; index < blockNumber; index++) blockNumbers.push(index);
+        const loadedBlocks = await Promise.all(blockNumbers.map(index=>web3.eth.getBlock(index, false)));
+        for (const block of loadedBlocks) {
+            // const block = await web3.eth.getBlock(index, false);
             try {
                 const r = await logicOnNewBloc(web3, blocks, sealers, block);
                 blocks = r.blocks;

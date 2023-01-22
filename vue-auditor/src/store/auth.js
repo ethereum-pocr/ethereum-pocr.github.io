@@ -134,6 +134,7 @@ const actions = {
 
     async checkNetworkProofOfCarbonReduction() {
         const web3 = $store.get("auth/web3");
+        if (!web3) return "No web3 connection established yet";
         const carbonFootprint = $store.get("auth/contract");
         console.log("checkNetworkProofOfCarbonReduction", web3);
         try {
@@ -151,6 +152,12 @@ const actions = {
             return error.message;
         }
         return false;
+    },
+
+    async setWalletAttributes({dispatch}) {
+        dispatch("fetchIsRegistered");
+        dispatch("status/fetchIsApproved", null, { root: true });
+        dispatch("fetchRole");
     },
 
     async fetchRole() {
@@ -199,6 +206,7 @@ const actions = {
     },
 
     async setConnection(store, provider) {
+        console.log("Setting connection:", provider.providerModel);
         $store.set("auth/provider", provider.provider);
         $store.set("auth/providerModel", provider.providerModel);
         const web3 = new Web3(provider.provider);
@@ -208,14 +216,14 @@ const actions = {
         $store.set("auth/intf", null); // will created on the fly by the intf() function
     },
 
-    async detectProvider({dispatch, commit, state}) {
+    async detectProvider({dispatch, commit, state, rootState}) {
         // Just to make sure, if you do not have the smart contract instance yet, we instanciate it.
         if (!state.contract) {
             commit("contract", getContractInstance())
         }  
         console.log("Before detecting providers");
         try {
-            await $store.dispatch("fetchConfig");
+            if (!rootState.config) await $store.dispatch("fetchConfig");
             let nbProviders = 0;
 
             const providerMetamask = await detectMetamask();
@@ -229,6 +237,7 @@ const actions = {
             } 
             if (nbProviders == 0) {
                 // router.push({ name: "installMetaMask" }); 
+                $store.set("auth/providerModel", "none");
                 return;
             }
             
@@ -239,13 +248,14 @@ const actions = {
                 // return router.push({ name: "authentication" }); 
             } else { // a single provider detected, can skip the decision process
                 const provider = providerDirect || providerMetamask; // will get one that is not null
-                dispatch("setConnection", provider);
+                await dispatch("setConnection", provider);
                 // $store.set("auth/provider", provider.provider);
                 // $store.set("auth/providerModel", provider.providerModel);
             }
         } catch (error) {
             console.error("Fail detecting a valid provider", error.message)
         }
+        console.log("Finishing detecting providers");
     },
 
     async attemptToConnectWallet() {
@@ -328,15 +338,16 @@ const actions = {
     },
 
     async fetchIsRegistered({ state }) {
-        const registered = await handleMMResponse(readOnlyCall("auditorRegistered", state.wallet));
-        $store.set("auth/registered", registered);
+        $store.set("auth/registered", false);
+        if (state.wallet) {
+            const registered = await handleMMResponse(readOnlyCall("auditorRegistered", state.wallet));
+            $store.set("auth/registered", registered);
+        }
     },
 
     async selfRegister({ dispatch }) {
         await handleMMResponse(writeCallWithOptions("selfRegisterAuditor", {maxGas:200000}));
-        dispatch("fetchIsRegistered");
-        dispatch("status/fetchIsApproved", null, { root: true });
-        dispatch("fetchRole");
+        dispatch("setWalletAttributes");
     }
 }
 

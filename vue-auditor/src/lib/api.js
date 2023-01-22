@@ -106,7 +106,7 @@ const initGlobalTimer = ()=>{
     globalTimerId = setInterval(globalTimerFunction, 50);
 }
 
-['message', 'online', 'offline', 'pageshow'].forEach(ev=>
+['load', 'message', 'online', 'offline', 'pageshow'].forEach(ev=>
 window.addEventListener(ev, () => { 
     // console.log("Should reset the timer", Date.now(), globalTimerLastExecution, Date.now() - globalTimerLastExecution > 30*1000);
     if (Date.now() - globalTimerLastExecution > 30*1000) {

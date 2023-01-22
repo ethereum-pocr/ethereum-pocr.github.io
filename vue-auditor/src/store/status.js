@@ -13,10 +13,12 @@ const mutations = make.mutations(state);
 
 const actions = {
     async fetchIsApproved() {
+        $store.set("status/approved", false);
         const wallet = $store.get("auth/wallet");
-        const approved = await readOnlyCall("auditorApproved", wallet);
-
-        $store.set("status/approved", approved);
+        if (wallet) {
+            const approved = await readOnlyCall("auditorApproved", wallet);
+            $store.set("status/approved", approved);
+        }
     },
     async fetchApprobationVotes() {
         const wallet = $store.get("auth/wallet");

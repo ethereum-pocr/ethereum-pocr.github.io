@@ -7,7 +7,7 @@ import '@mdi/js'
 
 import store from "./store/index"
 import router from './router'
-import { setupAuthNavigationGuard } from '@/lib/auth'
+import { setupAuthNavigationGuard } from '@/lib/initialization'
 
 Vue.config.productionTip = false
 

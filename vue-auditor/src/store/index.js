@@ -1,8 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import pathify from '@/plugins/pathify'
-import {cleanUpConfig} from "@/lib/config-file"
+import pathify from '@/plugins/pathify';
+import {cleanUpConfig} from "@/lib/config-file";
+import { getContractInstance } from "@/lib/api";
 import { make } from "vuex-pathify";
 // import createPersistedState from "vuex-persistedstate";
 
@@ -17,6 +18,7 @@ Vue.use(Vuex);
 let _logIndexCounter=0;
 
 const state = {
+    initialized: false,
     // used for a nicer UX: if this is true, ignore the values above, we probably don't know the actual values yet
     tryingToConnect: false,
     mmIsOpen: false,
@@ -74,12 +76,45 @@ const store = new Vuex.Store({
             }
         },
 
+        async startInitialization({commit, state, dispatch}) {
+            console.log("RootStore", this)
+            try {
+                commit("initialized", false);
+                
+                await dispatch("fetchConfig");
+                store.commit("auth/contract", getContractInstance())
+                await dispatch("auth/detectProvider");
+                console.log("Detected provider model", state.auth.providerModel);
+                if (state.auth.providerModel == "metamask") {
+                    const failMsg = await dispatch("auth/checkNetworkProofOfCarbonReduction");
+                    if (failMsg) {
+                        console.log("Verification of PoCR netowrk failed:", failMsg);
+                        commit("auth/providerModel", "switchMetamask")
+                    }
+                }
+
+                // record a watcher for state.auth.wallet
+                // this watch function first param is a reactive function like if used in the vue template
+                this.watch((state)=>state.auth.wallet, ()=>{
+                    console.log("wallet has been changed:", state.auth.wallet)
+                    dispatch("auth/setWalletAttributes")
+                })
+
+                await dispatch("auth/attemptToConnectWallet");
+                
+                commit("initialized", true);
+            } catch (error) {
+                await dispatch("errorFlash", "Initialization failed - reload page: "+error.message)
+            }
+        },
+
         addLog({state}, {type, args}) {
             if (!state.config || (state.config && state.config.activate_log))
                 // commit("logs", state.logs.concat([{type, args, key: _logIndexCounter++}]), {silent: true})
                 logs.push({type, args, key: _logIndexCounter++})
         }
-    }
+    },
+
 });
 export default store;
 

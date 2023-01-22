@@ -38,7 +38,7 @@ export default {
   },
 
   async mounted() {
-    await this.detectProvider();
+    // await this.detectProvider();
     const res = await fetch('https://chainid.network/chains.json')
     const all = await res.json()
     this.networks = all.filter(n=>n.chain == 'CRC')

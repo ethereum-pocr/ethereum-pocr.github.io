@@ -4,7 +4,7 @@
       <app-menu v-model="drawerDisplayed"></app-menu>
       <v-app-bar app clipped-left flat color="teal lighten-2">
         <v-app-bar-nav-icon v-if="!drawerDisplayed" @click="showDrawer"></v-app-bar-nav-icon>
-        <v-toolbar-title>Proof of Carbon Reduction</v-toolbar-title>
+        <v-toolbar-title @click="goTo('welcome')">Proof of Carbon Reduction</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-chip
           class="ma-2"
@@ -50,9 +50,9 @@
     <v-overlay :value="mmConnecting">
       <v-card>
         <v-card-title>Authorize the connection of the website to the browser wallet</v-card-title>
-        <v-actions>
+        <v-card-actions>
           <v-btn @click="cancelWalletConnection">Cancel</v-btn>
-        </v-actions>
+        </v-card-actions>
       </v-card>
     </v-overlay>
     <v-snackbar
@@ -92,6 +92,10 @@ export default {
     ...call("auth", ["detectProvider", "disconnect", "cancelWalletConnection"]),
     showDrawer() {
       this.drawerDisplayed = true;
+    },
+    goTo(routeName) {
+      if (this.$route.name === routeName) return;
+      this.$router.push({ name: routeName });
     },
   },
 
