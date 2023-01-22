@@ -134,6 +134,7 @@ const actions = {
 
     async checkNetworkProofOfCarbonReduction() {
         const web3 = $store.get("auth/web3");
+        if (!web3) return "No web3 connection established yet";
         const carbonFootprint = $store.get("auth/contract");
         console.log("checkNetworkProofOfCarbonReduction", web3);
         try {
