@@ -4,6 +4,7 @@ import VueRouter from "vue-router";
 import InstallMetaMask from "@/pages/InstallMetaMask.page.vue";
 import Auth from "@/pages/Auth.page.vue";
 
+import Welcome from "@/pages/Welcome.page.vue";
 import Dashboard from "@/pages/Dashboard.page.vue";
 
 import Auditors from "@/pages/Auditors.page.vue";
@@ -46,6 +47,7 @@ const any = (...functions) => {
 // The order actually matter because it will determine the order in the sidenav
 export const routes = [
     //Public
+    { name: "welcome", path: "/welcome", component: Welcome, meta: { hidden: ()=>true } },
     { name: "dashboard", path: "/dashboard", component: Dashboard, meta: { displayInSidenav: "" } },
     {
         name: "status", path: "/status", component: Status, meta: {
@@ -122,7 +124,7 @@ export const routes = [
         }
     },
     // GdC: For some unknown reason the redirection should not be 'authentication' directly but it works with dashboard
-    { path: "*", redirect: "dashboard" }
+    { path: "*", redirect: "welcome" }
 ]
 
 const router = new VueRouter({
@@ -130,5 +132,14 @@ const router = new VueRouter({
     base: "",
     // mode: "history"
 })
-
+// implement a fix to avoid uncaught promise error caused by the navigation guard
+router.oldPush = router.push.bind(router)
+async function push(to) {
+    try {
+        await this.oldPush(to)
+    } catch (error) {
+        console.log("Target page was not reached but this is normal", error.to.name, "--->", this.currentRoute.name)
+    }
+}
+router.push = push.bind(router);
 export default router;

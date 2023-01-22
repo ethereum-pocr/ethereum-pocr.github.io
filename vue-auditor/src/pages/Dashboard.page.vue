@@ -223,46 +223,6 @@ export default {
       "subscribeToChainUpdates",
       "initBackupLoop"
     ]),
-    // ...mapActions(["goToPage"]),
-    // processBlockData(data) {
-    //   // console.log(data);
-
-    //   let blocks = this.blocks.filter(
-    //     (d) =>
-    //       d.block.number > data.block.number - this.nbBlocksToKeep &&
-    //       d.block.number != data.block.number
-    //   );
-    //   blocks = blocks.sort((d1, d2) => d1.block.number - d2.block.number);
-    //   blocks.push(data);
-    //   this.blocks = blocks;
-
-    //   const sealerInfo = {
-    //     address: data.sealer.address,
-    //     info: data.sealer.vanity.custom,
-    //     footprint: data.sealer.footprint,
-    //     balance: data.sealer.balance,
-    //     reward: data.sealer.lastReward,
-    //   };
-    //   this.sealerMap.set(sealerInfo.address, sealerInfo);
-    //   this.totalFootprint = data.totalFootprint;
-    //   this.totalCrypto = data.totalCrypto;
-    //   this.nbOfNodes = data.nbOfNodes;
-    //   this.blockNumber = data.block.number;
-    //   this.updateSealersArrays();
-    // },
-    // updateSealersArrays() {
-    //   let sealers = [];
-    //   for (const k of this.sealerMap.keys()) {
-    //     const info = this.sealerMap.get(k);
-    //     sealers.push(info);
-    //   }
-    //   sealers = sealers.sort((i1, i2) => i1.footprint - i2.footprint);
-
-    //   this.sealersLabels = sealers.map((info) => info.info);
-    //   this.sealersAddress = sealers.map((info) => info.address);
-    //   this.sealersFootprint = sealers.map((info) => info.footprint);
-    //   this.sealersReward = sealers.map((info) => info.reward);
-    // },
   },
 };
 </script>
