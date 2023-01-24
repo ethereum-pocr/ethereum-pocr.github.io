@@ -128,6 +128,7 @@ function setTimeout(cb, delayMs) {
             console.log("timer callback failed - so what?", e);
         }
     }}
+    return id;
 }
 function clearTimeout(id) {
     delete globalTimerList[id];
@@ -136,7 +137,7 @@ function clearTimeout(id) {
 
 
 let __id= 1000;
-export function subscribeNewBlocks(web3) {
+export function subscribeNewBlocks(web3, {maxBlocks=0}={}) {
     if (!web3) web3 = $store.get("auth/web3");
     if (!web3) throw new Error("Should not be calling the api functions without a provider connected")
     const provider = $store.get("auth/provider");
@@ -186,9 +187,14 @@ export function subscribeNewBlocks(web3) {
                 const lastCheck = Date.now();
                 //console.log("runLoop:", subs.props, {lastBlock, lastCheck});
                 if (lastBlock > subs.props.lastBlock) {
-                    for (let b=subs.props.lastBlock+1; b<=lastBlock; b++) {
+                    const firstBlock = Math.max(subs.props.lastBlock+1, lastBlock-maxBlocks);
+                    if (subs.props.lastBlock+1<firstBlock) {
+                        console.log("Skipping blocks that are too old:", subs.props.lastBlock+1, "...", firstBlock-1);
+                    }
+                    for (let b=firstBlock; b<=lastBlock; b++) {
                         try {
                             const block = await web3.eth.getBlock(b, false)
+                            // console.log(`Block ${block.number} emitted`);
                             subs.emit("data", block);
                         } catch (error) {
                             console.warn("Fail getting block "+b, error.message)

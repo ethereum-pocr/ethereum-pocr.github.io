@@ -5,7 +5,7 @@ import { readOnlyCall, intf as _intf, writeCall, handleMMResponse, getWalletBala
 import { totalCRCAddress, GeneratedCRCTotalHash } from "@/lib/const";
 import $store from "@/store/index";
 
-const MAX_BLOCKS_TO_KEEP = 10;
+let MAX_BLOCKS_TO_KEEP = 2;
 
 const state = () => ({
     nbOfNodes: 0,
@@ -77,8 +77,9 @@ async function processBlock(web3, block) {
 
     const data = { block, sealer: undefined }
     try {
-        if (typeof block.difficulty === "string" && !block.difficulty.startsWith('0x')) block.difficulty = Number.parseInt(block.difficulty);
-        const blockNumber = typeof block.number === "string" ? Number.parseInt(block.number) : block.number;
+        // if (typeof block.difficulty === "string" && !block.difficulty.startsWith('0x')) block.difficulty = Number.parseInt(block.difficulty);
+        block.difficulty = Number(block.difficulty||1);
+        const blockNumber = Number(block.number||0);
         // Total and delta
         let totalCryptoB4 = web3.utils.toBN(0);
         let totalCrypto = web3.utils.toBN(0);
@@ -104,15 +105,6 @@ async function processBlock(web3, block) {
         data.nbNodes = Number.parseInt(nbNodes)
         data.receivedAt = Date.now();
 
-        // read the sealers from the contract
-        const sealers = []
-        for (let index = 0; index < nbNodes; index++) {
-            const sealer = await carbonFootprint.sealers(intf.call(), index)
-            const isSealer = await carbonFootprint.isSealer(intf.call(), sealer)
-            sealers.push({sealer, isSealer})
-        }
-        // console.log("Loaded sealers", sealers);
-
     } catch (error) {
         console.warn("Error in preparing block", error)
         throw new Error("Fail processing block "+block.number)
@@ -126,7 +118,7 @@ async function logicOnNewBloc(web3, blocks, sealers, block) {
     }
     const data = await processBlock(web3, block);
     blocks.push(data);
-    while (blocks.length >= MAX_BLOCKS_TO_KEEP) {
+    while (blocks.length > MAX_BLOCKS_TO_KEEP) {
         blocks.shift();
     }
 
@@ -198,7 +190,7 @@ const actions = {
         await dispatch("fetchChainInformations");
 
         const web3 = rootState.auth.web3;
-        const subscription = subscribeNewBlocks(web3) //web3.eth.subscribe("newBlockHeaders");
+        const subscription = subscribeNewBlocks(web3, {maxBlocks: MAX_BLOCKS_TO_KEEP}) //web3.eth.subscribe("newBlockHeaders");
         let blockProcessing = false;
         let blocksWaiting = [];
         const processingFunc = async (block) => {
@@ -255,7 +247,39 @@ const actions = {
         dispatch("fetchAllValues");
     },
 
-    discoverNotRunningSealers({rootState, state}) {
+    async discoverNotRunningSealers({rootState, state}) {
+        const web3 = rootState.auth.web3;
+        const carbonFootprint = rootState.auth.contract;
+        const prov = new Web3FunctionProvider(rootState.auth.provider, ()=>Promise.resolve(carbonFootprint.deployedAt));
+        const sealers = [...state.sealers]; // make a copy of the sealers from the store
+        
+        const nbNodes = state.nbOfNodes;
+
+        // read the sealers from the contract
+        for (let index = 0; index < nbNodes; index++) {
+            const sealerAddress = await carbonFootprint.sealers(prov.call(), index);
+            let found = sealers.find(s=>s.address.toLowerCase() == sealerAddress.toLowerCase())
+            if (!found) {
+                const sealer = await updateSealerDetails(web3, {
+                    address: sealerAddress.toLowerCase(), 
+                    vanity: {custom:"Unknown innactive node"},
+                    sealedBlocks: 0
+                })
+                // check again if it not already added, as the above can execute concurrently
+                const isSealer = await carbonFootprint.isSealer(prov.call(), sealer.address)
+                found = sealers.find(s=>s.address.toLowerCase() == sealer.address)
+                // we have collected the node data, but maybe it is not a node anymore
+                if (isSealer && found===undefined) {
+                    console.log("Adding an innactive sealer", sealer);
+                    // keep in the local array variable 
+                    sealers.push(sealer);
+                    // but also update the store with some delay to prevent concurrent race in other state setter
+                    setTimeout( ()=>$store.set("nodes/sealers", sealers), 200);
+                }
+            }
+        }
+    },
+    discoverNotRunningSealersOld({rootState, state}) {
         const web3 = rootState.auth.web3;
         const contract = rootState.auth.contract;
         const prov = new Web3FunctionProvider(rootState.auth.provider, ()=>Promise.resolve(contract.deployedAt));
@@ -294,6 +318,8 @@ const actions = {
         const blockNumber = await web3.eth.getBlockNumber();
         this.blockNumber = blockNumber;
 
+        MAX_BLOCKS_TO_KEEP = Math.max(rootState.nodes.nbOfNodes + 2, MAX_BLOCKS_TO_KEEP);
+
         let index = Math.max(lastBlockInMemory+1, blockNumber - MAX_BLOCKS_TO_KEEP);
         console.log("From block", index, "to", blockNumber, "sealers count", sealers.length, "blocks count", blocks.length);
 
@@ -315,8 +341,9 @@ const actions = {
         }
         $store.set("nodes/blocks", blocks);
         $store.set("nodes/sealers", sealers);
-        // We may have nodes that have been receiving a footprint that are not running, let's find them from the event log
-        dispatch("discoverNotRunningSealers");
+        // We may have nodes that are not running, let's find them 
+        await dispatch("discoverNotRunningSealers");
+        // The below is asynchronous as it does not prevent the dashboard from starting
         $store.dispatch("auth/fetchRole");
     },
     async fetchOneNodeInfo({rootState}, address) {

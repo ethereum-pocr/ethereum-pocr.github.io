@@ -99,10 +99,12 @@ export async function getEthereumProviderChainInfo(provider) {
  */
 export async function getEthereumProviderConnectedAccounts(provider, {timeout = 500}={}) {
   return new Promise((resolve) => {
+    console.log("getEthereumProviderConnectedAccounts", timeout);
     let completed = false;
     // set the timeout to respond in case of blocked call on eth_accounts
     setTimeout(() => {
       if (completed) return;
+      console.log("getEthereumProviderConnectedAccounts Timed out");
       completed = true;
       resolve([]);
     }, timeout);
@@ -112,6 +114,7 @@ export async function getEthereumProviderConnectedAccounts(provider, {timeout = 
       .request({ method: "eth_accounts" })
       .then((accounts) => {
         if (completed) return;
+        console.log("getEthereumProviderConnectedAccounts got a result", accounts);
         completed = true;
         resolve(accounts);
       })

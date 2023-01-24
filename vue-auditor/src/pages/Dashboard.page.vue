@@ -175,8 +175,8 @@ export default {
     };
   },
   async mounted() {
-    await handleMM(this.fetchChainInformations)
     await this.fetchAllValues();
+    await handleMM(this.fetchChainInformations)
     await this.subscribeToChainUpdates();
     await this.initBackupLoop();
 
