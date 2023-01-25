@@ -86,9 +86,14 @@ async function detectMetamask() {
     }
     if (providerMetamask) {
         // providerMetamask.on("connect", chaininfo=>{
-            //     console.log("Metamask chain info", chaininfo);
+        //         console.log("Connect : Metamask chain info", chaininfo);
         // })
-        // providerMetamask.on('accountsChanged', () => window.location.reload())
+        // providerMetamask.on("disconnect", error=>{
+        //         console.log("Disconnect :", error);
+        // })
+        providerMetamask.on('accountsChanged', (accounts) => {
+            console.log("Account changed :", accounts);
+        })
         providerMetamask.removeListener('chainChanged', chainChanged);
         providerMetamask.on('chainChanged', chainChanged);
         const chain = await getEthereumProviderChainInfo(providerMetamask)
@@ -262,12 +267,22 @@ const actions = {
     },
 
     async attemptToConnectWallet() {
+        function reactToMetamaskLockUnlock(accounts) {
+            const model = $store.get("auth/providerModel");
+            if (model != "metamask") return;
+            const address = accounts[0];
+            $store.set("auth/wallet", address);
+        }
         let addresses = [];
         const providerMetamask = $store.get("auth/providerMetamask");
         // const providerDirect = $store.get("auth/providerDirect");
         const model = $store.get("auth/providerModel");
         
-        if (model == "metamask") addresses = await getEthereumProviderConnectedAccounts(providerMetamask.provider, {timeout:1000});
+        if (model == "metamask") {
+            addresses = await getEthereumProviderConnectedAccounts(providerMetamask.provider, {timeout:1000});
+            providerMetamask.provider.removeListener("accountsChanged", reactToMetamaskLockUnlock)
+            providerMetamask.provider.on("accountsChanged", reactToMetamaskLockUnlock);
+        }
         if (model == "direct" && addresses.length == 0) addresses = await getCustodyLastWallets();
         console.log("wallets found [", ...addresses, "]");
         const address = addresses.length > 0 ? addresses[0] : null;

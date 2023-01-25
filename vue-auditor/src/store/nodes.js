@@ -144,18 +144,18 @@ const actions = {
         await dispatch("updateNodesStatus");
     },
 
-    async initBackupLoop({state, commit}) {
+    async initBackupLoop({state, commit, dispatch}) {
         if (state.backupLoop) {clearInterval(this.backupLoop)}
         commit("timeSinceLastBlock", 0)
         const backupLoop = setInterval( ()=>{
             const lastBlock = $store.get("nodes/lastBlock");
             if (!lastBlock) return;
             const timeSinceLastBlock = Date.now()-lastBlock.receivedAt;
-            // if (timeSinceLastBlock > 60*1000) {
-            //     console.warn("No block update since more than 60 seconds. Force a subscription");
-            //     window.location.reload();
-            //     // dispatch("subscribeToChainUpdates")
-            // }
+            if (timeSinceLastBlock > 60*1000) {
+                console.warn("No block update since more than 60 seconds. Force a subscription");
+                // window.location.reload();
+                dispatch("subscribeToChainUpdates")
+            }
             commit("timeSinceLastBlock", timeSinceLastBlock)
         }, 200);
 

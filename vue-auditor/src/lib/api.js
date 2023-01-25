@@ -244,7 +244,8 @@ function convertMMErrorMessage(message) {
         return obj;
     } catch (error) {
         return {
-            message: "invalid JSON message"
+            message,
+            comment: "invalid JSON message"
         }
     }
 }
