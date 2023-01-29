@@ -147,14 +147,23 @@ const actions = {
     async initBackupLoop({state, commit, dispatch}) {
         if (state.backupLoop) {clearInterval(this.backupLoop)}
         commit("timeSinceLastBlock", 0)
-        const backupLoop = setInterval( ()=>{
+        const backupLoop = setInterval( async ()=>{
             const lastBlock = $store.get("nodes/lastBlock");
             if (!lastBlock) return;
             const timeSinceLastBlock = Date.now()-lastBlock.receivedAt;
             if (timeSinceLastBlock > 60*1000) {
                 console.warn("No block update since more than 60 seconds. Force a subscription");
                 // window.location.reload();
-                dispatch("subscribeToChainUpdates")
+                clearInterval(backupLoop);
+                try {
+                    await dispatch("unsubscribeToChainUpdates");
+                    await dispatch("auth/detectProvider", {renew: true}, {root:true})
+                    await dispatch("subscribeToChainUpdates")
+                } catch(error) {
+                    console.warn("Could not reinitialize the connection:", error.message);
+                } finally {
+                    setTimeout(()=>dispatch("initBackupLoop"), 4000)
+                }
             }
             commit("timeSinceLastBlock", timeSinceLastBlock)
         }, 200);
@@ -197,22 +206,31 @@ const actions = {
             try {
                 if (block.baseFeePerGas == undefined) block = await web3.eth.getBlock(block.number);
                 await dispatch("insertNewBlock", block);
+                return true;
             } catch (error) {
                 // some error on the subscription processing
                 // if the error is due to the loss of connection it needs a reset of the connection
                 console.warn("Error on receiving a new block", error);
                 blocksWaiting = []; // clear
-                await dispatch("subscribeToChainUpdates");
+                return false;
             }
         }
         subscription.on("data", async block =>{
             if (blockProcessing) blocksWaiting.push(block);
             else try {
                 blockProcessing = true;
-                await processingFunc(block);
-                while( (block = blocksWaiting.shift()) ) {
-                    await processingFunc(block);
+                let ok = await processingFunc(block);
+                while( ok && (block = blocksWaiting.shift()) ) {
+                    ok = await processingFunc(block);
                 }
+
+                if (!ok) {
+                    subscription.unsubscribe();
+                    $store.set("nodes/chainUpdateSubscription", null);
+    
+                    dispatch("subscribeToChainUpdates");
+                }
+
             } finally {
                 blockProcessing = false;
             }
@@ -220,8 +238,11 @@ const actions = {
         $store.set("nodes/chainUpdateSubscription", subscription);
     },
 
-    unsubscribeToChainUpdates() {
-        if (state.chainUpdateSubscription !== null) state.chainUpdateSubscription.unsubscribe();
+    unsubscribeToChainUpdates({commit, state}) {
+        if (state.chainUpdateSubscription !== null) {
+            state.chainUpdateSubscription.unsubscribe();
+            commit("chainUpdateSubscription", null);
+        }
     },
 
 

@@ -111,8 +111,23 @@ async function detectMetamask() {
     } else return undefined;
 }
 
+// function directConnectionState(state) {
+//     let p = state.auth.providerDirect;
+//     if (p) p=p.provider;
+//     if (p) return p.connection.readyState;
+//     return -1;
+// }
+
 async function detectDirectAccess() {
     const config = $store.get("config");
+    const existingProvider = $store.state.auth.providerDirect;
+    if (existingProvider) {
+        // console.log("detectDirectAccess connection state", existingProvider?.provider?.connected, existingProvider?.provider?.connection?.readyState, directConnectionState($store.state))
+        // need to close the connection and release what resources have been used
+        if (existingProvider.provider && existingProvider.provider.disconnect && existingProvider.provider.connected) {
+            existingProvider.provider.disconnect(3000, "Not needed anymore")
+        }
+    }
     const defaultNetwork = getDefaultNetwork(config);
     // if we have a nodeUrl, we can connect to the network
     if (defaultNetwork.nodeUrl) {
@@ -217,6 +232,8 @@ const actions = {
         console.log("Setting connection:", provider.providerModel);
         $store.set("auth/provider", provider.provider);
         $store.set("auth/providerModel", provider.providerModel);
+        if (provider.providerModel == "metamask") $store.set("auth/providerMetamask", provider);
+        if (provider.providerModel == "direct") $store.set("auth/providerDirect", provider);
         const web3 = new Web3(provider.provider);
         web3.eth.ens = null
         $store.set("auth/web3", web3);
@@ -224,25 +241,33 @@ const actions = {
         $store.set("auth/intf", null); // will created on the fly by the intf() function
     },
 
-    async detectProvider({dispatch, commit, state, rootState}) {
+    async detectProvider({dispatch, commit, state, rootState}, {renew=false}={}) {
         // Just to make sure, if you do not have the smart contract instance yet, we instanciate it.
         if (!state.contract) {
             commit("contract", getContractInstance())
         }  
-        console.log("Before detecting providers");
+        console.log("Before detecting providers", renew);
+        const currentModel = $store.get("auth/providerModel");
+        if (!["metamask", "direct"].includes(currentModel) && renew) { renew = false; }
         try {
             if (!rootState.config) await $store.dispatch("fetchConfig");
             let nbProviders = 0;
 
-            const providerMetamask = await detectMetamask();
-            if (providerMetamask) {
-                nbProviders ++;
+            let providerMetamask = undefined;
+            let providerDirect = undefined;
+            if (!renew || (renew && currentModel=="metamask")) {
+                providerMetamask = await detectMetamask();
+                if (providerMetamask) {
+                    nbProviders ++;
+                }
             }
  
-            const providerDirect = await detectDirectAccess();
-            if (providerDirect) {
-                nbProviders ++;
-            } 
+            if (!renew || (renew && currentModel=="direct")) {
+                providerDirect = await detectDirectAccess();
+                if (providerDirect) {
+                    nbProviders ++;
+                } 
+            }
             if (nbProviders == 0) {
                 // router.push({ name: "installMetaMask" }); 
                 $store.set("auth/providerModel", "none");
