@@ -1,4 +1,4 @@
-name: Genesis for kerleano
+name: Genesis for Production
 
 on:
   push:

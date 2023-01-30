@@ -157,12 +157,13 @@ const actions = {
                 clearInterval(backupLoop);
                 try {
                     await dispatch("unsubscribeToChainUpdates");
-                    await dispatch("auth/detectProvider", {renew: true}, {root:true})
-                    await dispatch("subscribeToChainUpdates")
+                    await dispatch("auth/disconnect",{}, {root:true})
+                    // await dispatch("auth/detectProvider", {renew: true}, {root:true})
+                    // await dispatch("subscribeToChainUpdates")
                 } catch(error) {
                     console.warn("Could not reinitialize the connection:", error.message);
                 } finally {
-                    setTimeout(()=>dispatch("initBackupLoop"), 4000)
+                    //setTimeout(()=>dispatch("initBackupLoop"), 4000)
                 }
             }
             commit("timeSinceLastBlock", timeSinceLastBlock)
@@ -224,12 +225,12 @@ const actions = {
                     ok = await processingFunc(block);
                 }
 
-                if (!ok) {
-                    subscription.unsubscribe();
-                    $store.set("nodes/chainUpdateSubscription", null);
+                // if (!ok) {
+                //     subscription.unsubscribe();
+                //     $store.set("nodes/chainUpdateSubscription", null);
     
-                    dispatch("subscribeToChainUpdates");
-                }
+                //     dispatch("subscribeToChainUpdates");
+                // }
 
             } finally {
                 blockProcessing = false;

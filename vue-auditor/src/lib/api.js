@@ -176,6 +176,7 @@ export function subscribeNewBlocks(web3, {maxBlocks=0}={}) {
     const delayMs = 1000;
     
     async function runLoop() {
+        console.log("Number of active timer", Object.keys(globalTimerList).length);
         try {
             // console.log("Starting the block receiving loop")
             if (!subs.props) {
@@ -207,8 +208,11 @@ export function subscribeNewBlocks(web3, {maxBlocks=0}={}) {
             console.warn("Something went wront when processing the loop. Ignoring.", error.message);
         }    
 
-        // restart the loop after the delay
-        subs.timer = setTimeout( runLoop , delayMs);
+        // do not reinitialize the loop if the subscription has been cancelled
+        if (subs.timer) {
+            // restart the loop after the delay
+            subs.timer = setTimeout( runLoop , delayMs);
+        }
     }
     // initialize the loop in 10 ms to initialize the props
     subs.timer = setTimeout( runLoop , 10);
