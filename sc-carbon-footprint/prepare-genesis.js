@@ -81,6 +81,10 @@ async function run() {
   genesis.alloc[removeHex(config.initialAuditor)] = {
     balance: '0x'+Number(config.auditorInitialCredit*1000000000*1000000000).toString(16),
   };
+  genesis.alloc[totalCryptoAddress] = {
+    ...genesis.alloc[totalCryptoAddress],
+    balance: genesis.alloc[removeHex(config.initialAuditor)].balance,
+  };
   
   // CALCULATE THE NONCE
   let nonce = process.env.GIT_HEAD_HASH;

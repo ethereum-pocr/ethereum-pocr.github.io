@@ -1,0 +1,13 @@
+{
+  "genesisTemplate": "pocrnet.json",
+  "initialSealers": ["0x1311aef86d1db33db945fc488eeff1c6105b9593"],
+  "initialAuditor": "0xacf6441aa2b10726a273f3963a593104f11e4693",
+  "auditorInitialCredit": 20001,
+  "governanceContract": "GovernancePoCRNet",
+  "chainID": 2606,
+  "secPerBlock": 4,
+  "epoch": 151200,
+  "blockGasLimit": "119000000",
+  "timestamp": "0x63d76f5d",
+  "extraDataVanity": "4775656e6f6c65206465204361646f7564616c206372656174656420506f4352"
+}

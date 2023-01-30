@@ -2,11 +2,14 @@ name: Genesis for kerleano
 
 on:
   push:
+    branches:
+      - "main" # to remove
     tags:        
-      - v*
+      - pocrnet
     paths:
-      - "pocr-network/genesis/kerleano-conf.json"
+      - "pocr-network/genesis/pocrnet-conf.json"
       - "sc-carbon-footprint/**/*"
+
 jobs:
   build:
 
@@ -28,13 +31,13 @@ jobs:
         run: |
           cd sc-carbon-footprint/ && npm install -g solc &&  npm ci && ./build.sh && \
           export GIT_HEAD_HASH=$(git rev-parse  HEAD) && \
-          node prepare-genesis.js ../pocr-network/genesis/kerleano-conf.json > kerleano.final.json
-      - name: publish genesis kerleano.json
+          node prepare-genesis.js ../pocr-network/genesis/pocrnet-conf.json > pocrnet.final.json
+      - name: publish genesis pocrnet.json
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: sc-carbon-footprint/kerleano.final.json
-          asset_name: kerleano.json
+          file: sc-carbon-footprint/pocrnet.final.json
+          asset_name: pocrnet.json
           tag: ${{ github.ref }}
           overwrite: true
-          body: "Release kerleano.json with latest Goverance smartcontracts"      
+          body: "Release pocrnet.json with latest Goverance smartcontracts"      
