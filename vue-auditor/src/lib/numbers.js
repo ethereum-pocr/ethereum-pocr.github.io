@@ -52,11 +52,22 @@ export function toParam(bi) {
   return '0x'+bi.toString(16)
 }
 
-window.Numberlib = {
-  toWebBigInt,
-  toNumber,
-  toEther,
-  toGWei,
-  toWei,
-  toParam
+
+export function toCurrency(value, currency) {
+  const intl = Intl.NumberFormat(undefined,{style:"currency", currency:currency??"XXX"})
+  return intl.format(value);
 }
+
+export function to1000s(value, decimals=0) {
+  const intl = Intl.NumberFormat(undefined,{style:"decimal", minimumFractionDigits:decimals})
+  return intl.format(value);
+}
+
+// window.Numberlib = {
+//   toWebBigInt,
+//   toNumber,
+//   toEther,
+//   toGWei,
+//   toWei,
+//   toParam
+// }

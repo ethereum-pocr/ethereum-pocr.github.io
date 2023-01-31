@@ -4,10 +4,10 @@
       <v-card-subtitle>Block <explorer type="block" :id="lastBlock?lastBlock.block.number:0"></explorer></v-card-subtitle>
       <v-card-title class="align-center">
         <span class="text-h4 ma-auto" :style="lastBlockNoTurnSealing?'color:red':''">{{
-          lastBlock && lastBlock.block.number
+          lastBlock && to1000s(lastBlock.block.number)
         }}</span>
       </v-card-title>
-      <v-card-subtitle>Total of {{ totalCrypto.toFixed(2) }} ₡ created</v-card-subtitle>
+      <v-card-subtitle>Total of {{ to1000s(totalCrypto,2) }} ₡ created</v-card-subtitle>
       <v-card-subtitle>{{ (timeSinceLastBlock/1000).toFixed(2) }} sec. since last update</v-card-subtitle>
     </v-card>
 
@@ -20,7 +20,7 @@
     <v-card height="200" width="300" class="my-6 ma-auto">
       <v-card-subtitle>Total footprint (g.CO₂ E)</v-card-subtitle>
       <v-card-title class="align-center">
-        <span class="text-h4 ma-auto">{{ totalFootprint }}</span>
+        <span class="text-h4 ma-auto">{{ to1000s(totalFootprint) }}</span>
       </v-card-title>
       <v-card-subtitle class="mt-3"
         >Average:
@@ -84,10 +84,10 @@
                 <div>{{ item.sealedBlocks }} / {{ totalSealedBlocks }}</div>
               </template>
               <template v-slot:item.balance="{ item }">
-                <div>{{ item.balance.toFixed(4) }}</div>
+                <div>{{ to1000s(item.balance, 4) }}</div>
               </template>
               <template v-slot:item.lastReward="{ item }">
-                <div>{{ item.lastReward.toFixed(4) }}</div>
+                <div>{{ to1000s(item.lastReward,4) }}</div>
               </template>
               <template v-slot:item.lastSealer="{ item }">
                 <v-icon v-if="item.address==lastBlock.sealer.address">mdi-seal</v-icon>
@@ -154,6 +154,7 @@
 import { get, call } from "vuex-pathify";
 import { handleMM } from '../lib/api';
 import { gradientGreenToRed } from '../lib/colors'
+import { to1000s } from '../lib/numbers'
 import Explorer from "../components/ExplorerRedirect.vue";
 
 export default {
@@ -216,7 +217,7 @@ export default {
     },
   },
   methods: {
-    gradientGreenToRed,
+    gradientGreenToRed, to1000s,
     ...call("nodes", [
       "fetchAllValues",
       "fetchChainInformations",

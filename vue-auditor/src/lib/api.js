@@ -89,7 +89,7 @@ export function intf(provider) {
 }
 
 const globalTimerList={};
-let globalTimerIndex=0;
+let globalTimerIndex=1;
 let globalTimerId=0;
 let globalTimerLastExecution=0;
 const globalTimerFunction = ()=>{
@@ -121,7 +121,8 @@ window.addEventListener(ev, () => {
 // Function that hides the standard setTimeout function to try using a permanent unique interval loop
 function setTimeout(cb, delayMs) {
     let startAt = Date.now();
-    const id=globalTimerIndex++;
+    globalTimerIndex = (globalTimerIndex + 1)%Number.MAX_SAFE_INTEGER
+    const id=globalTimerIndex;
     globalTimerList[id]={when: startAt + delayMs, callback(){ 
         delete globalTimerList[id];
         try {cb()} catch(e) {
@@ -176,7 +177,7 @@ export function subscribeNewBlocks(web3, {maxBlocks=0}={}) {
     const delayMs = 1000;
     
     async function runLoop() {
-        console.log("Number of active timer", Object.keys(globalTimerList).length);
+        // console.log("Number of active timer", Object.keys(globalTimerList).length, subs.timer);
         try {
             // console.log("Starting the block receiving loop")
             if (!subs.props) {
