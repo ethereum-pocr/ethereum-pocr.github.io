@@ -1,10 +1,7 @@
-
 {
   "explorers": {
-    "1804": "https://ethereum-pocr.github.io/explorer"
+    "1804": "https://ethereum-pocr.github.io/explorer/kerleano",
+    "2606": "https://ethereum-pocr.github.io/explorer/pocrnet"
   },
-  "networks": [
-  
-  ]
+  "networks": []
 }
-
