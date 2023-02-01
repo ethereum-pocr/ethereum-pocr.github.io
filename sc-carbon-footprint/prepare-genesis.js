@@ -8,6 +8,8 @@ const {bytecode} = require("./extract-bytecode-lib");
 const governanceAddress = "0000000000000000000000000000000000000100";
 const totalCryptoAddress = "0000000000000000000000000000000000000101";
 const totalCryptoBytecode = "0x60806040";
+// result of the web3.sha3("GeneratedPocRTotal")
+const totalCryptoStorageLocation = "0x7811a2bc735fc5403fbfc32e2acc5672667b529348616ff7d9fbcfb25c7d529a";
 // my vanity over 32 bytes
 const extraDataVanity = "4775c3a96e6f6cc3a9206465204361646f7564616c206d61646520506f435221";
 // the 64+1 r,s,v buffer for the genesis
@@ -77,14 +79,12 @@ async function run() {
   genesis.alloc[totalCryptoAddress] = {
     balance: "0x0",
     code: totalCryptoBytecode,
+    storage: {}
   };
   genesis.alloc[removeHex(config.initialAuditor)] = {
     balance: '0x'+Number(config.auditorInitialCredit*1000000000*1000000000).toString(16),
   };
-  genesis.alloc[totalCryptoAddress] = {
-    ...genesis.alloc[totalCryptoAddress],
-    balance: genesis.alloc[removeHex(config.initialAuditor)].balance,
-  };
+  genesis.alloc[totalCryptoAddress].storage[totalCryptoStorageLocation] = genesis.alloc[removeHex(config.initialAuditor)].balance;
   
   // CALCULATE THE NONCE
   let nonce = process.env.GIT_HEAD_HASH;
