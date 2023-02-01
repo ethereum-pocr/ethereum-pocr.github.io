@@ -31,6 +31,7 @@ let config = {
 };
 
 const removeHex = (s) => s.startsWith('0x')?s.slice(2):s
+const evenHexNumber = (s) => '0x'+(removeHex(s).length%2==1?'0':'')+removeHex(s)
 
 const file = process.argv[process.argv.length-1];
 try {
@@ -82,7 +83,7 @@ async function run() {
     storage: {}
   };
   genesis.alloc[removeHex(config.initialAuditor)] = {
-    balance: '0x'+Number(config.auditorInitialCredit*1000000000*1000000000).toString(16),
+    balance: evenHexNumber('0x'+Number(config.auditorInitialCredit*1000000000*1000000000).toString(16)),
   };
   genesis.alloc[totalCryptoAddress].storage[totalCryptoStorageLocation] = genesis.alloc[removeHex(config.initialAuditor)].balance;
   
