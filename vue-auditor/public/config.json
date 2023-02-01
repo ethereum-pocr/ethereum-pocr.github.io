@@ -2,17 +2,27 @@
 {
   "activate_log": false,
   "explorers": {
-    "1804": "https://ethereum-pocr.github.io/explorer"
+    "1804": "https://ethereum-pocr.github.io/explorer/kerleano",
+    "2606": "https://ethereum-pocr.github.io/explorer/pocrnet"
   },
   "networks": [
+    {
+      "name": "PoCRNet (Production + CACIB Custody)",
+      "nodeUrl": "wss://pocrnet.westeurope.cloudapp.azure.com/ws",
+      "walletCustodyAPIBaseUrl": "https://pocrnet-test.dag.ca-cib.com/custody/",
+      "explorerUrl": "https://ethereum-pocr.github.io/explorer/pocrnet",
+      "token": "CRC",
+      "chainID": "2606",
+      "default": true
+    },
     {
       "name": "Kerleano (CACIB test node)",
       "nodeUrl": "wss://pocrnet-test.dag.ca-cib.com/clientws",
       "walletCustodyAPIBaseUrl": "https://pocrnet-test.dag.ca-cib.com/custody/",
-      "explorerUrl": "https://ethereum-pocr.github.io/explorer",
+      "explorerUrl": "https://ethereum-pocr.github.io/explorer/kerleano",
       "token": "CRC",
       "chainID": "1804",
-      "default": true
+      "default": false
     },
     {
       "name": "Kerleano (GdC Node)",
