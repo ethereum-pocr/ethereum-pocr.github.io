@@ -2,8 +2,8 @@ FROM node:16.8 as builder
 
 # Build context is the repository root folder
 # Install solidity compiler and put it in the path
-RUN curl -L -o file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-latest && \
-    curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(cat file) && \
+RUN curl -L -o solc-file https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/list.txt && \
+    curl -o solc -L https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/$(grep v0.8.17 solc-file)  && \
     chmod +x solc && \
     mv solc /bin/solc
 
