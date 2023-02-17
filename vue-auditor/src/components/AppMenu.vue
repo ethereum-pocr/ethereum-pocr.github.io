@@ -35,7 +35,7 @@
       </v-list-item-group>
     </v-list>
     <v-spacer ></v-spacer>
-    <img src="PoCR_Logo.svg" width="100%" class="pa-3">
+    <img src="PoCR_Logo.svg" width="100%" >
   </v-navigation-drawer>
 </template>
 
