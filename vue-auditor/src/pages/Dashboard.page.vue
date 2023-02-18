@@ -18,13 +18,13 @@
       </v-card-title>
     </v-card>
     <v-card height="200" width="300" class="my-6 ma-auto">
-      <v-card-subtitle>Total footprint (g.CO₂ E)</v-card-subtitle>
+      <v-card-subtitle>Total environmental footprint (EF)</v-card-subtitle>
       <v-card-title class="align-center">
-        <span class="text-h4 ma-auto">{{ to1000s(totalFootprint) }}</span>
+        <span class="text-h4 ma-auto"><climate-indicator :value="totalFootprint"></climate-indicator></span>
       </v-card-title>
       <v-card-subtitle class="mt-3"
-        >Average:
-        {{ (totalFootprint / nbOfNodes).toFixed(2) }} g.CO₂ E per node</v-card-subtitle
+        >Average: <climate-indicator :value="totalFootprint / nbOfNodes"></climate-indicator> EF
+      </v-card-subtitle
       >
     </v-card>
     <v-row>
@@ -33,8 +33,7 @@
         <v-card-title>Carbon Footprint for each of the nodes</v-card-title>
         <v-card-subtitle>
           Last block sealer: {{ lastBlock.sealer.address }} /
-          {{ lastBlock.sealer.vanity.custom }}. Footprint:
-          {{ lastBlock.sealer.footprint }} g.CO₂
+          {{ lastBlock.sealer.vanity.custom }}. Footprint: <climate-indicator :value="lastBlock.sealer.footprint"></climate-indicator> EF
         </v-card-subtitle>
         <v-card-text>
           <v-progress-linear v-for="sealer of sealersSorted" :key="sealer.address" 
@@ -43,25 +42,11 @@
             :color="gradientGreenToRed(sealer.footprint / maxFootprint)"
           >
             <template v-slot:default="{  }">
-              {{sealer.vanity.custom}} - <strong>{{ sealer.footprint }}</strong>  g.CO₂
+              {{sealer.vanity.custom}} -  &nbsp; <strong><climate-indicator :value="sealer.footprint"></climate-indicator> </strong> &nbsp; EF
             </template>
           </v-progress-linear>
         </v-card-text>
-        <!-- <v-sparkline
-          auto-draw
-          type="bar"
-          
-          auto-line-width
-          :value="sealersFootprint"
-          label-size="3"
-          :gradient="['#f72047', '#ffd200', '#1feaea']"
-          padding="8"
-        >
-          <template v-slot:label="item">
-            {{ sealersLabels[item.index] }} -
-            {{ item.value }}
-          </template>
-        </v-sparkline> -->
+
         </v-card>
       </v-col>
 
@@ -78,6 +63,9 @@
               <template v-slot:item.name="{ item }">
                 <div><v-icon>{{item.isActive?"mdi-lock-open-check-outline":"mdi-lock-remove"}}</v-icon> {{ item.vanity.custom }}</div>
                 <div>{{ item.address }}</div>
+              </template>
+              <template v-slot:item.footprint="{ item }">
+                <climate-indicator :value="item.footprint"></climate-indicator>
               </template>
               <template v-slot:item.ratio="{ item }">
                 <div>{{ (100 * item.sealedBlocks / totalSealedBlocks).toFixed(2) }} %</div>
@@ -156,9 +144,10 @@ import { handleMM } from '../lib/api';
 import { gradientGreenToRed } from '../lib/colors'
 import { to1000s } from '../lib/numbers'
 import Explorer from "../components/ExplorerRedirect.vue";
+import ClimateIndicator from "../components/ClimateIndicator.vue";
 
 export default {
-  components: {Explorer},
+  components: {Explorer, ClimateIndicator},
   data: () => {
     return {
       nbBlocksToKeep: 100,
@@ -167,7 +156,7 @@ export default {
       sealersReward: [],
       sealersHeaders: [
       { text: "Name", value: "name", align:"left" },
-      { text: "Footprint (g.CO₂)", value: "footprint" , align:"right"},
+      { text: "Env. Footprint", value: "footprint" , align:"right"},
       { text: "Reward (₡)", value: "lastReward" , align:"right"},
       { text: "Balance (₡)", value: "balance" , align:"right"},
       { text: "Sealing ratio", value: "ratio", align:"center"},

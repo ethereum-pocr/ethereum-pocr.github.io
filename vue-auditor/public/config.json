@@ -13,7 +13,7 @@
       "explorerUrl": "https://ethereum-pocr.github.io/explorer/pocrnet",
       "token": "CRC",
       "chainID": "2606",
-      "default": true
+      "default": false
     },
     {
       "name": "Kerleano (CACIB test node)",
@@ -22,7 +22,7 @@
       "explorerUrl": "https://ethereum-pocr.github.io/explorer/kerleano",
       "token": "CRC",
       "chainID": "1804",
-      "default": false
+      "default": true
     },
     {
       "name": "Kerleano (GdC Node)",

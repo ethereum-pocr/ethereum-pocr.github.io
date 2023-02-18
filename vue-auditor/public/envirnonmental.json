@@ -1,0 +1,34 @@
+{
+  "description": "Provides the weights and normalisation factors to go from one single indicator provided by APL Datacentre methodology to the various individual indicators",
+  "indicators": [
+    {
+      "name": "Climate change",
+      "definition": "Greenhouse gases (GHGs) are gaseous compounds that absorb infrared radiation emitted by the Earth's surface. The increase in their concentration in the Earth's atmosphere contributes to global warming.",
+      "unit": "kg CO₂ eq.",
+      "normalisationFactor":  7553.083162851,
+      "weight":  0.2106000000 
+    },
+    {
+      "name": "Primary energy consumption",
+      "definition": "Primary energy is the first form of energy directly available in nature before any transformation: wood, coal, natural gas, oil, wind, solar radiation, hydraulic energy, geothermal energy, etc.",
+      "unit": "MJ",
+      "normalisationFactor":  65004.259664017 ,
+      "weight":  0.0832000000 
+    },
+    {
+      "name": "Depletion of natural resources (minerals and metals)",
+      "definition": "Industrial exploitation leads to a decrease in available resources, which have limited reserves. This indicator measures the amount of mineral and metal resources taken from nature, as if they were antimony. Antimony is a resource considered to be depletable on a human scale and has a value of 1 by convention. A value greater than one for a resource indicates that a scarcer resource than antimony is being consumed.",
+      "unit": "kg Sb eq.",
+      "normalisationFactor":  0.063622615 ,
+      "weight":  0.0755000000 
+    },
+    {
+      "name": "Water resource depletion",
+      "definition": "This indicator represents water consumption multiplied by a factor that takes into account the water stress of the region where the water is consumed. For example, water consumption in the Sahara will have a greater impact than in Scandinavia",
+      "unit": "m³ water eq of deprived water",
+      "normalisationFactor":  11468.708640760 ,
+      "weight":  0.0851000000 
+    }
+  ],
+  "efDecimals": 6
+}

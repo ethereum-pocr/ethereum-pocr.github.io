@@ -13,6 +13,7 @@ import history from "./history";
 import pledge from "./pledge"
 import status from "./status"
 import nodeGovernance from "./nodeGovernance"
+import climate from "./climate"
 
 Vue.use(Vuex);
 // let _logIndexCounter=0;
@@ -37,7 +38,8 @@ const store = new Vuex.Store({
         history,
         pledge,
         status,
-        nodeGovernance
+        nodeGovernance,
+        climate
     },
     plugins: [
         pathify.plugin,
@@ -82,7 +84,7 @@ const store = new Vuex.Store({
             console.log("RootStore", this)
             try {
                 commit("initialized", false);
-                
+                await dispatch("climate/fetchIndicators");
                 console.log("Fetching config");
                 await dispatch("fetchConfig");
                 if (state.config.activate_log) wrapConsoleLogging();

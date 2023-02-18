@@ -59,7 +59,7 @@ export function toCurrency(value, currency) {
 }
 
 export function to1000s(value, decimals=0) {
-  const intl = Intl.NumberFormat(undefined,{style:"decimal", minimumFractionDigits:decimals})
+  const intl = Intl.NumberFormat(undefined,{style:"decimal", minimumFractionDigits:decimals, maximumFractionDigits:decimals})
   return intl.format(value);
 }
 

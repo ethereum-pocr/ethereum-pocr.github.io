@@ -8,8 +8,8 @@
     </v-col>
     <v-col>
       <v-card>
-        <v-card-title>Total Footprint</v-card-title>
-        <v-card-text>{{ totalFootprint }} </v-card-text>
+        <v-card-title>Total Environmental Footprint (EF)</v-card-title>
+        <v-card-text><climate-indicator :value="totalFootprint"></climate-indicator> EF </v-card-text>
       </v-card>
     </v-col>
     <v-col cols="12">
@@ -22,6 +22,9 @@
             :items-per-page="-1"
             hide-default-footer
           >
+            <template v-slot:item.footprint="{ item }">
+              <climate-indicator :value="item.footprint"></climate-indicator>
+            </template>
             <template v-slot:item.vanity="{ item }">
               <div>Address: {{ item.address }}</div>
               <div>Name: {{ item.vanity.custom }}</div>
@@ -56,16 +59,16 @@
             </template>
           </v-data-table>
 
-          <v-dialog v-model="footprintDialog" width="500">
+          <v-dialog v-model="footprintDialog" width="550">
             <v-card v-if="selectedSealer">
               <v-card-title>
-                Update Footprint for {{ selectedSealer.address }}
+                Update Environmental Footprint for sealer <br> {{ selectedSealer.address }}
               </v-card-title>
               <v-card-text>
                 <v-row>
                   <v-col cols="6" class="pb-0">
                     <v-text-field
-                      type="number"
+                      type="number" 
                       outlined
                       dense
                       v-model="newFootprintValue"
@@ -90,13 +93,16 @@
 </template>
 
 <script>
+import ClimateIndicator from "../components/ClimateIndicator.vue";
 import { get, call } from "vuex-pathify";
+//import { to1000s } from '../lib/numbers';
 
 export default {
+  components: {ClimateIndicator},
   data: () => ({
     tableHeaders: [
       { text: "Node", value: "vanity" },
-      { text: "Footprint", value: "footprint" },
+      { text: "Env. Footprint", value: "footprint" },
       { text: "Actions", value: "actions", sortable: false },
     ],
     tableHeadersAuditors: [
@@ -110,6 +116,11 @@ export default {
   }),
   computed: {
     ...get("nodes", ["nbOfNodes", "totalFootprint", "sealers"]),
+    ...get("climate", ["efDecimals", "fromSingleIndicator"]),
+    newFootprintValueDisplay: {
+      get: function() { return Number(this.newFootprintValue).toFixed( this.efDecimals)},
+      set: function(v) { console.log("setting value", v); this.newFootprintValue = Number(v); }
+    }
   },
 
   mounted() {
