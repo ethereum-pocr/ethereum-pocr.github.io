@@ -6,6 +6,7 @@
           <v-card-title>Environmental footprint breakdown of {{to1000s(value)}} ({{to1000s(Math.pow(10, efDecimals))}} EF )</v-card-title>
           <v-card-text>
             <div><i>1 Environmental footprint (EF) is a normalized indicator of the impact of 1 human being. <a href="https://eplca.jrc.ec.europa.eu/EnvironmentalFootprint.html" target="_blank">Source</a>.</i></div>
+            <div><i>The table show equivalence of the environmental footprint in each of the indicators</i></div>
             <v-simple-table>
               <thead>
                 <tr>
@@ -13,11 +14,11 @@
                     Indicator
                   </th>
                   <th class="text-left">
-                    Value
+                    {{to1000s(value / Math.pow(10, efDecimals), efDecimals)}} EF equivalent to 
                   </th>
-                  <th class="text-left">
+                  <!-- <th class="text-left">
                     Normalized value
-                  </th>
+                  </th> -->
                 </tr>
               </thead>
               <tbody>
@@ -30,8 +31,8 @@
                         <span>{{ind.definition}}</span>
                       </v-tooltip>
                     </td>
-                    <td>{{ to1000s(ind.value, 2) }} {{ind.unit}}</td>
-                    <td>{{ to1000s(ind.contribution/Math.pow(10, efDecimals), efDecimals) }} EF ({{to1000s(100*ind.contribution/value,2)}}%)</td>
+                    <td>{{ to1000s(ind.valueEq, 2) }} {{ind.unit}}</td>
+                    <!-- <td>{{ to1000s(ind.contribution/Math.pow(10, efDecimals), efDecimals) }} EF ({{to1000s(100*ind.contribution/value,2)}}%)</td> -->
                   </tr>
               </tbody>
             </v-simple-table>

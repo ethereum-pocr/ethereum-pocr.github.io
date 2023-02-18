@@ -9,6 +9,9 @@ const state = () => ({
 const getters = {
     fromSingleIndicator: (state) => (si)=>{
         return reverseSingleIndicator(si, state.indicators, state.totalWeight, state.efDecimals)
+    },
+    toSingleIndicator: (state) => (values)=>{
+        return calculateSingleIndicator(values, state.indicators, state.totalWeight, state.efDecimals)
     }
 }
 
@@ -35,14 +38,30 @@ function processIndicators(conf) {
 }
 
 function reverseSingleIndicator(si, indicators, totalWeight, efDecimals) {
-    if (totalWeight == 0) throw new Error("Cannot work with a total weight of zero")
+    // if (totalWeight == 0) throw new Error("Cannot work with a total weight of zero")
+    // It is not possible from a single indicator to retrieve the 4 indicators from the weight only.
+    // So this function project the single indicator as if it was all on a one indicator
+    si = si / Math.pow(10, efDecimals);
     const result = indicators.map( i=> {
-        const w = i.weight / totalWeight;
-        const c = si * w ;
-        const v = c * i.normalisationFactor / Math.pow(10, efDecimals);
-        return {...i, value: v, contribution: c};
+        // const w = i.weight / totalWeight;
+        // const c = si * w ;
+        const v = si * i.normalisationFactor / i.weight;
+        return {...i, valueEq: v};
     })
     return result;
+}
+
+function calculateSingleIndicator(indicatorValues, indicators, totalWeight, efDecimals) {
+    let si = 0;
+    // console.log("calculateSingleIndicator", indicatorValues)
+    for(let index=0; index<indicators.length; index++) {
+        const i = indicators[index];
+        const v = indicatorValues.length>index ? indicatorValues[index] : 0;
+        const c = v * i.weight / i.normalisationFactor;
+        //const w = i.weight / totalWeight;
+        si += c ;
+    }
+    return si * Math.pow(10, efDecimals);
 }
 
 const actions = {

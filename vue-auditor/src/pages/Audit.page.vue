@@ -29,25 +29,7 @@
               <div>Address: {{ item.address }}</div>
               <div>Name: {{ item.vanity.custom }}</div>
             </template>
-            <!-- 
-            <template v-slot:item.footprint="{ item }">
-				{{ item.footprint }}
-              <v-edit-dialog
-                @update:return-value="setFootprint"
-                large
-                persistent
-              >
-                {{ item.footprint }}
-                <template v-slot:input>
-                  <v-text-field
-                    :value="item.footprint"
-                    label="Edit"
-                    single-line
-                    type="number"
-                  ></v-text-field>
-                </template>
-              </v-edit-dialog>
-            </template> -->
+
             <template v-slot:item.actions="{ item }">
               <v-btn
                 color="primary"
@@ -59,7 +41,7 @@
             </template>
           </v-data-table>
 
-          <v-dialog v-model="footprintDialog" width="550">
+          <v-dialog v-model="footprintDialog" width="auto">
             <v-card v-if="selectedSealer">
               <v-card-title>
                 Update Environmental Footprint for sealer <br> {{ selectedSealer.address }}
@@ -83,6 +65,23 @@
                     </v-btn>
                   </v-col>
                 </v-row>
+                <v-row v-for="ind of editingIndicators" :key="ind.name"
+                      class="flex align-center"
+                      style="border-top: solid;"
+                >
+                  <v-col cols="6">
+                    {{ind.name}}
+                  </v-col>
+                  <v-col cols="6">
+                    <v-text-field v-if="ind.name==editingIndicator.name" v-model="editingIndicator.valueEq"
+                      type="number"  :label="ind.unit" append-icon="mdi-close" append-outer-icon="mdi-checkbox-marked-outline" 
+                      @click:append="cancelEditField" @click:append-outer="applyEditField"
+                    ></v-text-field>
+                    <div v-else @click="editField(ind)">
+                      {{ to1000s(ind.valueEq, 2) }} {{ind.unit}}
+                    </div>
+                  </v-col>
+                </v-row>
               </v-card-text>
             </v-card>
           </v-dialog>
@@ -95,14 +94,14 @@
 <script>
 import ClimateIndicator from "../components/ClimateIndicator.vue";
 import { get, call } from "vuex-pathify";
-//import { to1000s } from '../lib/numbers';
+import { to1000s } from '../lib/numbers';
 
 export default {
   components: {ClimateIndicator},
   data: () => ({
     tableHeaders: [
       { text: "Node", value: "vanity" },
-      { text: "Env. Footprint", value: "footprint" },
+      { text: "Env. Footprint", value: "footprint", align: 'end' },
       { text: "Actions", value: "actions", sortable: false },
     ],
     tableHeadersAuditors: [
@@ -113,10 +112,12 @@ export default {
     footprintDialog: false,
     selectedSealer: null,
     newFootprintValue: 0,
+    editingIndicator: {},
+    editingIndicators: [],
   }),
   computed: {
     ...get("nodes", ["nbOfNodes", "totalFootprint", "sealers"]),
-    ...get("climate", ["efDecimals", "fromSingleIndicator"]),
+    ...get("climate", ["efDecimals", "fromSingleIndicator", "toSingleIndicator"]),
     newFootprintValueDisplay: {
       get: function() { return Number(this.newFootprintValue).toFixed( this.efDecimals)},
       set: function(v) { console.log("setting value", v); this.newFootprintValue = Number(v); }
@@ -127,14 +128,34 @@ export default {
     this.fetchAllValues();
   },
   methods: {
+    to1000s,
     ...call("nodes", ["fetchAllValues", "updateFootprint"]),
+    editField(indicator) {
+      this.editingIndicator = indicator;
+      this.editingIndicator.valueEq = 0;
+    },
+    applyEditField() {
+      const index = this.editingIndicators.findIndex( i=>i.name==this.editingIndicator.name )
+      if (index>=0) {
+        this.editingIndicators[index] = this.editingIndicator;
+      }
+      const values = this.editingIndicators.map( i=>Number(i.valueEq) )
+      this.newFootprintValue = this.toSingleIndicator(values)
+      this.editingIndicator = {};
+    },
+    cancelEditField() {
+      this.editingIndicator = {};
+    },
     openUpdateFootprintDialog(sealer) {
       this.selectedSealer = sealer;
       this.newFootprintValue = sealer.footprint;
+      this.editingIndicator = {};
+      this.editingIndicators = this.fromSingleIndicator(this.newFootprintValue);
       this.footprintDialog = true;
     },
 
     async submitNewFootprint() {
+      this.editingIndicator = {};
       this.footprintDialog = false;
       await this.updateFootprint({
         sealerAddress: this.selectedSealer.address,
