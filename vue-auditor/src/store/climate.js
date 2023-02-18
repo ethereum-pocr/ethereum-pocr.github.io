@@ -8,7 +8,7 @@ const state = () => ({
 
 const getters = {
     fromSingleIndicator: (state) => (si)=>{
-        return reverseSingleIndicator(si, state.indicators, state.totalWeight)
+        return reverseSingleIndicator(si, state.indicators, state.totalWeight, state.efDecimals)
     }
 }
 
@@ -34,12 +34,13 @@ function processIndicators(conf) {
     return {indicators, totalWeight, efDecimals: conf.efDecimals || 6};
 }
 
-function reverseSingleIndicator(si, indicators, totalWeight) {
+function reverseSingleIndicator(si, indicators, totalWeight, efDecimals) {
     if (totalWeight == 0) throw new Error("Cannot work with a total weight of zero")
     const result = indicators.map( i=> {
         const w = i.weight / totalWeight;
-        const v = si * w * i.normalisationFactor;
-        return {...i, value: v};
+        const c = si * w ;
+        const v = c * i.normalisationFactor / Math.pow(10, efDecimals);
+        return {...i, value: v, contribution: c};
     })
     return result;
 }

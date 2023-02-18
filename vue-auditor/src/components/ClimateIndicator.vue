@@ -3,8 +3,9 @@
       {{to1000s(value)}}
       <v-dialog v-model="displayed" width="auto">
         <v-card>
-          <v-card-title>Environmental footprint breakdown of {{to1000s(value)}} (EF by person)</v-card-title>
+          <v-card-title>Environmental footprint breakdown of {{to1000s(value)}} ({{to1000s(Math.pow(10, efDecimals))}} EF )</v-card-title>
           <v-card-text>
+            <div><i>1 Environmental footprint (EF) is a normalized indicator of the impact of 1 human being. <a href="https://eplca.jrc.ec.europa.eu/EnvironmentalFootprint.html" target="_blank">Source</a>.</i></div>
             <v-simple-table>
               <thead>
                 <tr>
@@ -13,6 +14,9 @@
                   </th>
                   <th class="text-left">
                     Value
+                  </th>
+                  <th class="text-left">
+                    Normalized value
                   </th>
                 </tr>
               </thead>
@@ -27,6 +31,7 @@
                       </v-tooltip>
                     </td>
                     <td>{{ to1000s(ind.value, 2) }} {{ind.unit}}</td>
+                    <td>{{ to1000s(ind.contribution/Math.pow(10, efDecimals), efDecimals) }} EF ({{to1000s(100*ind.contribution/value,2)}}%)</td>
                   </tr>
               </tbody>
             </v-simple-table>
@@ -48,7 +53,7 @@ export default {
     displayed:false
   }),
   computed: {
-    ...get("climate", ["fromSingleIndicator"]),
+    ...get("climate", ["fromSingleIndicator", "efDecimals"]),
   },
   methods: {
     to1000s,
