@@ -18,8 +18,8 @@
     {
       "name": "Depletion of natural resources (minerals and metals)",
       "definition": "Industrial exploitation leads to a decrease in available resources, which have limited reserves. This indicator measures the amount of mineral and metal resources taken from nature, as if they were antimony. Antimony is a resource considered to be depletable on a human scale and has a value of 1 by convention. A value greater than one for a resource indicates that a scarcer resource than antimony is being consumed.",
-      "unit": "kg Sb eq.",
-      "normalisationFactor":  0.063622615 ,
+      "unit": "g Sb eq.",
+      "normalisationFactor":  63.622615 ,
       "weight":  0.0755000000 
     },
     {
@@ -30,5 +30,5 @@
       "weight":  0.0851000000 
     }
   ],
-  "efDecimals": 6
+  "efDecimals": 4
 }
