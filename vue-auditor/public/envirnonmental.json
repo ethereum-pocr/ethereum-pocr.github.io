@@ -1,5 +1,6 @@
 {
   "description": "Provides the weights and normalisation factors to go from one single indicator provided by APL Datacentre methodology to the various individual indicators",
+  "functionalUnit": "Environmental footprint of a node with maximum 119 M gas per block (a block every 4s) and over a year",
   "indicators": [
     {
       "name": "Climate change",

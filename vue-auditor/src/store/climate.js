@@ -4,6 +4,7 @@ const state = () => ({
     indicators: [],
     totalWeight: 1,
     efDecimals: 6,
+    functionalUnit: "",
 })
 
 const getters = {
@@ -34,7 +35,11 @@ function processIndicators(conf) {
     const totalWeight = indicators.reduce( (p, i)=>i.weight+p, 0);
     if (totalWeight == 0) throw new Error("Cannot work with a set of indicators whose total weigth is zero")
 
-    return {indicators, totalWeight, efDecimals: conf.efDecimals || 6};
+    return {
+        indicators, totalWeight, 
+        efDecimals: conf.efDecimals || 6,
+        functionalUnit: conf.functionalUnit || "Undefined FU" 
+    };
 }
 
 function reverseSingleIndicator(si, indicators, totalWeight, efDecimals) {
@@ -82,6 +87,7 @@ const actions = {
                 commit("indicators", processed.indicators)
                 commit("totalWeight", processed.totalWeight)
                 commit("efDecimals", processed.efDecimals)
+                commit("functionalUnit", processed.functionalUnit)
             }
         } catch (error) {
             console.error("Could not process the environmental configuration", error.message)

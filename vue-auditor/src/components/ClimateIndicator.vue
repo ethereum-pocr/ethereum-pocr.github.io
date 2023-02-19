@@ -36,6 +36,8 @@
                   </tr>
               </tbody>
             </v-simple-table>
+            <div>Measure of EF are for 1 F.U. as per LCA methodology (or multiple FU in the case of the whole network)</div>
+            <div>Functional Unit: <i>{{functionalUnit}}</i></div>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -54,7 +56,7 @@ export default {
     displayed:false
   }),
   computed: {
-    ...get("climate", ["fromSingleIndicator", "efDecimals"]),
+    ...get("climate", ["fromSingleIndicator", "efDecimals", "functionalUnit"]),
   },
   methods: {
     to1000s,
