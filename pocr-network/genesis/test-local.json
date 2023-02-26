@@ -1,0 +1,13 @@
+{
+  "genesisTemplate": "genesis-local.json",
+  "initialSealers": ["0x1ac36bf09b11EB47e60b9F3ce20526824FAeE765"],
+  "initialAuditor": "0x1ac36bf09b11EB47e60b9F3ce20526824FAeE765",
+  "auditorInitialCredit": 25001,
+  "governanceContract": "GovernanceLocalNetwork",
+  "chainID": 1234,
+  "secPerBlock": 4,
+  "epoch": 30000,
+  "blockGasLimit": "4700000",
+  "timestamp": "0x86e1970",
+  "extraDataVanity": "4775c3a96e6f6cc3a9206465204361646f7564616c206d61646520506f435221"
+}

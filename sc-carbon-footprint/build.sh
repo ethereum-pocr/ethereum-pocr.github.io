@@ -1,5 +1,5 @@
 solc --version
-solc -o contracts --optimize --combined-json abi,bin,bin-runtime --overwrite --base-path . --include-path ./node_modules  src/*.sol
+solc -o contracts --optimize --combined-json abi,bin,bin-runtime,hashes --overwrite --base-path . --include-path ./node_modules  src/*.sol
 
 if [ $? -eq 0 ]
 then
