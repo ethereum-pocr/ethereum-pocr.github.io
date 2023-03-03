@@ -9,7 +9,7 @@
       <v-card class="pa-2" v-if="isConnected">
         <v-card-subtitle>Create a new proposal.</v-card-subtitle>
         <v-card-text>
-          this action will be done with your connected wallet and will reserve the ID of the Carbon Reduction Improvement Proposal that you must then create as a document in 
+          this action will be done with your connected wallet and will reserve the ID of the Climate awaReness Improvement Proposal that you must then create as a document in 
           <a :href="CRIPsUrl">{{CRIPsUrl}}</a>
         </v-card-text>
         <v-card-actions>

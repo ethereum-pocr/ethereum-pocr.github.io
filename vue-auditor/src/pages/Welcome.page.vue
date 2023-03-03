@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Proof of Carbon Reduction</h2>
+    <h2>Proof of Climate awaReness</h2>
     <div>The consensus that incentivize nodes to improve their carbon footprint to earn more crypto (CRC / ₡)</div>
     <v-divider class="my-4"></v-divider>
     <div>To read the detail of this consensus go to the <a href="https://github.com/ethereum-pocr/whitepaper" target="_blank">whitepaper</a></div>

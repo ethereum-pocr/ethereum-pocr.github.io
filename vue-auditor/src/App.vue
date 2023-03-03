@@ -4,7 +4,7 @@
       <app-menu v-model="drawerDisplayed"></app-menu>
       <v-app-bar app clipped-left flat color="teal lighten-2">
         <v-app-bar-nav-icon v-if="!drawerDisplayed" @click="showDrawer"></v-app-bar-nav-icon>
-        <v-toolbar-title @click="goTo('welcome')">Proof of Carbon Reduction</v-toolbar-title>
+        <v-toolbar-title @click="goTo('welcome')">Proof of Climate awaReness</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-chip
           class="ma-2"

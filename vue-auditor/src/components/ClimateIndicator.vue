@@ -3,7 +3,7 @@
       {{to1000s(value)}}
       <v-dialog v-model="displayed" width="auto">
         <v-card>
-          <v-card-title>Environmental footprint breakdown of {{to1000s(value)}} ({{to1000s(Math.pow(10, efDecimals))}} EF )</v-card-title>
+          <v-card-title>Environmental footprint equivalent for {{to1000s(value)}} ({{to1000s(Math.pow(10, efDecimals))}} EF )</v-card-title>
           <v-card-text>
             <div><i>1 Environmental footprint (EF) is a normalized indicator of the impact of 1 human being. <a href="https://eplca.jrc.ec.europa.eu/EnvironmentalFootprint.html" target="_blank">Source</a>.</i></div>
             <div><i>The table show equivalence of the environmental footprint in each of the indicators</i></div>

@@ -29,7 +29,7 @@ In the root of the `pocr-monorepo` folder there is a `docker-compose.yml` that b
 
  * geth-bootnode: Used as discovery node for the blockchain and the `Dockerfile` of the service can be found at `pocr-network/bootnode/Dockerfile`
 
- * sealer-1,2,3: Those are 3 nodes that start `geth` client with `Proof Of Carbon Reduction` and the `Dockerfile`can be found at `pocr-network/sealer/Dockerfile`
+ * sealer-1,2,3: Those are 3 nodes that start `geth` client with `Proof Of Climate awaReness` and the `Dockerfile`can be found at `pocr-network/sealer/Dockerfile`
  The `Dockerfile` uses `multistage` the default stage `runtime` will download the `geth` built priviously and available in the gitlab and the second stage `dev` is to get `geth` from local machine
  To use `dev` stage update in `.env` file the key `SEALER_TARGET` by `dev` instead of `runtime` and then copy your `geth` binary to `pocr-network/sealer/geth`
 
