@@ -138,7 +138,7 @@ function clearTimeout(id) {
 
 
 let __id= 1000;
-export function subscribeNewBlocks(web3, {maxBlocks=0}={}) {
+export function subscribeNewBlocks(web3, {maxBlocks=0, firstBlock=undefined}={}) {
     if (!web3) web3 = $store.get("auth/web3");
     if (!web3) throw new Error("Should not be calling the api functions without a provider connected")
     const provider = $store.get("auth/provider");
@@ -167,6 +167,20 @@ export function subscribeNewBlocks(web3, {maxBlocks=0}={}) {
         return Number(r);
     }
 
+    async function getBlockByNumber(block, tx=false) {
+        const r = await new Promise( (res, rej)=>{
+            providerSendAsync({method:"eth_getBlockByNumber", id: __id++, params:[`0x${Number(block).toString(16)}`, tx]}, (e,r)=>{
+                // console.log("send Async response", e, r)
+                if (e) rej(e);
+                else if (r.result) res(r.result);
+                else if (typeof r == "string") res(r); // the brave wallet on mobile respond with the value directly rather than the {result:""} structure
+                else rej(new Error('No error or response!'))
+            })
+        })
+        // console.log("Request eth_blockNumber", Number(r));
+        return {...r, number:Number(r.number)};
+    }
+
     const subs = new EventEmitter({captureRejections: true});
     subs.unsubscribe = ()=>{
         if (subs.timer) {
@@ -182,20 +196,21 @@ export function subscribeNewBlocks(web3, {maxBlocks=0}={}) {
             // console.log("Starting the block receiving loop")
             if (!subs.props) {
                 // first execution: initialized the props and loop
-                subs.props = {lastBlock: await getBlockNumber(), lastCheck: Date.now()};
+                subs.props = {lastBlock: firstBlock || await getBlockNumber(), lastCheck: Date.now()};
             } else {
                 let lastBlock = await getBlockNumber();
     
                 const lastCheck = Date.now();
                 //console.log("runLoop:", subs.props, {lastBlock, lastCheck});
-                if (lastBlock > subs.props.lastBlock) {
-                    const firstBlock = Math.max(subs.props.lastBlock+1, lastBlock-maxBlocks);
+                if (lastBlock >= subs.props.lastBlock) {
+                    // get the first block to process that is the new block or the next of the last received but not earlier than the max blocks backward
+                    const firstBlock = Math.max(Math.min(subs.props.lastBlock+1, lastBlock), lastBlock-maxBlocks);
                     if (subs.props.lastBlock+1<firstBlock) {
                         console.log("Skipping blocks that are too old:", subs.props.lastBlock+1, "...", firstBlock-1);
                     }
                     for (let b=firstBlock; b<=lastBlock; b++) {
                         try {
-                            const block = await web3.eth.getBlock(b, false)
+                            const block = await getBlockByNumber(b, false); // get block ignoring cache if any
                             // console.log(`Block ${block.number} emitted`);
                             subs.emit("data", block);
                         } catch (error) {

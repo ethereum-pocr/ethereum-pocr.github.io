@@ -5,7 +5,7 @@ import { readOnlyCall, intf as _intf, writeCall, handleMMResponse, getWalletBala
 import { totalCRCAddress, GeneratedCRCTotalHash } from "@/lib/const";
 import $store from "@/store/index";
 
-let MAX_BLOCKS_TO_KEEP = 2;
+let MAX_BLOCKS_TO_KEEP = 20;
 
 const state = () => ({
     nbOfNodes: 0,
@@ -111,12 +111,60 @@ async function processBlock(web3, block) {
     }
     return data;
 }
+
+async function rewindToCommonRoot(web3, blocks, sealers, block) {
+    // console.log("===> Rewinding", "block:", block.number, "nbblocks:", blocks.length, "head:", blocks[blocks.length-1].block);
+    function removeLastBlock() {
+        const b = blocks.pop();
+        console.log("===> Removing", b.block.number, b.sealer.vanity.custom, b.block.hash);
+        if (b && b.sealer && b.sealer.address) {
+            // we remove a blok so update the sealer counter
+            let si = sealers.findIndex(s=>s.address == b.sealer.address);
+            if (si>=0) {
+                sealers[si].sealedBlocks --;
+            }
+        }
+    }
+    if (blocks.length == 0) {
+        // console.log("===> blocks is empty, returning empty arrays");
+        return {blocks:[], sealers:[]}
+    }
+    let last = blocks[blocks.length-1].block;
+    // if (last.hash == block.hash) console.log("===> Same head", "last ", "hash:", last.hash, "parentHash:", last.parentHash);
+    // if (last.hash == block.parentHash) console.log("===> Parent is the head", "block", "hash:", last.hash, "parentHash:", block.parentHash); 
+    // if (last.parentHash == block.parentHash) console.log("===> Same parents", "same hashes:", last.hash == block.hash, "same parentHashes:", last.parentHash == block.parentHash);
+    if (last.hash == block.hash) return {blocks, sealers}; // the memory head is already the new block
+    if (last.hash == block.parentHash) return {blocks, sealers}; // the memory head is the parent of the new block
+    if (last.parentHash == block.parentHash) {
+        // the new block is not the same as the last saved one but it has the same root
+        // delete the last block and let process this new block
+        removeLastBlock();
+        return {blocks, sealers};
+    }
+    // the new block has nothing to do with the head of the local chain
+    // remove the last block in memory, get the actual previous block and try again
+    removeLastBlock();
+    const actual = await web3.eth.getBlock(block.parentHash, false);
+    ({blocks, sealers} = await rewindToCommonRoot(web3, blocks, sealers, actual));
+    return {blocks, sealers};
+}
+
 async function logicOnNewBloc(web3, blocks, sealers, block) {
+    if (blocks.length>0 && blocks[blocks.length-1].block.hash == block.hash) return;
+    const data = await processBlock(web3, block);
     // we have a block that is before the current block, remove the block up to that block
     while (blocks.length>0 && blocks[blocks.length-1].block.number >= block.number) {
-        blocks.pop();
+        const b = blocks.pop();
+        if (b && b.sealer && b.sealer.address) {
+            // we remove a blok so update the sealer counter
+            let si = sealers.findIndex(s=>s.address == b.sealer.address);
+            if (si>=0) {
+                sealers[si].sealedBlocks --;
+            }
+        }
     }
-    const data = await processBlock(web3, block);
+    // let sealer = sealers.find(s=>s.address == data.sealer.address)
+    // console.log("logic on new block", block.number, "sealer:", data.sealer.vanity.custom,"hash:", block.hash, "parent:", block.parentHash, "nbBlocks:", sealer?.sealedBlocks);
     blocks.push(data);
     while (blocks.length > MAX_BLOCKS_TO_KEEP) {
         blocks.shift();
@@ -200,7 +248,8 @@ const actions = {
         await dispatch("fetchChainInformations");
 
         const web3 = rootState.auth.web3;
-        const subscription = subscribeNewBlocks(web3, {maxBlocks: MAX_BLOCKS_TO_KEEP}) //web3.eth.subscribe("newBlockHeaders");
+        const lastBlockInMemory = state.blocks.length>0 ? state.blocks[state.blocks.length-1].block.number : undefined;
+        const subscription = subscribeNewBlocks(web3, {maxBlocks: MAX_BLOCKS_TO_KEEP, firstBlock:lastBlockInMemory}) //web3.eth.subscribe("newBlockHeaders");
         let blockProcessing = false;
         let blocksWaiting = [];
         const processingFunc = async (block) => {
@@ -256,7 +305,9 @@ const actions = {
             commit("currentWalletBalanceWei", bal);
         }
         try {
-            const {blocks, sealers} = await logicOnNewBloc(web3, [...state.blocks], [...state.sealers], block);
+
+            let {blocks, sealers} = await rewindToCommonRoot(web3, [...state.blocks], [...state.sealers], block);
+            ({blocks, sealers} = await logicOnNewBloc(web3, blocks, sealers, block));
             
             $store.set("nodes/blocks", blocks);
             $store.set("nodes/sealers", sealers);

@@ -48,9 +48,9 @@ function reverseSingleIndicator(si, indicators, totalWeight, efDecimals) {
     // So this function project the single indicator as if it was all on a one indicator
     si = si / Math.pow(10, efDecimals);
     const result = indicators.map( i=> {
-        // const w = i.weight / totalWeight;
+        const w = i.weight / totalWeight;
         // const c = si * w ;
-        const v = si * i.normalisationFactor / i.weight;
+        const v = si * i.normalisationFactor / w;
         return {...i, valueEq: v};
     })
     return result;
@@ -61,9 +61,9 @@ function calculateSingleIndicator(indicatorValues, indicators, totalWeight, efDe
     // console.log("calculateSingleIndicator", indicatorValues)
     for(let index=0; index<indicators.length; index++) {
         const i = indicators[index];
+        const w = i.weight / totalWeight;
         const v = indicatorValues.length>index ? indicatorValues[index] : 0;
-        const c = v * i.weight / i.normalisationFactor;
-        //const w = i.weight / totalWeight;
+        const c = v * w / i.normalisationFactor;
         si += c ;
     }
     return si * Math.pow(10, efDecimals);
