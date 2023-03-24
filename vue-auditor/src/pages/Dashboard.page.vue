@@ -23,14 +23,14 @@
         <span class="text-h4 ma-auto"><climate-indicator :value="totalFootprint"></climate-indicator></span>
       </v-card-title>
       <v-card-subtitle class="mt-3"
-        >Average: <climate-indicator :value="totalFootprint / nbOfNodes"></climate-indicator> EF
+        >Average: <climate-indicator :value="avgFootprint"></climate-indicator> EF
       </v-card-subtitle
       >
     </v-card>
     <v-row>
       <v-col cols="12" class="py-8" v-if="lastBlock">
         <v-card>
-        <v-card-title>Carbon Footprint for each of the nodes</v-card-title>
+        <v-card-title>Environmental Footprint of the sealers</v-card-title>
         <v-card-subtitle>
           Last block sealer: {{ lastBlock.sealer.address }} /
           {{ lastBlock.sealer.vanity.custom }}. Footprint: <climate-indicator :value="lastBlock.sealer.footprint"></climate-indicator> EF
@@ -65,7 +65,8 @@
                 <div>{{ item.address }}</div>
               </template>
               <template v-slot:item.footprint="{ item }">
-                <climate-indicator :value="item.footprint"></climate-indicator>
+                <div v-if="item.footprint==0" class="text-caption">Pending audit</div>
+                <climate-indicator v-else :value="item.footprint"></climate-indicator>
               </template>
               <template v-slot:item.ratio="{ item }">
                 <div>{{ (100 * item.sealedBlocks / totalSealedBlocks).toFixed(2) }} %</div>
@@ -184,10 +185,15 @@ export default {
       "timeSinceLastBlock"
     ]),
     sealersSorted() {
-      return [...this.sealers].sort( (a,b)=>a.footprint-b.footprint )
+      return [...this.sealers].filter(s=>s.footprint>0).sort( (a,b)=>a.footprint-b.footprint )
     },
     maxFootprint() {
       return this.sealers.reduce( (max, s)=>s.footprint>max?s.footprint:max, 1 )
+    },
+    avgFootprint() {
+      const {nb, total} = this.sealers.reduce( ({nb, total}, s)=>s.footprint>0?({nb:nb+1, total: total+s.footprint}):{nb,total}, {nb:0, total:0} );
+      if (nb>0) return total / nb;
+      return 0;
     },
     sealersFootprint() {
       return this.sealers.map((s) => s.footprint);
