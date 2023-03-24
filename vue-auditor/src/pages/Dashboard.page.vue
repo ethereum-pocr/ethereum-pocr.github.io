@@ -38,8 +38,8 @@
         <v-card-text>
           <v-progress-linear v-for="sealer of sealersSorted" :key="sealer.address" 
             height="2em" class="my-1"
-            :value="sealer.footprint / maxFootprint * 100"
-            :color="gradientGreenToRed(sealer.footprint / maxFootprint)"
+            :value="(sealer.footprint-minFootprint) / (maxFootprint-minFootprint) * 100"
+            :color="gradientGreenToRed((sealer.footprint-minFootprint) / (maxFootprint-minFootprint))"
           >
             <template v-slot:default="{  }">
               {{sealer.vanity.custom}} -  &nbsp; <strong><climate-indicator :value="sealer.footprint"></climate-indicator> </strong> &nbsp; EF
@@ -189,6 +189,12 @@ export default {
     },
     maxFootprint() {
       return this.sealers.reduce( (max, s)=>s.footprint>max?s.footprint:max, 1 )
+    },
+    minFootprint() {
+      const max = this.maxFootprint;
+      const min = this.sealers.reduce( (min, s)=>s.footprint<min?s.footprint:min, max );
+      const delta = max-min;
+      return min - delta*0.05 ; // remove 5% to have a lower min
     },
     avgFootprint() {
       const {nb, total} = this.sealers.reduce( ({nb, total}, s)=>s.footprint>0?({nb:nb+1, total: total+s.footprint}):{nb,total}, {nb:0, total:0} );
