@@ -13,6 +13,7 @@
         "@mdi/font": "5.9.55",
         "@mdi/js": "^6.1.95",
         "@metamask/detect-provider": "^1.2.0",
+        "@microsoft/applicationinsights-web": "^3.0.2",
         "@saturn-chain/dlt-rest-api": "^1.0.7",
         "@saturn-chain/smart-contract": "^1.0.3",
         "@saturn-chain/wallet-custody-rest-api": "^1.0.4",
