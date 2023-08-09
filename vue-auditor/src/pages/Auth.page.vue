@@ -1,14 +1,37 @@
 <template>
   <div>
+    <div>Anonymous access:</div>
+    <v-row>
+      <v-col v-for="network of chainsNetworks" :key="network.chainId">
+        <v-btn 
+          color="teal" class=" mr-3" dark
+          @click="openWeb3DirectAnonymousConnection(network)"
+        >{{ network.name }}</v-btn>
+        <div class="text-caption">{{ network.title }}</div>
+      </v-col>
+    </v-row>
+    <br><br>
     <div v-if="hasProviderMetamask">
-      <v-btn color="teal" class=" my-3" dark @click="prepareOpenMetaMaskConnectionDialog"
-        >Connect Metamask Wallet</v-btn>
-      <v-btn class="mx-3 my-3" color="teal" dark @click="goToInstallMetamask"
-        >Switch / Install network</v-btn>
+      <div>Authenticated access via Metamask:</div>
+      <v-row>
+        <v-col>
+          <v-btn color="teal" class=" my-3" dark @click="prepareOpenMetaMaskConnectionDialog"
+            >Connect Metamask Wallet</v-btn>
+        </v-col>
+        <v-col>
+          <v-btn class="mx-3 my-3" color="teal" dark @click="goToInstallMetamask"
+            >Switch / Install network</v-btn>
+        </v-col>
+      </v-row>
 
+    </div>
+    <div v-else>
+      <div>Install Metamask to authenticate and then reload this application.</div>
+      <div>Installation instructions available at <a href="https://metamask.io/download/" target="_blank">https://metamask.io/download/</a></div>
     </div>
     <br><br>
     <div v-if="hasProviderDirect">
+      <div>Authenticated access via wallet custody:</div>
       <v-btn color="teal" dark @click="prepareOpenWeb3DirectConnectionDialog"
         >Connect with below configuration</v-btn
       > <br><br>
@@ -47,7 +70,7 @@
 </template>
 
 <script>
-import { call } from "vuex-pathify";
+import { call, get } from "vuex-pathify";
 import { getCustodyLastWallets } from "../lib/api";
 import { getDefaultNetwork, getNetworkList } from "../lib/config-file";
 
@@ -63,15 +86,18 @@ export default {
     }
   },
   async mounted() {
+
     const wallets = await getCustodyLastWallets();
     if (wallets.length>0) this.wallet = wallets[0];
     this.wallets = wallets;
 
+    this.disconnect();
     const config = this.$store.get("config");
     this.networks = getNetworkList(config);
     this.selectedNetwork = getDefaultNetwork(config);
   },
   computed: {
+    ...get("auth",["chainsNetworks"]),
     hasProviderMetamask() {
       if (this.$store.state.auth.providerMetamask) return true;
       else return false;
@@ -87,7 +113,7 @@ export default {
   },
   methods: {
     ...call(["errorFlash"]),
-    ...call("auth", ["openMetaMaskConnectionDialog", "openWeb3DirectConnectionDialog", "setConnection", "checkNetworkProofOfCarbonReduction"]),
+    ...call("auth", ["openMetaMaskConnectionDialog", "openWeb3DirectConnectionDialog", "openWeb3DirectAnonymousConnection", "setConnection", "checkNetworkProofOfCarbonReduction", "disconnect"]),
     updateWallet(v) {
       this.wallet = v;
     },

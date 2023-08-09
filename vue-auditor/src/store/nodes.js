@@ -8,6 +8,7 @@ import $store from "@/store/index";
 let MAX_BLOCKS_TO_KEEP = 20;
 
 const state = () => ({
+    chainId: 0,
     nbOfNodes: 0,
     totalFootprint: 0,
     totalCrypto: 0,
@@ -383,10 +384,25 @@ const actions = {
 
     async fetchChainInformations({ rootState, dispatch }) {
         const web3 = rootState.auth.web3;
-        // gets the eventually already available blocks to only request the new ones
-        let blocks = [...(rootState.nodes.blocks||[])];
+        // get the current chainId to knwow when the network changes
+        const chainId = await web3.eth.getChainId();
+        console.log("fetchChainInformations on", chainId);
+        let blocks = [];
         // the sealers array or create it
-        let sealers = [...(rootState.nodes.sealers||[])];
+        let sealers = [];
+        let blockNumbers = [];
+        if (chainId == rootState.nodes.chainId) {
+            // same chain, so keep existing info if any
+            // gets the eventually already available blocks to only request the new ones
+            blocks = [...(rootState.nodes.blocks||[])];
+            // the sealers array or create it
+            sealers = [...(rootState.nodes.sealers||[])];
+        } else {
+            // force an update of the data to reset
+            $store.set("nodes/blocks", blocks);
+            $store.set("nodes/sealers", sealers);    
+        }
+        $store.set("nodes/chainId", chainId);
         const lastBlockInMemory = blocks.length>0 ? blocks[blocks.length-1].block.number : 0;
         const blockNumber = await web3.eth.getBlockNumber();
         this.blockNumber = blockNumber;
@@ -396,11 +412,9 @@ const actions = {
         let index = Math.max(lastBlockInMemory+1, blockNumber - MAX_BLOCKS_TO_KEEP);
         console.log("From block", index, "to", blockNumber, "sealers count", sealers.length, "blocks count", blocks.length);
 
-        const blockNumbers = [];
         for (; index < blockNumber; index++) blockNumbers.push(index);
         const loadedBlocks = await Promise.all(blockNumbers.map(index=>web3.eth.getBlock(index, false)));
         for (const block of loadedBlocks) {
-            // const block = await web3.eth.getBlock(index, false);
             try {
                 const r = await logicOnNewBloc(web3, blocks, sealers, block);
                 blocks = r.blocks;
@@ -419,6 +433,7 @@ const actions = {
         // The below is asynchronous as it does not prevent the dashboard from starting
         $store.dispatch("auth/fetchRole");
     },
+
     async fetchOneNodeInfo({rootState}, address) {
         const web3 = rootState.auth.web3;
         // ensure blocks are loaded, because it needs the blocks to find the node

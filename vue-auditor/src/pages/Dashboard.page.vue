@@ -141,7 +141,7 @@
 
 <script>
 import { get, call } from "vuex-pathify";
-import { handleMM } from '../lib/api';
+// import { handleMM } from '../lib/api';
 import { gradientGreenToRed } from '../lib/colors'
 import { to1000s } from '../lib/numbers'
 import Explorer from "../components/ExplorerRedirect.vue";
@@ -166,10 +166,15 @@ export default {
     };
   },
   async mounted() {
-    await this.fetchAllValues();
-    await handleMM(this.fetchChainInformations)
-    await this.subscribeToChainUpdates();
-    await this.initBackupLoop();
+    console.log("Dashboard mounted");
+    try {
+      await this.fetchAllValues();
+      await this.fetchChainInformations();
+      await this.subscribeToChainUpdates();
+      await this.initBackupLoop();
+    } catch (error) {
+      console.error("Fail loading dashboard", error);      
+    }
 
   },
   computed: {

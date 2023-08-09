@@ -6,7 +6,7 @@
     </div>
     <div v-if="providerMetamask">
       <v-row>
-        <v-col cols="4" v-for="network of networks" :key="network.chainId">
+        <v-col  v-for="network of networks" :key="network.chainId">
           <v-card>
             <v-card-title>{{network.name}}</v-card-title>
             <v-card-text>
@@ -30,18 +30,19 @@ import router from "../router.js";
 
 export default {
   data: ()=>({
-    networks: []
+    // networks: []
   }),
   computed: {
     ...get(["config"]),
-    ...get("auth", ["provider", "providerModel", "providerMetamask", "wallet"]),
+    ...get("auth", ["provider", "providerModel", "providerMetamask", "wallet", "chainsNetworks"]),
+    networks(){ return this.chainsNetworks }
   },
 
   async mounted() {
     // await this.detectProvider();
-    const res = await fetch('https://chainid.network/chains.json')
-    const all = await res.json()
-    this.networks = all.filter(n=>n.chain == 'CRC')
+    // const res = await fetch('https://chainid.network/chains.json')
+    // const all = await res.json()
+    // this.networks = all.filter(n=>n.chain == 'CRC')
   },
 
   methods: {

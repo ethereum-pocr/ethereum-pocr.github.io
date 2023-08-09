@@ -67,7 +67,7 @@ export function intf(provider) {
         const web3 = $store.get("auth/web3");
         result = new Web3FunctionProvider(web3, (list) => Promise.resolve(list[0]))
     }
-    if (model == "direct") {
+    if (model == "direct" || model == "anonymous") {
         const wallet = $store.get("auth/wallet");
         if (wallet) {
             const custody = getCustodyApi();
@@ -85,7 +85,7 @@ export function intf(provider) {
         return result;
     } 
 
-    throw new Error("should not be calling the api functions without deciding the provider (metamask or direct)")
+    throw new Error("should not be calling the api functions without deciding the provider (metamask or direct or anonymous)")
 }
 
 const globalTimerList={};

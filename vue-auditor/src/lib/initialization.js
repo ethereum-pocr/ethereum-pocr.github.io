@@ -9,7 +9,7 @@ export function setupAuthNavigationGuard(router, store) {
     
     try {
       if (to.name == "installMetaMask") return next();
-      if (store.state.auth.providerModel == "none") return next({name:"installMetaMask"});
+      // if (store.state.auth.providerModel == "none") return next({name:"installMetaMask"});
       if (to.name == "authentication") return next();
       if (store.state.auth.providerModel == "both") return next({name:"authentication"});
       if (store.state.auth.providerModel == "switchMetamask") return next({name:"installMetaMask"});
