@@ -6,7 +6,7 @@ const appInsights = new ApplicationInsights({ config: {
   /* ...Other Configuration Options... */
 } });
 appInsights.loadAppInsights();
-appInsights.trackPageView(); // Manually call trackPageView to establish the current user/session/pageview
+trackPageView(); // Manually call trackPageView to establish the current user/session/pageview
 
 
 window.addEventListener("unhandledrejection", (event) => {
@@ -14,9 +14,11 @@ window.addEventListener("unhandledrejection", (event) => {
 });
 
 export function trackPageView() {
-  appInsights.trackPageView({uri: window.location.href});
+  if (window.location.hostname !== "localhost")
+    appInsights.trackPageView({uri: window.location.href});
 }
 
 export function trackEvent(name, properties) {
-  appInsights.trackEvent({name, properties});
+  if (window.location.hostname !== "localhost")
+    appInsights.trackEvent({name, properties});
 }

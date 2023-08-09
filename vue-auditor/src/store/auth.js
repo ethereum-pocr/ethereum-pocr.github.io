@@ -16,10 +16,12 @@ import { intf, getContractInstance } from '../lib/api.js';
 const state = () => ({
     web3: null, // the web3 instance to avoid recreating it each time, because it has a side effect on the events of the provider
     intf: null, // similarly the intf instance should not be recreated each time
+    chainsNetworks: [],
     provider: null,
     providerMetamask: null,
     providerDirect: null,
-    providerModel: null, // "metamask" or "direct" or "both" (if both are available)
+    providerAnonymous: null,
+    providerModel: null, // "metamask" or "direct" or "anonymous" or "both" (if both are available)
     custodyModel: null, // "metamask" or "api" or null if not available
     custodyApiUrl: null, // the url of the custody api when the custody model is "api"
     wallet: null,
@@ -52,6 +54,9 @@ const getters = {
         }
         if (state.providerModel == "direct") {
             return state.providerDirect.explorerUrl;
+        }
+        if (state.providerModel == "anonymous") {
+            return state.providerAnonymous.explorerUrl;
         }
         return undefined;
     },
@@ -111,13 +116,6 @@ async function detectMetamask() {
     } else return undefined;
 }
 
-// function directConnectionState(state) {
-//     let p = state.auth.providerDirect;
-//     if (p) p=p.provider;
-//     if (p) return p.connection.readyState;
-//     return -1;
-// }
-
 async function detectDirectAccess() {
     const config = $store.get("config");
     const existingProvider = $store.state.auth.providerDirect;
@@ -153,6 +151,41 @@ async function detectDirectAccess() {
         return undefined
     }
 }
+
+function getAnonymounsDefaultNetwork(chainsNetworks) {
+    const network = chainsNetworks.find(n=>n.chainId==2606)
+    return network;
+}
+
+async function createDirectAnonymousAccess(network) {
+    if (!network || !network.rpc) throw new Error("Invalid network config: "+JSON.stringify(network));
+    const existingProvider = $store.state.auth.providerDirect;
+    if (existingProvider) {
+        // console.log("detectDirectAccess connection state", existingProvider?.provider?.connected, existingProvider?.provider?.connection?.readyState, directConnectionState($store.state))
+        // need to close the connection and release what resources have been used
+        if (existingProvider.provider && existingProvider.provider.disconnect && existingProvider.provider.connected) {
+            existingProvider.provider.disconnect(3000, "Not needed anymore")
+        }
+    }
+    const wsRpc = network.rpc.find(rpc=>rpc.startsWith("ws"));
+    const explorer = network.explorers.find(e=>e.url);
+    if (wsRpc) {
+        // first create a direct provider without the wallet custody
+        const result = {
+            providerModel: "anonymous",
+            provider: getWeb3ProviderFromUrl(wsRpc),
+            custodyModel: null,
+            custodyApiUrl: null,
+            chainID: network.chainId,
+            explorerUrl: explorer?explorer.url:undefined
+        }
+        return result;
+    } else {
+        console.log("Note: No direct anonymous web3 access possible");
+        return undefined
+    }
+}
+
 const actions = {
 
     async checkNetworkProofOfCarbonReduction() {
@@ -242,19 +275,28 @@ const actions = {
     },
 
     async detectProvider({dispatch, commit, state, rootState}, {renew=false}={}) {
+        // If there is not yet the loaded networks load them
+        if (state.chainsNetworks.length==0) {
+            const res = await fetch('https://chainid.network/chains.json')
+            const all = await res.json()
+            commit("chainsNetworks", all.filter(n=>n.chain == 'CRC'));
+        }
+
         // Just to make sure, if you do not have the smart contract instance yet, we instanciate it.
         if (!state.contract) {
             commit("contract", getContractInstance())
         }  
         console.log("Before detecting providers", renew);
         const currentModel = $store.get("auth/providerModel");
-        if (!["metamask", "direct"].includes(currentModel) && renew) { renew = false; }
+        if (!["metamask", "direct", "anonymous"].includes(currentModel) && renew) { renew = false; }
         try {
             if (!rootState.config) await $store.dispatch("fetchConfig");
             let nbProviders = 0;
 
             let providerMetamask = undefined;
             let providerDirect = undefined;
+            let providerAnonymous = undefined;
+
             if (!renew || (renew && currentModel=="metamask")) {
                 providerMetamask = await detectMetamask();
                 if (providerMetamask) {
@@ -268,6 +310,14 @@ const actions = {
                     nbProviders ++;
                 } 
             }
+ 
+            if (!renew || (renew && currentModel=="anonymous")) {
+                const network = getAnonymounsDefaultNetwork($store.get("auth/chainsNetworks"))
+                if (network) providerAnonymous = await createDirectAnonymousAccess(network);
+                if (providerAnonymous) {
+                    nbProviders ++;
+                } 
+            }
             if (nbProviders == 0) {
                 // router.push({ name: "installMetaMask" }); 
                 $store.set("auth/providerModel", "none");
@@ -276,11 +326,13 @@ const actions = {
             
             $store.set("auth/providerMetamask", providerMetamask);
             $store.set("auth/providerDirect", providerDirect);
+            $store.set("auth/providerAnonymous", providerAnonymous);
+
             if (nbProviders > 1) {
                 $store.set("auth/providerModel", "both");
                 // return router.push({ name: "authentication" }); 
             } else { // a single provider detected, can skip the decision process
-                const provider = providerDirect || providerMetamask; // will get one that is not null
+                const provider = providerDirect || providerMetamask || providerAnonymous; // will get one that is not null
                 await dispatch("setConnection", provider);
                 // $store.set("auth/provider", provider.provider);
                 // $store.set("auth/providerModel", provider.providerModel);
@@ -371,6 +423,17 @@ const actions = {
                 $store.set("auth/wallet", wallet);
             }
         }
+        await dispatch("fetchRole");
+        router.push({ name: "dashboard" });
+    },
+
+    async openWeb3DirectAnonymousConnection({ dispatch }, network) {
+        // force reset the wallet
+        $store.set("auth/wallet", null);
+
+        const provider = await createDirectAnonymousAccess(network); // read again the default config now that it is chaged
+        $store.set("auth/providerAnonymous", provider);
+        dispatch("setConnection", provider);
         await dispatch("fetchRole");
         router.push({ name: "dashboard" });
     },
